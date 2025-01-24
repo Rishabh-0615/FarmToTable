@@ -4,8 +4,14 @@ import connectDb from './database/db.js';
 import bodyParser from 'body-parser';
 import path from 'path';
 import cookieParser from 'cookie-parser';
+import cloudinary from 'cloudinary';
 dotenv.config();
 const port=process.env.PORT || 5000;
+cloudinary.v2.config({
+    cloud_name: process.env.Cloud_Name,
+    api_key: process.env.Cloud_Api,
+    api_secret: process.env.Cloud_Secret,
+  });
 
 const app=express();
 
@@ -15,8 +21,11 @@ app.use(express.json());
 app.use(cookieParser());
 
 import userRoutes from './routes/userRoutes.js';
+import farmerRoutes from './routes/farmerRoutes.js'
 
 app.use("/api/user",userRoutes);
+app.use("/api/user/farmer",farmerRoutes)
+
 
 
 app.listen(port , ()=>{

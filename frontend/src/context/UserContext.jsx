@@ -8,6 +8,7 @@ export const UserProvider = ({ children }) => {
     const [user, setUser] = useState([]);
     const [isAuth, setIsAuth] = useState(false);
     const [btnLoading, setBtnLoading] = useState(false);
+    
   
     // Function to handle user login
     async function loginUser(email, password,role, navigate) {
@@ -20,7 +21,7 @@ export const UserProvider = ({ children }) => {
         setIsAuth(true);
         setBtnLoading(false);
         if(Role==="farmer"){
-          navigate("/newpage");
+          navigate("/farmer");
         }
       } catch (error) {
         toast.error(error.response.data.message);
