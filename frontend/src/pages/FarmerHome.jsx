@@ -1,47 +1,55 @@
-import React, { useEffect } from 'react'
-import FarmerNavbar from './FarmerNavbar'
-import { HeroSection } from './HeroSection'
-import { Footer } from './Footer'
-import Navbar from './Navbar'
-import { ProductData } from '../context/FarmerContext'
-import { Loading } from '../components/Loading'
-import ItemCard from '../components/ItemCard'
-import ItemCardHome from '../components/ItemCardHome'
+import React, { useEffect } from 'react';
+import FarmerNavbar from './FarmerNavbar';
+import { HeroSection } from './HeroSection';
+import { Footer } from './Footer';
+import { ProductData } from '../context/FarmerContext';
+import { Loading } from '../components/Loading';
+import ItemCardHome from '../components/ItemCardHome';
 
 const FarmerHome = () => {
+  const { fetchProducts, products, loading } = ProductData();
+  console.log(products);
 
-  const {fetchProducts,products,loading}=ProductData()
-  console.log(products)
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
-  useEffect(()=>{
-      fetchProducts();
-    },[]);
   return (
-    <div>
-
-      <HeroSection/>
+    <div className="bg-gray-50 min-h-screen">
+      {/* Hero Section */}
+      <HeroSection />
       
-      {
-        loading? <Loading/> :(<div className=' max-w-7xl mx-auto py-6 sm:px-6 lg:px-8 ' >
-          <div className='px-4 py-6 sm:px-0'>
-            <div className='flex flex-wrap m-4'>
-                {
-                  products && products.length>0? products.map((e,i)=>(
-                    <p><ItemCardHome key={i} product={e} /></p>
-                  )) : <p>No Products yet</p>
-                }
+      {/* Product Display Section */}
+      {loading ? (
+        <Loading />
+      ) : (
+        <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+          <div className="px-4 py-6 sm:px-0">
+            {/* Grid Layout for Items */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+              {products && products.length > 0 ? (
+                products.map((product, i) => (
+                  <div
+                    key={i}
+                    className="flex justify-center"
+                  >
+                    <ItemCardHome product={product} />
+                  </div>
+                ))
+              ) : (
+                <p className="text-center text-xl text-gray-600 col-span-full">
+                  No Products Yet
+                </p>
+              )}
             </div>
           </div>
-          
-          </div>)
-        }
+        </div>
+      )}
 
-      
-     
-      <Footer/>
-      
+      {/* Footer Section */}
+      <Footer />
     </div>
-  )
-}
+  );
+};
 
-export default FarmerHome
+export default FarmerHome;

@@ -64,7 +64,8 @@ const MyListings = ({ user }) => {
       ) : (
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           <div className="px-4 py-6 sm:px-0">
-            <div className="flex flex-wrap m-4">
+            <h2 className="text-3xl font-bold text-gray-900 text-center mb-6">My Product Listings</h2>
+            <div className="flex flex-wrap gap-6 justify-center">
               {userProducts && userProducts.length > 0 ? (
                 userProducts.map((product) => (
                   <ItemCard
@@ -75,7 +76,7 @@ const MyListings = ({ user }) => {
                   />
                 ))
               ) : (
-                <p>No products yet</p>
+                <p className="text-xl text-gray-500">You haven't listed any products yet.</p>
               )}
             </div>
           </div>

@@ -46,12 +46,6 @@ export const registerWithOtp = TryCatch(async (req, res) => {
         });
     }
 
-    const existingName = await User.findOne({name});
-    if(existingName){
-        return res.status(400).json({
-            message:"An account with this name already exists",
-        });
-    }
   
     const otp = crypto.randomInt(100000, 999999);
     TEMP_USERS[email] = {

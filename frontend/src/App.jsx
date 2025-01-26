@@ -12,6 +12,9 @@ import MyListings from "./pages/MyListings";
 import AddProduct from "./pages/AddProduct";
 import Navbar from "./pages/Navbar";
 import FarmerNavbar from "./pages/FarmerNavbar";
+import ConsumerNavbar from "./pages/ConsumerNavbar"; // Import ConsumerNavbar
+import Consumer from "./pages/Consumer";
+import CartPage from "./pages/CartPage";
 
 const App = () => {
   const { user, loading, isAuth } = UserData();
@@ -31,14 +34,19 @@ const AppWithLocation = ({ user, isAuth }) => {
   const location = useLocation(); // Hook is now inside BrowserRouter context
 
   // Determine which navbar to display
-  const showFarmerNavbar =
-    isAuth &&
-    user.role === "farmer" 
+  const showFarmerNavbar = isAuth && user.role === "farmer";
+  const showConsumerNavbar = isAuth && user.role === "customer";
 
   return (
     <>
       {/* Conditionally render navbar */}
-      {showFarmerNavbar ? <FarmerNavbar /> : <Navbar />}
+      {showFarmerNavbar ? (
+        <FarmerNavbar />
+      ) : showConsumerNavbar ? (
+        <ConsumerNavbar />
+      ) : (
+        <Navbar />
+      )}
 
       <Routes>
         <Route path="/" element={<Home />} />
@@ -66,12 +74,23 @@ const AppWithLocation = ({ user, isAuth }) => {
             )
           }
         />
+        <Route
+          path="/consumer"
+          element={
+            isAuth && user.role === "customer" ? (
+              <Consumer />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+        />
         <Route path="/register" element={isAuth ? <Home /> : <Register />} />
         <Route path="/verify/:token" element={isAuth ? <Home /> : <Verify />} />
         <Route path="/forgot" element={<Forgot />} />
         <Route path="/reset-password/:token" element={<Reset />} />
         <Route path="/mylistings" element={<MyListings user={user} />} />
         <Route path="/addproduct" element={<AddProduct />} />
+        <Route path="/cart" element={<CartPage/>}/>
       </Routes>
     </>
   );

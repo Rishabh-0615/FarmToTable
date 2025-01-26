@@ -1,11 +1,11 @@
 import React from "react";
-
+import myimg from '../assets/logo.png'
 const FarmerNavbar = () => {
   return (
     <nav style={styles.nav}>
       <div style={styles.container}>
         <a href="/farmer" style={styles.brand}>
-          <img src="/logo.svg" alt="Farm to Table Logo" style={styles.logo} />
+          <img src={myimg} alt="Farm to Table Logo" style={styles.logo} />
           <span style={styles.title}>Farm to Table</span>
         </a>
         <ul style={styles.navList}>
