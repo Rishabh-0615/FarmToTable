@@ -1,6 +1,6 @@
 import express from 'express';
 import { isAuth } from '../middlewares/isAuth.js';
-import { addCart, getCart, placeOrder } from '../controllers/CustomerControllers.js';
+import { addCart, geocode, getCart, getOrders, optimizeRoute, placeOrder, reverseGeocode } from '../controllers/CustomerControllers.js';
 const router = express.Router();
 
 router.post("/add", isAuth, addCart);
@@ -11,5 +11,10 @@ router.get("/getcart", isAuth, getCart);
 
 router.post("/order", isAuth, placeOrder);
 
+router.get("/getorder",isAuth,getOrders)
+
+router.post("/geocode",isAuth,geocode)
+router.post("/reverse",isAuth,reverseGeocode)
+router.post("/optimize",isAuth,optimizeRoute)
 
 export default router;

@@ -17,6 +17,7 @@ const FarmerNavbar = () => {
             <a href="/addproduct" style={styles.navLink}>Add Product</a>
           </li>
           
+          
         </ul>
       </div>
     </nav>

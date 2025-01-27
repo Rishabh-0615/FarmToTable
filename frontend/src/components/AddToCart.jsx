@@ -1,24 +1,45 @@
-import React, { useState } from "react";
-import { ShoppingCart } from "lucide-react";
+import React, { useState } from 'react';
+import RouteMap from './RouteMap';
 
-export default function AddToCart({ product }) {
-  const [isAdded, setIsAdded] = useState(false);
+const AddToCart = () => {
+  // Mock route data (replace with real data from your API)
+  const mockRouteData = {
+    routes: [
+      {
+        overview_polyline: {
+          points:
+            '_p~iF~ps|U_ulLnnqC_mqNvxq`@',
+        },
+      },
+    ],
+    start_location: {
+      lat: 37.772,
+      lng: -122.214,
+    },
+    end_location: {
+      lat: 37.774,
+      lng: -122.419,
+    },
+  };
 
-  const handleAddToCart = () => {
-    // Simulate adding the item to a cart
-    setIsAdded(true);
-    setTimeout(() => setIsAdded(false), 2000); // Reset after 2 seconds
+  const [routeData, setRouteData] = useState(null);
+
+  const handleShowRoute = () => {
+    // Simulate fetching data from an API
+    setRouteData(mockRouteData);
   };
 
   return (
-    <button
-      onClick={handleAddToCart}
-      className={`px-6 py-3 rounded-full transition-all duration-300 transform hover:scale-105 active:scale-95 flex items-center justify-center ${
-        isAdded ? "bg-green-600 text-white" : "bg-green-500 text-white hover:bg-green-600"
-      }`}
-    >
-      <ShoppingCart className="w-5 h-5 mr-2" />
-      {isAdded ? "Added to Cart" : "Add to Cart"}
-    </button>
+    <div>
+      <h1>Route Map Example</h1>
+      <button onClick={handleShowRoute}>Show Route</button>
+      {routeData ? (
+        <RouteMap routeData={routeData} />
+      ) : (
+        <p>Click the button to display the route on the map.</p>
+      )}
+    </div>
   );
-}
+};
+
+export default AddToCart;

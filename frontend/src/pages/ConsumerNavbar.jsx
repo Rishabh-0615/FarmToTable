@@ -1,7 +1,29 @@
 import React from "react";
 import { ShoppingCart, User } from "lucide-react";
+import { UserData } from "../context/UserContext";
+import { useNavigate } from "react-router-dom";
+import toast,{Toaster} from "react-hot-toast";
+import axios from "axios";
 
 export default function ConsumerNavbar() {
+
+  
+  const navigate = useNavigate();
+  const { setIsAuth, setUser } = UserData();
+  const logoutHandler = async () => {
+    try {
+      const { data } = await axios.get("/api/user/logout");
+      toast.success(data.message); // Display success message
+      navigate("/"); // Redirect to home page
+      setIsAuth(false); // Update authentication state
+      setUser([]); // Clear user data
+    } catch (error) {
+      // Handle error properly
+      const errorMessage = error.response ? error.response.data.message : error.message;
+      toast.error(errorMessage); // Display error message
+    }
+  };
+  
   return (
     <header className="bg-green-600 text-white">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -21,8 +43,16 @@ export default function ConsumerNavbar() {
                   <span className="absolute bottom-[-4px] left-0 w-0 h-0.5 bg-green-200 transition-all duration-300 group-hover:w-full"></span>
                 </a>
               </li>
+              
+
             ))}
           </ul>
+          <button
+              onClick={logoutHandler}
+              className="bg-red-600 hover:bg-red-800 px-4 py-2 rounded"
+            >
+              Logout
+            </button>
         </nav>
       </div>
     </header>

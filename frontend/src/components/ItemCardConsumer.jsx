@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import toast, {Toaster} from "react-hot-toast"
 
 const ItemCardConsumer = ({ product }) => {
   const [quantity, setQuantity] = useState(1);
@@ -10,10 +11,10 @@ const ItemCardConsumer = ({ product }) => {
         productId: product._id,
         quantity,
       });
-      alert(response.data.message);
+      toast.success(response.data.message);
     } catch (error) {
       console.error("Add to Cart Error:", error.response?.data?.error || error.message);
-      alert(error.response?.data?.error || "Failed to add product to cart.");
+      toast.error(error.response?.data?.error || "Failed to add product to cart.");
     }
   };
 
