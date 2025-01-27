@@ -1,6 +1,26 @@
 import React from "react";
 import myimg from '../assets/logo.png'
+import { useNavigate } from "react-router-dom";
+import { UserData } from "../context/UserContext";
+import toast,{Toaster} from "react-hot-toast";
+import axios from "axios";
 const FarmerNavbar = () => {
+
+  const navigate = useNavigate();
+  const { setIsAuth, setUser } = UserData();
+  const logoutHandler = async () => {
+    try {
+      const { data } = await axios.get("/api/user/logout");
+      toast.success(data.message); // Display success message
+      navigate("/"); // Redirect to home page
+      setIsAuth(false); // Update authentication state
+      setUser([]); // Clear user data
+    } catch (error) {
+      // Handle error properly
+      const errorMessage = error.response ? error.response.data.message : error.message;
+      toast.error(errorMessage); // Display error message
+    }
+  };
   return (
     <nav style={styles.nav}>
       <div style={styles.container}>
@@ -16,9 +36,17 @@ const FarmerNavbar = () => {
           <li style={styles.navItem}>
             <a href="/addproduct" style={styles.navLink}>Add Product</a>
           </li>
+          <button
+              onClick={logoutHandler}
+              className="bg-red-600 hover:bg-red-800 px-4 py-2 rounded"
+            >
+              Logout
+            </button>
           
           
         </ul>
+        
+        
       </div>
     </nav>
   );
