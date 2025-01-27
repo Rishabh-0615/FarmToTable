@@ -1,6 +1,6 @@
 import express from 'express';
 import { isAuth } from '../middlewares/isAuth.js';
-import { addCart, geocode, getCart, getOrders, optimizeRoute, placeOrder, reverseGeocode } from '../controllers/CustomerControllers.js';
+import { addCart, geocode, getCart, getOrders, optimizeRoute, placeOrder, reverseGeocode } from '../controllers/customerControllers.js';
 const router = express.Router();
 
 router.post("/add", isAuth, addCart);
