@@ -118,6 +118,8 @@ export const UserProvider = ({ children }) => {
           isAuth,
           user,
           loading,
+          setIsAuth,
+          setUser,
           registerUser,
           verifyUser,
           forgotUser,

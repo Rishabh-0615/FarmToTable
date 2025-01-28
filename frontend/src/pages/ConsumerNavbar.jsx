@@ -13,14 +13,15 @@ export default function ConsumerNavbar() {
   const logoutHandler = async () => {
     try {
       const { data } = await axios.get("/api/user/logout");
-      toast.success(data.message); // Display success message
-      navigate("/"); // Redirect to home page
-      setIsAuth(false); // Update authentication state
-      setUser([]); // Clear user data
+      toast.success(data.message); 
+      setIsAuth(false); 
+      setUser([]);
+      navigate("/"); 
+       
     } catch (error) {
-      // Handle error properly
+      //
       const errorMessage = error.response ? error.response.data.message : error.message;
-      toast.error(errorMessage); // Display error message
+      toast.error(errorMessage); 
     }
   };
   

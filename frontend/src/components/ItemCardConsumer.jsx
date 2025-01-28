@@ -1,12 +1,17 @@
 import React, { useState } from "react";
 import axios from "axios";
-import toast, {Toaster} from "react-hot-toast"
+import toast, { Toaster } from "react-hot-toast";
 
 const ItemCardConsumer = ({ product }) => {
   const [quantity, setQuantity] = useState(1);
 
   const handleAddToCart = async () => {
     try {
+      if (quantity > product.quantity) {
+        toast.error("Not enough stock available.");
+        return;
+      }
+
       const response = await axios.post("/api/user/customer/add", {
         productId: product._id,
         quantity,
@@ -38,7 +43,7 @@ const ItemCardConsumer = ({ product }) => {
         <span>{quantity}</span>
         <button
           className="px-3 py-1 bg-gray-200 rounded-md"
-          onClick={() => setQuantity((prev) => prev + 1)}
+          onClick={() => setQuantity((prev) => Math.min(prev + 1, product.quantity))}
         >
           +
         </button>

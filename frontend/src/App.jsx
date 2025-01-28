@@ -53,7 +53,20 @@ const AppWithLocation = ({ user, isAuth }) => {
       )}
 
       <Routes>
-        <Route path="/" element={<Home />} />
+      <Route
+          path="/"
+          element={
+            isAuth ? (
+              user.role === "farmer" ? (
+                <Navigate to="/farmer" />
+              ) : (
+                <Navigate to="/consumer" />
+              )
+            ) : (
+              <Home />
+            )
+          }
+        />
         <Route
           path="/login"
           element={
@@ -88,14 +101,42 @@ const AppWithLocation = ({ user, isAuth }) => {
             )
           }
         />
-        <Route path="/register" element={isAuth ? <Home /> : <Register />} />
-        <Route path="/verify/:token" element={isAuth ? <Home /> : <Verify />} />
-        <Route path="/forgot" element={<Forgot />} />
+        <Route
+          path="/register"
+          element={
+            isAuth ? (
+              user.role === "farmer" ? (
+                <Navigate to="/farmer" />
+              ) : (
+                <Navigate to="/consumer" />
+              )
+            ) : (
+              <Register />
+            )
+          }
+        />
+        
+        <Route path="/verify/:token" element={<Verify />} />
+        <Route
+          path="/forgot"
+          element={
+            isAuth ? (
+              user.role === "farmer" ? (
+                <Navigate to="/farmer" />
+              ) : (
+                <Navigate to="/consumer" />
+              )
+            ) : (
+              <Forgot />
+            )
+          }
+        />
         <Route path="/reset-password/:token" element={<Reset />} />
-        <Route path="/mylistings" element={<MyListings user={user} />} />
-        <Route path="/addproduct" element={<AddProduct />} />
-        <Route path="/cart" element={<CartPage/>}/>
-        <Route path="/past-orders" element={<OrderPage/>}/>
+        
+        <Route path="/mylistings" element={isAuth && user.role==="farmer"? <MyListings user={user} />:<Home/>} />
+        <Route path="/addproduct" element={isAuth && user.role==="farmer"? <AddProduct />:<Home/>} />
+        <Route path="/cart" element={isAuth && user.role==="customer"? <CartPage/>:<Home/>}/>
+        <Route path="/past-orders" element={isAuth && user.role==="farmer"? <OrderPage/>:<Home/>}/>
         <Route path="/route" element={<RoutePage/>}/>
         <Route path="/routemap" element={<AddToCart/>}/>
       </Routes>

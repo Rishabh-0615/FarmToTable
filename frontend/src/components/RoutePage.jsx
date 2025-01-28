@@ -48,16 +48,49 @@ const RoutePage = () => {
     }
   };
 
-  const handleGetDeviceLocation = async () => {
-    try {
-      const response = await axios.get('/geolocation', { params: { lat: 28.7041, lon: 77.1025 } });  // Example location
-      setDeviceLocation(response.data.location);
-      toast.success('Device location fetched successfully!');
-      console.log(response.data)
-    } catch (error) {
-      toast.error('Failed to get device location.');
+  const [location, setLocation] = useState(null);
+  const GOOGLE_API_KEY = "AIzaSyBp2vxnypb_RIEbySnqcRaGZUMthm5n490";
+
+  const getLocation = async () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+
+          setLocation({ latitude, longitude });
+
+          // Call Google Geocoding API to get the address
+          try {
+            const response = await axios.get(
+              `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_API_KEY}`
+            );
+            const address = response.data.results[0]?.formatted_address;
+            alert(`Current Address: ${address}`);
+          } catch (error) {
+            console.error("Error fetching address", error);
+          }
+
+          // Optionally send location to the backend
+          await saveLocationToBackend(latitude, longitude);
+        },
+        (error) => {
+          alert(`Error getting location: ${error.message}`);
+        }
+      );
+    } else {
+      alert("Geolocation is not supported by this browser.");
     }
   };
+
+  const saveLocationToBackend = async (latitude, longitude) => {
+    try {
+      await axios.post("/api/user/customer/getlocation", { latitude, longitude });
+      alert("Location saved successfully");
+    } catch (error) {
+      console.error("Error saving location", error);
+    }
+  };
+  
 
   return (
     <div className="bg-gray-50 min-h-screen flex items-center justify-center p-4">
@@ -130,20 +163,15 @@ const RoutePage = () => {
         </div>
 
         {/* Device Location */}
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-700">Get Device Location</h2>
-          <button
-            onClick={handleGetDeviceLocation}
-            className="w-full p-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300"
-          >
-            Get Location
-          </button>
-          {deviceLocation && (
-            <div className="mt-4 bg-blue-50 p-4 rounded-md">
-              <pre className="text-gray-700">{JSON.stringify(deviceLocation, null, 2)}</pre>
-            </div>
-          )}
-        </div>
+        <div className="p-4">
+      <h1>Get User Location with Google API</h1>
+      <p>
+        {location && `Latitude: ${location.latitude}, Longitude: ${location.longitude}`}
+      </p>
+      <button onClick={getLocation} className="px-4 py-2 bg-blue-500 text-white rounded-md">
+        Get Location
+      </button>
+    </div>
       </div>
     </div>
   );

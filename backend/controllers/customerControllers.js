@@ -3,6 +3,7 @@ import { Cart } from "../models/cartModel.js";
 import { Product } from "../models/productModel.js";
 import { calculateDistance } from "../utils/distance.js";
 import { Order } from "../models/orderModel.js";
+import { Location } from "../models/locationModel.js";
 import axios from "axios";
 
 const STATIC_HUB_LOCATION = { lat: 18.7128, lon: 73.0060 };
@@ -43,11 +44,12 @@ export const addCart = TryCatch(async (req, res) => {
   }
 
   // Handle add functionality
-  if (product.quantity < quantity) {
-    return res.status(400).json({ error: "Insufficient stock" });
-  }
-
   const existingProductIndex = cart.items.findIndex(item => item.productId.toString() === productId);
+  const currentCartQuantity = existingProductIndex >= 0 ? cart.items[existingProductIndex].quantity : 0;
+
+  if (product.quantity < currentCartQuantity + quantity) {
+    return res.status(400).json({ error: "Insufficient stock available for this product." });
+  }
 
   if (existingProductIndex >= 0) {
     cart.items[existingProductIndex].quantity += quantity;
@@ -62,6 +64,7 @@ export const addCart = TryCatch(async (req, res) => {
     cart,
   });
 });
+
 
 /**
  * Retrieve the cart
@@ -321,3 +324,22 @@ export const optimizeRoute = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+
+export const getLoaction =async(req,res)=>{
+  const { latitude, longitude } = req.body;
+
+  if (!latitude || !longitude) {
+    return res.status(400).json({ error: "Location data is required" });
+  }
+
+  try {
+    const newLocation = new Location({ latitude, longitude });
+    await newLocation.save();
+    res.status(200).json({ message: "Location saved successfully" });
+  } catch (error) {
+    console.error("Error saving location:", error);
+    res.status(500).json({ error: "Failed to save location" });
+  }
+
+}

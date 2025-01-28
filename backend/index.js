@@ -36,25 +36,7 @@ app.use("/api/user/customer",customerRoutes)
 
 
 
-// // Route for Geolocation (Approximate Device Location using nearby cell towers and WiFi nodes)
-// app.get('/geolocation', async (req, res) => {
-//   const { lat, lon } = req.query;
-//   try {
-//     const response = await axios.post(
-//       'https://www.googleapis.com/geolocation/v1/geolocate?key=' + AIzaSyBp2vxnypb_RIEbySnqcRaGZUMthm5n490, {
-//         "considerIp": "true",
-//         "wifiAccessPoints": [{
-//           "macAddress": "01:23:45:67:89:AB",
-//           "signalStrength": -65,
-//           "signalToNoiseRatio": 40
-//         }]
-//       }
-//     );
-//     res.json(response.data);
-//   } catch (error) {
-//     res.status(500).json({ error: 'Failed to get geolocation' });
-//   }
-// });
+// Route for Geolocation (Approximate Device Location using nearby cell towers and WiFi nodes)
 
 const __dirname = path.resolve();
 
