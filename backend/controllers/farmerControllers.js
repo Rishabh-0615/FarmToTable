@@ -5,7 +5,7 @@ import cloudinary from 'cloudinary';
 import uploadFile from "../middlewares/multer.js";  // Import the Multer file upload middleware
 
 export const addProduct = TryCatch(async (req, res) => {
-  const { name, quantity, weight, price, location, condition, notes } = req.body;
+  const { category, name, quantity, weight, price, location, condition, notes } = req.body;
   const file = req.file; // This will be set by Multer middleware
 
   if (!file) {
@@ -15,7 +15,8 @@ export const addProduct = TryCatch(async (req, res) => {
   const fileUrl = getDataUrl(file);
   const cloud = await cloudinary.v2.uploader.upload(fileUrl.content);
 
-  await Product.create({
+  const newProduct = await Product.create({
+    category,
     name,
     quantity,
     weight,
@@ -32,20 +33,25 @@ export const addProduct = TryCatch(async (req, res) => {
 
   res.status(201).json({
     message: "Product Added",
+    product: newProduct,
   });
 });
 
 
-export const getAllProducts=TryCatch(async(req,res)=>{
-    const products=await Product.find().sort({createdAt:-1});
-    res.json(products);
+
+
+export const getAllProducts = TryCatch(async (req, res) => {
+  const products = await Product.find().sort({ createdAt: -1 }); // Sorting by latest listings first
+  res.json(products);
 });
 
 
-export const getSingleProduct=TryCatch(async(req,res)=>{
-    const product=await Product.findById(req.params.id).populate("owner","-password");
-    res.json(product);
+
+export const getSingleProduct = TryCatch(async (req, res) => {
+  const product = await Product.findById(req.params.id).populate("owner", "-password");
+  res.json(product);
 });
+
 export const deleteProduct = TryCatch(async (req, res) => {
     const { id } = req.body;
   
@@ -69,7 +75,7 @@ export const deleteProduct = TryCatch(async (req, res) => {
   
   
   export const editProduct = TryCatch(async (req, res) => {
-    const { id, name, price, quantity } = req.body;
+    const { id, name, price, quantity ,category} = req.body;
 
   try {
     const product = await Product.findById(id);
@@ -80,6 +86,7 @@ export const deleteProduct = TryCatch(async (req, res) => {
     product.name = name || product.name;
     product.price = price || product.price;
     product.quantity = quantity || product.quantity;
+    product.category=category || product.category;
 
     await product.save();
     res.status(200).json({ message: "Product updated successfully" });

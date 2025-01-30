@@ -30,7 +30,7 @@ const ItemCardConsumer = ({ product }) => {
         alt={product.name}
         className="w-full h-40 object-cover rounded-md mb-3"
       />
-      <h2 className="text-lg font-semibold">{product.name}</h2>
+      <p className="text-gray-600">Name: {product.name}</p>
       <p className="text-gray-600">Price: ₹{product.price}</p>
       <p className="text-gray-600">Available: {product.quantity}</p>
       <div className="flex items-center mt-4 space-x-3">

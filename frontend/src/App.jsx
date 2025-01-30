@@ -21,7 +21,7 @@ import RouteMap from "./components/RouteMap";
 import AddToCart from "./components/AddToCart";
 
 const App = () => {
-  const { user, loading, isAuth } = UserData();
+  const { user, loading, isAuth,fetchUser } = UserData();
 
   if (loading) {
     return <Loading />;
@@ -40,6 +40,7 @@ const AppWithLocation = ({ user, isAuth }) => {
   // Determine which navbar to display
   const showFarmerNavbar = isAuth && user.role === "farmer";
   const showConsumerNavbar = isAuth && user.role === "customer";
+  
 
   return (
     <>

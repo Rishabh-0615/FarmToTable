@@ -23,7 +23,7 @@ export const Footer = () => {
         </div>
       </div>
       <div className="container mx-auto mt-8 pt-4 border-t border-green-800/20 flex flex-col md:flex-row justify-between items-center">
-        <p className="text-center md:text-left">&copy; 2023 Farm to Table Marketplace. All rights reserved.</p>
+        <p className="text-center md:text-left">&copy; 2025 Farm to Table Marketplace. All rights reserved.</p>
         <Link to="/terms" className="hover:text-green-600 transition-colors underline mt-4 md:mt-0 mr-3">Terms of Service</Link>
       </div>
     </footer>
