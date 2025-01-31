@@ -19,6 +19,7 @@ import OrderPage from "./pages/OrderPage";
 import RoutePage from "./components/RoutePage";
 import RouteMap from "./components/RouteMap";
 import AddToCart from "./components/AddToCart";
+import Empty from "./pages/Empty";
 import Account from "./pages/Account";
 
 const App = () => {
@@ -50,7 +51,7 @@ const AppWithLocation = ({ user, isAuth }) => {
       ) : showConsumerNavbar ? (
         <ConsumerNavbar />
       ) : (
-        <Navbar />
+        <Empty />
       )}
 
       <Routes>

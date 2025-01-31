@@ -7,12 +7,13 @@ import { Footer } from './Footer';
 
 const Home = () => {
   return (
-    <div className="bg-gradient-to-r from-emerald-600 to-teal-600">
+    
+    <div>
 
-      
-     
-        <HeroSection />
-      
+      <Navbar/>
+      <HowItWorks/>
+      <AboutUs/>
+      <Footer/>
       
       <HowItWorks />
       <AboutUs />
