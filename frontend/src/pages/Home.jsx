@@ -10,10 +10,10 @@ import AddProduct from './AddProduct'
 const Home = () => {
 
   return (
+    
     <div>
-      
-      
-     
+
+      <Navbar/>
       <HowItWorks/>
       <AboutUs/>
       <Footer/>
