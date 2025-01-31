@@ -12,20 +12,23 @@ const schema = new mongoose.Schema(
       unique: true,
     },
     mobile: {
-        type: String,
-        required: true,
-        unique: true,
-      },
-
+      type: String,
+      required: true,
+      unique: true,
+    },
     password: {
       type: String,
       required: true,
     },
     role: {
-        type: String,
-        enum: ['farmer', 'customer','delivery boy'],
-        required: true,
-      },
+      type: String,
+      enum: ['farmer', 'customer', 'delivery boy'],
+      required: true,
+    },
+    location: { // This will now be a string (manual address)
+      type: String,
+      default: "",
+    },
   },
   {
     timestamps: true,

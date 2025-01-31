@@ -291,6 +291,49 @@ export const myProfile=TryCatch(async(req,res)=>{
     res.json(user);
 })
 
+
+export const updateProfile = async (req, res) => {
+  try {
+    const { name, mobile, location } = req.body;
+
+    // Input Validation
+    if (name && typeof name !== "string") {
+      return res.status(400).json({ message: "Invalid name format" });
+    }
+    if (mobile && !/^\d{10}$/.test(mobile)) {
+      return res.status(400).json({ message: "Invalid mobile number format" });
+    }
+    if (location && typeof location !== "string") {
+      return res.status(400).json({ message: "Invalid location format" });
+    }
+
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update User Fields
+    user.name = name || user.name;
+    user.mobile = mobile || user.mobile;
+    if (location !== undefined && location !== null) {
+      user.location = location;
+    }
+
+    await user.save();
+
+    const { password, ...updatedUser } = user.toObject(); // Exclude sensitive fields
+    res.json({ message: "Profile updated successfully", user: updatedUser });
+
+  } catch (error) {
+    console.error("Update profile error:", error);
+    res.status(500).json({ message: "Failed to update profile", error: error.message });
+  }
+};
+
+
+
+
 export const userProfile= TryCatch(async(req,res)=>{
     const user= await User.findById(req.params.id).select("-password");
     res.json(user);

@@ -2,55 +2,5 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer utilities {
-    .animate-fade-in {
-    animation: fadeIn 0.5s ease-in;
-    }
-    
-    .animate-slide-up {
-    animation: slideUp 0.5s ease-out;
-    }
-    
-    .animate-bounce-in {
-    animation: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    }
-    }
-    
-    @keyframes fadeIn {
-    from {
-    opacity: 0;
-    }
-    to {
-    opacity: 1;
-    }
-    }
-    
-    @keyframes slideUp {
-    from {
-    transform: translateY(20px);
-    opacity: 0;
-    }
-    to {
-    transform: translateY(0);
-    opacity: 1;
-    }
-    }
-    
-    @keyframes bounceIn {
-    0% {
-    transform: scale(0.3);
-    opacity: 0;
-    }
-    50% {
-    transform: scale(1.05);
-    opacity: 0.8;
-    }
-    70% {
-    transform: scale(0.9);
-    opacity: 0.9;
-    }
-    100% {
-    transform: scale(1);
-    opacity: 1;
-    }
-    }
+
+  

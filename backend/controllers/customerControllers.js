@@ -343,3 +343,83 @@ export const getLoaction =async(req,res)=>{
   }
 
 }
+
+
+
+export const clearCart = TryCatch(async (req, res) => {
+  // Ensure the user is authenticated and the user object exists
+  if (!req.user || !req.user._id) {
+    return res.status(400).json({ error: "User not authenticated" });
+  }
+
+  const user = req.user._id;  // Corrected user access
+  console.log('Authenticated User ID:', user);
+
+  // Find the cart using the consumer's user ID
+  const cart = await Cart.findOne({ consumer: user });
+
+  if (!cart) {
+    return res.status(404).json({ error: "No cart found to clear" });
+  }
+
+  // Clear the cart items and reset other fields
+  cart.items = [];
+  cart.totalPrice = 0;
+  cart.deliveryFee = 0;
+  cart.finalPrice = 0;
+
+  try {
+    // Save the cleared cart
+    await cart.save();
+    return res.status(200).json({ message: "Cart cleared successfully" });
+  } catch (err) {
+    console.error('Error clearing cart:', err);
+    return res.status(500).json({ error: "Failed to clear the cart. Please try again." });
+  }
+});
+
+
+
+
+export const searchProducts = async (req, res) => {
+  const { query } = req.query;
+
+  if (!query) {
+    return res.status(400).json({ error: "Search query is required" });
+  }
+
+  try {
+    const products = await Product.find({
+      name: { $regex: query, $options: "i" },
+    });
+    return res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to search products" });
+  }
+};
+
+
+export const mockApi=TryCatch(async(req,res)=>{
+  const { amount, currency } = req.body;
+
+  console.log(`Received payment request for ${amount} ${currency}`);
+
+  // Simulate payment success/failure after 2 seconds
+  setTimeout(() => {
+    const isSuccess = Math.random() > 0.2; // 80% success rate
+
+    if (isSuccess) {
+      res.json({
+        payment_status: "success",
+        payment_id: `TEST_${Date.now()}`,
+        amount,
+        currency,
+      });
+    } else {
+      res.status(500).json({
+        payment_status: "failure",
+        message: "Mock payment failed. Try again later.",
+      });
+    }
+  }, 2000);
+})
