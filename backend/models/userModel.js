@@ -25,7 +25,7 @@ const schema = new mongoose.Schema(
       enum: ['farmer', 'customer', 'delivery boy'],
       required: true,
     },
-    location: { // This will now be a string (manual address)
+    location: { 
       type: String,
       default: "",
     },

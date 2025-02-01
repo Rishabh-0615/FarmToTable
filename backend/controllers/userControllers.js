@@ -307,13 +307,13 @@ export const updateProfile = async (req, res) => {
       return res.status(400).json({ message: "Invalid location format" });
     }
 
-    const user = await User.findById(req.user._id);
+    const user = await User.findOne({mobile});
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Update User Fields
+    
     user.name = name || user.name;
     user.mobile = mobile || user.mobile;
     if (location !== undefined && location !== null) {
