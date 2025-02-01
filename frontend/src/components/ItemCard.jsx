@@ -3,9 +3,11 @@ import React, { useState } from "react";
 const ItemCard = ({ product, handleDelete, handleEdit }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedProduct, setEditedProduct] = useState({
+    category: product.category,
     name: product.name,
     price: product.price,
     quantity: product.quantity,
+    listedDate: product.listedDate, // Include the listed date
   });
 
   const handleInputChange = (e) => {
@@ -15,7 +17,7 @@ const ItemCard = ({ product, handleDelete, handleEdit }) => {
 
   const handleSave = () => {
     handleEdit(product._id, editedProduct);
-    setIsEditing(false); // Close the edit mode
+    setIsEditing(false);
   };
 
   return (
@@ -31,13 +33,30 @@ const ItemCard = ({ product, handleDelete, handleEdit }) => {
         {isEditing ? (
           <div>
             {/* Edit Inputs */}
-            <input
+            <select
+              name="category"
+              value={editedProduct.category}
+              onChange={handleInputChange}
+              className="border border-gray-300 p-2 w-full mb-2 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
+              <option value="">Select Category</option>
+              <option value="Vegetable">Vegetable</option>
+              <option value="Fruit">Fruit</option>
+            </select>
+
+            <select
               type="text"
               name="name"
               value={editedProduct.name}
               onChange={handleInputChange}
               className="border border-gray-300 p-2 w-full mb-2 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-            />
+              >
+                <option value="">Select Fruit</option>
+                <option value="Apples">Apples</option>
+                <option value="WaterMelon">WaterMelon</option>
+                <option value="Mango">Mango</option>
+              </select>
+
             <input
               type="number"
               name="price"
@@ -52,8 +71,11 @@ const ItemCard = ({ product, handleDelete, handleEdit }) => {
               onChange={handleInputChange}
               className="border border-gray-300 p-2 w-full mb-2 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
             />
+            
+            {/* Date Input */}
+            
+
             <div className="flex space-x-2 mt-2">
-              {/* Save and Cancel Buttons */}
               <button
                 onClick={handleSave}
                 className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-700 transition duration-300"
@@ -71,11 +93,16 @@ const ItemCard = ({ product, handleDelete, handleEdit }) => {
         ) : (
           <>
             {/* Product Details */}
+            <h3 className="text-lg font-semibold text-green-700 truncate">{product.category}</h3>
             <h3 className="text-lg font-semibold text-green-700 truncate">{product.name}</h3>
-            <p className="text-gray-700 mt-2">Price: ${product.price}</p>
+            <p className="text-gray-700 mt-2">Price: ₹{product.price}</p>
+            <p>Listed on: {new Date(product.createdAt).toLocaleDateString("en-GB")}</p>
             <p className="text-gray-700 mt-1">Quantity: {product.quantity}</p>
+            
+
+
+
             <div className="flex space-x-2 mt-4">
-              {/* Edit and Delete Buttons */}
               <button
                 onClick={() => setIsEditing(true)}
                 className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300"

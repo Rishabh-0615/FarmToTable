@@ -8,7 +8,7 @@ import jwt from 'jsonwebtoken';
 import dotenv from "dotenv";
 import validator from 'validator';
 dotenv.config();
-
+process.env.NODE_TLS_REJECT_UNAUTHORIZED="0";
 
  // Temporary storage for unverified users
  const TEMP_USERS = {}; // Use Redis or a database for better scalability

@@ -10,11 +10,16 @@ const ItemCardHome = ({ product }) => {
       />
       <div className="p-4">
         <h3 className="text-xl font-semibold text-green-800 transition-colors duration-300 hover:text-green-600">
-          {product.name}
+          Category: {product.category}
         </h3>
         <p className="text-gray-700 mt-2 text-lg font-semibold">
-          Price: <span className="text-green-500">${product.price}</span>
+          Name: <span className="text-green-500">{product.name}</span>
         </p>
+        <p className="text-gray-700 mt-2 text-lg font-semibold">
+          Price: <span className="text-green-500">₹{product.price}</span>
+        </p>
+        <p className="text-gray-700 mt-2 text-lg font-semibold">
+          Listed on: {new Date(product.createdAt).toLocaleDateString("en-GB")}</p>
         <p className="text-gray-600 mt-1">Quantity: {product.quantity}</p>
       </div>
       {/* Hover effect for the card */}

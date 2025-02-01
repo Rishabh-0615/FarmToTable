@@ -1,107 +1,89 @@
-import React from "react";
-import myimg from '../assets/logo.png'
+import React, { useState } from "react";
+import myimg from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
 import { UserData } from "../context/UserContext";
-import toast,{Toaster} from "react-hot-toast";
+import toast from "react-hot-toast";
 import axios from "axios";
-const FarmerNavbar = () => {
+import { Menu, X } from "lucide-react";
 
+const FarmerNavbar = () => {
   const navigate = useNavigate();
   const { setIsAuth, setUser } = UserData();
+  const [isOpen, setIsOpen] = useState(false);
+
   const logoutHandler = async () => {
     try {
       const { data } = await axios.get("/api/user/logout");
-      toast.success(data.message); 
-      setIsAuth(false); 
+      toast.success(data.message);
+      setIsAuth(false);
       setUser([]);
-      navigate("/"); 
-       
+      navigate("/");
     } catch (error) {
-      //
       const errorMessage = error.response ? error.response.data.message : error.message;
-      toast.error(errorMessage); 
+      toast.error(errorMessage);
     }
-  
   };
-  return (
-    <nav style={styles.nav}>
-      <div style={styles.container}>
-        <a href="/farmer" style={styles.brand}>
-          <img src={myimg} alt="Farm to Table Logo" style={styles.logo} />
-          <span style={styles.title}>Farm to Table</span>
-        </a>
-        <ul style={styles.navList}>
-          
-          <li style={styles.navItem}>
-            <a href="/mylistings" style={styles.navLink}>My Listings</a>
-          </li>
-          <li style={styles.navItem}>
-            <a href="/addproduct" style={styles.navLink}>Add Product</a>
-          </li>
-          <button
-              onClick={logoutHandler}
-              className="bg-red-600 hover:bg-red-800 px-4 py-2 rounded"
-            >
-              Logout
-            </button>
-          
-          
-        </ul>
-        
-        
-      </div>
-    </nav>
-  );
-};
 
-// Inline styles
-const styles = {
-  nav: {
-    backgroundColor: "#DFF6DD", // light green
-    color: "#2C5F2D", // dark green
-    padding: "1rem",
-    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-  },
-  container: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    maxWidth: "1200px",
-    margin: "0 auto",
-  },
-  brand: {
-    display: "flex",
-    alignItems: "center",
-    textDecoration: "none",
-  },
-  logo: {
-    width: "40px",
-    height: "40px",
-  },
-  title: {
-    marginLeft: "0.5rem",
-    fontSize: "1.25rem",
-    fontWeight: "600",
-  },
-  navList: {
-    display: "flex",
-    listStyle: "none",
-    margin: 0,
-    padding: 0,
-    gap: "1rem",
-  },
-  navItem: {
-    listStyle: "none",
-  },
-  navLink: {
-    textDecoration: "none",
-    color: "#2C5F2D",
-    transition: "color 0.3s ease",
-    fontSize: "1rem",
-  },
-  navLinkHover: {
-    color: "#6B4226", // earth brown
-  },
+  return (
+    <>
+      {/* Navbar Section */}
+        <nav className="bg-green-800 text-white w-full z-10 shadow-md">
+        <div className="max-w-7xl mx-auto  ">
+          <div className="flex justify-between items-center h-16">
+            
+            {/* Logo & Name Section */}
+            <div className="flex items-center">
+              <a href="/" className="flex items-center">
+                <img src={myimg} alt="Farm To Table" className="w-10 h-10" />
+                <span className="ml-2 text-xl font-semibold">Farm To Table</span>
+              </a>
+            </div>
+
+            {/* Navigation Menu */}
+            <div className="flex items-center">
+              <div className="block lg:hidden">
+                <button
+                  onClick={() => setIsOpen(!isOpen)}
+                  className="text-white focus:outline-none"
+                >
+                  {isOpen ? <X size={28} /> : <Menu size={28} />}
+                </button>
+              </div>
+
+              <div className={`${isOpen ? "block" : "hidden"} lg:flex lg:items-center lg:space-x-6`}>
+                <ul className="flex flex-col lg:flex-row lg:space-x-4">
+                  <li>
+                    <a href="/farmer" className="block px-3 py-2 hover:text-green-400 relative group">
+                      Home
+                      <span className="absolute left-0 bottom-0 w-0 h-[2px] bg-green-400 group-hover:w-full transition-all"></span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/mylistings" className="block px-3 py-2 hover:text-green-400 relative group">
+                      My Listings
+                      <span className="absolute left-0 bottom-0 w-0 h-[2px] bg-green-400 group-hover:w-full transition-all"></span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/addproduct" className="block px-3 py-2 hover:text-green-400 relative group">
+                      Add Product
+                      <span className="absolute left-0 bottom-0 w-0 h-[2px] bg-green-400 group-hover:w-full transition-all"></span>
+                    </a>
+                  </li>
+                  <li>
+                    <button onClick={logoutHandler} className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded">
+                      Logout
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </nav>
+    </>
+  );
 };
 
 export default FarmerNavbar;

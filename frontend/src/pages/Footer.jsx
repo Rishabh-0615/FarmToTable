@@ -73,6 +73,7 @@ export const Footer = () => {
         </div>
       </div>
 
+
       {/* Footer Bottom Section */}
       <div className="container mx-auto mt-8 pt-6 border-t border-white/40 flex flex-col md:flex-row justify-between items-center px-6">
         <p className="text-center md:text-left text-sm font-light opacity-80">
@@ -81,6 +82,7 @@ export const Footer = () => {
         <Link to="/terms" className="hover:text-yellow-300 transition-colors duration-300 ease-in-out underline mt-4 md:mt-0 text-sm font-light opacity-80">
           Terms of Service
         </Link>
+
       </div>
     </footer>
   );
