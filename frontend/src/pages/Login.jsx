@@ -3,8 +3,12 @@ import { motion } from "framer-motion";
 import { UserData } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
 import { FarmLoadingAnimation } from "../components/Loading";
+
 import { Eye } from "lucide-react";
 import { EyeOff } from "lucide-react";
+
+import ConsumerNavbar from "../pages/ConsumerNavbar"; // Import Navbar
+
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -21,29 +25,34 @@ const Login = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen relative overflow-hidden bg-gray-100">
-      {/* Animated Background */}
-      <div
-        className="absolute inset-0 z-0"
-        style={{
-          backgroundImage: "url('/placeholder.svg?height=1080&width=1920')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <motion.div
-          className="absolute inset-0 bg-green-800 opacity-30"
-          animate={{
-            scale: [1, 1.1, 1],
-            opacity: [0.3, 0.2, 0.3],
+    <div className="relative min-h-screen bg-gray-100">
+      {/* Render Navbar at the Top */}
+      <ConsumerNavbar />
+
+      <div className="flex items-center justify-center min-h-screen relative overflow-hidden">
+        {/* Animated Background */}
+        <div
+          className="absolute inset-0 z-0"
+          style={{
+            backgroundImage: "url('/placeholder.svg?height=1080&width=1920')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
           }}
-          transition={{
-            duration: 10,
-            repeat: Number.POSITIVE_INFINITY,
-            repeatType: "reverse",
-          }}
-        />
-      </div>
+        >
+          <motion.div
+            className="absolute inset-0 bg-green-800 opacity-30"
+            animate={{
+              scale: [1, 1.1, 1],
+              opacity: [0.3, 0.2, 0.3],
+            }}
+            transition={{
+              duration: 10,
+              repeat: Number.POSITIVE_INFINITY,
+              repeatType: "reverse",
+            }}
+          />
+        </div>
+
 
       {/* Login Form */}
       <motion.div
@@ -115,10 +124,13 @@ const Login = () => {
             Don't have an account?{" "}
             <a href="/register" className="text-green-600 hover:underline">
               Register
+
             </a>
-          </p>
-        </div>
-      </motion.div>
+           
+            </p>
+          </div>
+        </motion.div>
+      </div>
     </div>
   );
 };

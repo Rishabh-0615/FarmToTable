@@ -19,6 +19,8 @@ import OrderPage from "./pages/OrderPage";
 import RoutePage from "./components/RoutePage";
 import RouteMap from "./components/RouteMap";
 import AddToCart from "./components/AddToCart";
+import Empty from "./pages/Empty";
+import Account from "./pages/Account";
 
 const App = () => {
   const { user, loading, isAuth,fetchUser } = UserData();
@@ -50,7 +52,7 @@ const AppWithLocation = ({ user, isAuth }) => {
       ) : showConsumerNavbar ? (
         <ConsumerNavbar />
       ) : (
-        <Navbar />
+        <Empty />
       )}
 
       <Routes>
@@ -137,8 +139,8 @@ const AppWithLocation = ({ user, isAuth }) => {
         <Route path="/mylistings" element={isAuth && user.role==="farmer"? <MyListings user={user} />:<Home/>} />
         <Route path="/addproduct" element={isAuth && user.role==="farmer"? <AddProduct />:<Home/>} />
         <Route path="/cart" element={isAuth && user.role==="customer"? <CartPage/>:<Home/>}/>
-        <Route path="/past-orders" element={isAuth && user.role==="farmer"? <OrderPage/>:<Home/>}/>
-        <Route path="/route" element={<RoutePage/>}/>
+        <Route path="/past-orders" element={isAuth && user.role==="customer"? <OrderPage/>:<Home/>}/>
+        <Route path="/route" element={<Account/>}/>
         <Route path="/routemap" element={<AddToCart/>}/>
       </Routes>
     </>

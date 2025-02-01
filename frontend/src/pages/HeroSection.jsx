@@ -1,21 +1,67 @@
-import { Link } from "react-router-dom";
-import myimage from "../assets/hero.png";
+import React from "react";
+import { motion, useAnimation } from "framer-motion";
+import { useEffect } from "react";
+import farmerImg from "../assets/logo.png";
+import consumerImg from "../assets/image.png";
+import vegetablesImg from "../assets/about.png";
 
-export const HeroSection = () => {
+const HeroSection = () => {
+  const farmerControls = useAnimation();
+  const consumerControls = useAnimation();
+  const vegetableControls = useAnimation();
+
+  useEffect(() => {
+    const sequence = async () => {
+      // Farmer enters
+      await farmerControls.start({ x: "50%", transition: { duration: 2 } });
+      // Consumer enters simultaneously
+      await consumerControls.start({ x: "-50%", transition: { duration: 2 } });
+
+      // Vegetables move to the consumer
+      await vegetableControls.start({
+        scale: 1.2,
+        y: -20,
+        transition: { duration: 1 },
+      });
+
+      // Both exit the screen
+      await farmerControls.start({ x: "-150%", transition: { duration: 2 } });
+      await consumerControls.start({ x: "150%", transition: { duration: 2 } });
+    };
+
+    sequence();
+  }, [farmerControls, consumerControls, vegetableControls]);
+
   return (
-    <div className="relative h-[600px] flex items-center justify-center text-center text-white">
-      <img src={myimage} alt="Lush farm background" className="absolute inset-0 w-full h-full object-cover" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
-      <div className="relative z-10 max-w-3xl mx-auto px-4">
-        <h1 className="text-5xl font-extrabold mb-6 animate-fade-in">Farm to Table Marketplace</h1>
-        <p className="text-lg font-medium mb-8 animate-fade-in animation-delay-200">Easily connect your farm produce to consumers directly.</p>
-        <Link
-          to="/add-product"
-          className="bg-green-700 hover:bg-green-800 text-white font-bold py-3 px-6 rounded-full text-lg transition transform hover:scale-105 duration-300"
-        >
-          Start Selling Now
-        </Link>
-      </div>
+    <div className="relative w-full h-[90vh] bg-green-100 flex items-center justify-center overflow-hidden">
+      {/* Farmer */}
+      <motion.div
+        animate={farmerControls}
+        initial={{ x: "-100%" }}
+        className="absolute left-0 bottom-10 w-32"
+      >
+        <img src={farmerImg} alt="Farmer" className="w-full" />
+      </motion.div>
+
+      {/* Vegetables */}
+      <motion.div
+        animate={vegetableControls}
+        initial={{ scale: 1 }}
+        className="absolute w-16 z-10"
+      >
+        <img src={vegetablesImg} alt="Vegetables" className="w-full" />
+      </motion.div>
+
+      {/* Consumer */}
+      <motion.div
+        animate={consumerControls}
+        initial={{ x: "100%" }}
+        className="absolute right-0 bottom-10 w-32"
+      >
+        <img src={consumerImg} alt="Consumer" className="w-full" />
+      </motion.div>
     </div>
   );
 };
+
+export default HeroSection;

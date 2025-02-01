@@ -4,6 +4,7 @@ import { UserData } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
 import toast,{Toaster} from "react-hot-toast";
 import axios from "axios";
+import ProductSearch from "../components/ProductSearch";
 
 export default function ConsumerNavbar() {
 
@@ -32,7 +33,9 @@ export default function ConsumerNavbar() {
           <img src="/logo.svg" alt="Farm-to-Table Logo" className="w-10 h-10 mr-2" />
           Farm-to-Table
         </a>
+
         <nav>
+         
           <ul className="flex space-x-6">
             {["Home", "Cart", "Past Orders", "About Us", "Contact Us"].map((item) => (
               <li key={item}>
