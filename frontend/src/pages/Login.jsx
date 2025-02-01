@@ -52,10 +52,10 @@ const Login = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="text-3xl font-bold text-green-800 mb-6 text-center">Login</h1>
+        <h1 className="text-3xl font-bold text-green-800 mb-2 text-center">Welcome Back!</h1>
+        <p className="text-sm text-gray-600 mb-6 text-center">Login to continue to your account</p>
         <form onSubmit={handleSubmit} className="space-y-4">
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            
             <input
               type="email"
               value={email}
@@ -66,7 +66,6 @@ const Login = () => {
             />
           </motion.div>
           <motion.div className="relative w-full" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            
             <input
               type={showPassword ? "text" : "password"}
               value={password}
@@ -76,22 +75,23 @@ const Login = () => {
               required
             />
             <button
-              type = "button"
+              type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm font-medium text-gray-500 hover:text-gray-700"
-              >
-                {showPassword ? "Hide" : "Show"}
-              </button>
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>
           </motion.div>
           <motion.div whileHover={{ scale: 1.05 }}>
-            
-          <select
+            <select
               value={role}
               onChange={(e) => setRole(e.target.value)}
               className="w-full px-4 py-2 rounded-md border border-green-300 focus:outline-none focus:ring-2 focus:ring-green-500"
               required
             >
-              <option  value="" disabled selected>Role</option>
+              <option value="" disabled selected>
+                Role
+              </option>
               <option value="customer">Customer</option>
               <option value="farmer">Farmer</option>
               <option value="delivery boy">Delivery Boy</option>

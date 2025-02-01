@@ -31,7 +31,9 @@ const AddProduct = () => {
 
   // Show error if user tries to select product without selecting a category
   const categoryError = !selectedCategoryValue && "Please select a category first.";
-  
+
+  // Watch the discount offer checkbox
+  const isDiscountOfferEnabled = watch("discountOffer");
 
   // Product options for different categories
   const productOptions = {
@@ -69,6 +71,15 @@ const AddProduct = () => {
     formData.append("notes", data.notes);
     formData.append("file", file);
     formData.append("userId", user.id);
+
+    // Add discount offer data if enabled
+    if (isDiscountOfferEnabled) {
+      formData.append("discountOffer", true);
+      formData.append("minQuantityForDiscount", data.minQuantityForDiscount);
+      formData.append("discountPercentage", data.discountPercentage);
+    } else {
+      formData.append("discountOffer", false);
+    }
 
     const listingDate = new Date().toISOString();
     formData.append("listingDate", listingDate);
@@ -114,7 +125,6 @@ const AddProduct = () => {
 
         {/* Product Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          
           {/* Product Category */}
           <div>
             <label htmlFor="productCategory" className="block text-sm font-medium text-gray-700">
@@ -135,26 +145,26 @@ const AddProduct = () => {
 
           {/* Product Name - Dynamically Updated */}
           <div>
-  <label htmlFor="productName" className="block text-sm font-medium text-gray-700">
-    Product Name
-  </label>
-  <select
-    id="productName"
-    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-    {...register("productName", { required: "Product name is required" })}
-    disabled={!selectedCategoryValue}
-  >
-    <option value="">{selectedCategoryValue ? "Select a product" : "Please select the above field first"}</option>
-    {selectedCategoryValue &&
-      productOptions[selectedCategoryValue]?.map((product) => (
-        <option key={product} value={product}>
-          {product}
-        </option>
-      ))}
-  </select>
-  {!selectedCategoryValue && <p className="text-red-500 text-sm mt-1">{categoryError}</p>}
-  {errors.productName && <p className="text-red-500 text-sm mt-1">{errors.productName.message}</p>}
-</div>
+            <label htmlFor="productName" className="block text-sm font-medium text-gray-700">
+              Product Name
+            </label>
+            <select
+              id="productName"
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              {...register("productName", { required: "Product name is required" })}
+              disabled={!selectedCategoryValue}
+            >
+              <option value="">{selectedCategoryValue ? "Select a product" : "Please select the above field first"}</option>
+              {selectedCategoryValue &&
+                productOptions[selectedCategoryValue]?.map((product) => (
+                  <option key={product} value={product}>
+                    {product}
+                  </option>
+                ))}
+            </select>
+            {!selectedCategoryValue && <p className="text-red-500 text-sm mt-1">{categoryError}</p>}
+            {errors.productName && <p className="text-red-500 text-sm mt-1">{errors.productName.message}</p>}
+          </div>
 
           {/* Other Fields (Quantity, Weight, Price, etc.) */}
           <div>
@@ -179,6 +189,69 @@ const AddProduct = () => {
             />
             {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price.message}</p>}
           </div>
+
+          {/* Discount Offer Section */}
+          <div>
+            <label htmlFor="discountOffer" className="block text-sm font-medium text-gray-700">
+              Do you want to offer a discount for bulk purchases?
+            </label>
+            <div className="mt-2">
+              <label className="inline-flex items-center">
+                <input
+                  type="checkbox"
+                  id="discountOffer"
+                  className="form-checkbox h-4 w-4 text-green-500"
+                  {...register("discountOffer")}
+                />
+                <span className="ml-2">Yes, offer a discount</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Discount Rules (Conditional Rendering) */}
+          {isDiscountOfferEnabled && (
+            <>
+              <div>
+                <label htmlFor="minQuantityForDiscount" className="block text-sm font-medium text-gray-700">
+                  Minimum Quantity for Discount
+                </label>
+                <input
+                  type="number"
+                  id="minQuantityForDiscount"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  {...register("minQuantityForDiscount", {
+                    required: "Minimum quantity is required",
+                    min: { value: 1, message: "Value must be greater than 0" },
+                  })}
+                />
+                {errors.minQuantityForDiscount && (
+                  <p className="text-red-500 text-sm mt-1">{errors.minQuantityForDiscount.message}</p>
+                )}
+              </div>
+
+              <div>
+                <label htmlFor="discountPercentage" className="block text-sm font-medium text-gray-700">
+                  Discount Percentage (%)
+                </label>
+                <input
+                  type="number"
+                  id="discountPercentage"
+                  step="0.01"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  {...register("discountPercentage", {
+                    required: "Discount percentage is required",
+                    min: { value: 1, message: "Value must be greater than 0" },
+                    max: { value: 100, message: "Value must be less than or equal to 100" },
+                  })}
+                />
+                {errors.discountPercentage && (
+                  <p className="text-red-500 text-sm mt-1">{errors.discountPercentage.message}</p>
+                )}
+              </div>
+            </>
+          )}
+
+          {/* Farm Location */}
           <div>
             <label htmlFor="location" className="block text-sm font-medium text-gray-700">
               Farm Location
@@ -189,11 +262,10 @@ const AddProduct = () => {
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
               {...register("location", { required: "Location is required" })}
             />
-            {errors.location && (
-              <p className="text-red-500 text-sm mt-1">{errors.location.message}</p>
-            )}
+            {errors.location && <p className="text-red-500 text-sm mt-1">{errors.location.message}</p>}
           </div>
 
+          {/* Product Condition */}
           <div>
             <label htmlFor="condition" className="block text-sm font-medium text-gray-700">
               Product Condition
@@ -206,14 +278,12 @@ const AddProduct = () => {
               <option value="">Select condition</option>
               <option value="Ripe">Ripe</option>
               <option value="Unripe">Unripe</option>
-              
               <option value="Other">Other</option>
             </select>
-            {errors.condition && (
-              <p className="text-red-500 text-sm mt-1">{errors.condition.message}</p>
-            )}
+            {errors.condition && <p className="text-red-500 text-sm mt-1">{errors.condition.message}</p>}
           </div>
 
+          {/* Additional Notes */}
           <div>
             <label htmlFor="notes" className="block text-sm font-medium text-gray-700">
               Additional Notes (Optional)
@@ -226,8 +296,6 @@ const AddProduct = () => {
             ></textarea>
           </div>
 
-          
-
           {/* Submit Button */}
           <button
             type="submit"
@@ -238,9 +306,6 @@ const AddProduct = () => {
           </button>
         </form>
       </div>
-                
-
-
     </div>
   );
 };

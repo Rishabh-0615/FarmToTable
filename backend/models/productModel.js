@@ -1,10 +1,9 @@
 import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema(
-
   {
     category: {
-      type:String,
+      type: String,
       required: true,
     },
     name: {
@@ -14,7 +13,6 @@ const productSchema = new mongoose.Schema(
     quantity: {
       type: Number,
       required: true,
-      
     },
     weight: {
       type: String,
@@ -26,6 +24,27 @@ const productSchema = new mongoose.Schema(
       required: true,
       min: 0,
     },
+    discountOffer: {
+      type: Boolean,
+      default: false,
+    },
+    minQuantityForDiscount: {
+      type: Number,
+      min: 1,
+      // Only required if discountOffer is true
+      required: function() {
+        return this.discountOffer === true;
+      }
+    },
+    discountPercentage: {
+      type: Number,
+      min: 1,
+      max: 100,
+      // Only required if discountOffer is true
+      required: function() {
+        return this.discountOffer === true;
+      }
+    },
     location: {
       type: String,
       required: true,
@@ -36,14 +55,14 @@ const productSchema = new mongoose.Schema(
       required: true,
     },
     owner: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-      },
-      image: {
-        id: String,
-        url: String,
-      },
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    image: {
+      id: String,
+      url: String,
+    },
     notes: {
       type: String,
       default: '',
