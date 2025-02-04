@@ -5,6 +5,7 @@ import bodyParser from 'body-parser';
 import path from 'path';
 import cookieParser from 'cookie-parser';
 import cloudinary from 'cloudinary';
+import axios from 'axios';
 dotenv.config();
 const port=process.env.PORT || 5000;
 cloudinary.v2.config({
@@ -46,6 +47,17 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "frontend", "dist", "index.html"));
 });
 
+
+app.post("/api/predict-demand", async (req, res) => {
+  try {
+    // Send input data to the Python API
+    const response = await axios.post("http://localhost:5001/predict", req.body);
+    res.json(response.data);  // Send the prediction back to the frontend
+  } catch (error) {
+    console.error("Error predicting demand:", error.message);
+    res.status(500).json({ error: "Failed to predict demand" });
+  }
+});
 
 
 app.listen(port , ()=>{

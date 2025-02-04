@@ -1,64 +1,117 @@
-import React from "react";
-import { ShoppingCart, User } from "lucide-react";
+import React, { useState } from "react";
+import { ShoppingCart, User, Menu, X, Home, Clock, Info, PhoneCall, LogOut } from "lucide-react";
 import { UserData } from "../context/UserContext";
-import { useNavigate } from "react-router-dom";
-import toast,{Toaster} from "react-hot-toast";
+import { useNavigate, Link } from "react-router-dom";
+import toast, { Toaster } from "react-hot-toast";
 import axios from "axios";
 import ProductSearch from "../components/ProductSearch";
 
-export default function ConsumerNavbar() {
+const NAV_ITEMS = [
+  { name: "Home", path: "/consumer", icon: Home },
+  { name: "Cart", path: "/cart", icon: ShoppingCart },
+  { name: "Past Orders", path: "/past-orders", icon: Clock },
+  { name: "About Us", path: "/about-us", icon: Info },
+  { name: "Contact Us", path: "/contact-us", icon: PhoneCall },
+];
 
-  
+export default function ConsumerNavbar() {
   const navigate = useNavigate();
   const { setIsAuth, setUser } = UserData();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   const logoutHandler = async () => {
     try {
       const { data } = await axios.get("/api/user/logout");
-      toast.success(data.message); 
-      setIsAuth(false); 
+      toast.success(data.message);
+      setIsAuth(false);
       setUser([]);
-      navigate("/"); 
-       
+      navigate("/");
     } catch (error) {
-      //
       const errorMessage = error.response ? error.response.data.message : error.message;
-      toast.error(errorMessage); 
+      toast.error(errorMessage);
     }
   };
-  
+
   return (
-    <header className="bg-green-600 text-white">
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <a href="/" className="text-2xl font-bold flex items-center">
-          <img src="/logo.svg" alt="Farm-to-Table Logo" className="w-10 h-10 mr-2" />
-          Farm-to-Table
-        </a>
+    <header className="bg-green-600 shadow-sm sticky top-0 z-50">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <Link to="/" className="flex items-center space-x-2">
+            <img src="/logo.svg" alt="Farm-to-Table Logo" className="w-8 h-8" />
+            <span className="text-xl font-bold text-white hidden sm:block">Farm-to-Table</span>
+          </Link>
 
-        <nav>
-         
-          <ul className="flex space-x-6">
-            {["Home", "Cart", "Past Orders", "About Us", "Contact Us"].map((item) => (
-              <li key={item}>
-                <a
-                  href={item === "Home" ? "/consumer" : `/${item.toLowerCase().replace(" ", "-")}`}
-                  className="hover:text-green-200 transition-all duration-300 relative group"
-                >
-                  {item}
-                  <span className="absolute bottom-[-4px] left-0 w-0 h-0.5 bg-green-200 transition-all duration-300 group-hover:w-full"></span>
-                </a>
-              </li>
-              
+          {/* Desktop Navigation */}
+          <nav className="hidden md:block">
+            <ul className="flex items-center space-x-8">
+              {NAV_ITEMS.map(({ name, path, icon: Icon }) => (
+                <li key={name}>
+                  <Link
+                    to={path}
+                    className="flex items-center space-x-1 text-green-100 hover:text-white transition-colors duration-200"
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span>{name}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
 
-            ))}
-          </ul>
-          <button
+          {/* Desktop Actions */}
+          <div className="hidden md:flex items-center space-x-4">
+            <button
               onClick={logoutHandler}
-              className="bg-red-600 hover:bg-red-800 px-4 py-2 rounded"
+              className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-green-700 text-white hover:bg-green-800 transition-colors duration-200"
             >
-              Logout
+              <LogOut className="w-4 h-4" />
+              <span>Logout</span>
             </button>
-        </nav>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="p-2 rounded-lg text-green-100 hover:bg-green-500 md:hidden"
+          >
+            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
+
+        {/* Mobile Navigation */}
+        {isMenuOpen && (
+          <div className="md:hidden py-4">
+            <ul className="space-y-4">
+              {NAV_ITEMS.map(({ name, path, icon: Icon }) => (
+                <li key={name}>
+                  <Link
+                    to={path}
+                    className="flex items-center space-x-2 text-green-100 hover:text-white transition-colors duration-200"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Icon className="w-5 h-5" />
+                    <span>{name}</span>
+                  </Link>
+                </li>
+              ))}
+              <li>
+                <button
+                  onClick={() => {
+                    logoutHandler();
+                    setIsMenuOpen(false);
+                  }}
+                  className="flex items-center space-x-2 text-red-200 hover:text-red-100 transition-colors duration-200"
+                >
+                  <LogOut className="w-5 h-5" />
+                  <span>Logout</span>
+                </button>
+              </li>
+            </ul>
+          </div>
+        )}
       </div>
+      <Toaster position="top-center" />
     </header>
   );
 }
