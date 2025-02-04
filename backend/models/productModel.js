@@ -49,11 +49,6 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    condition: {
-      type: String,
-      enum: ['Ripe', 'Unripe', 'Other'],
-      required: true,
-    },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -66,6 +61,10 @@ const productSchema = new mongoose.Schema(
     notes: {
       type: String,
       default: '',
+    },
+    life:{
+      type:String,
+      default:'',
     },
   },
   {
