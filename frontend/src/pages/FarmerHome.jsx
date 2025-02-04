@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import FarmerNavbar from './FarmerNavbar';
-import  HeroSection  from './HeroSection';
+import HeroSection from './HeroSection';
 import { Footer } from './Footer';
 import { ProductData } from '../context/FarmerContext';
 import { Loading } from '../components/Loading';
@@ -18,7 +18,19 @@ const FarmerHome = () => {
     <div className="bg-gray-50 min-h-screen">
       {/* Hero Section */}
       <HeroSection />
-      
+
+      {/* Recently Added Products Section */}
+      <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+          Fresh Products from Local Farmers
+        </h2>
+        <p className="text-center text-gray-600 mb-8 max-w-2xl mx-auto">
+          Discover the latest fresh produce added by farmers in our community. 
+          These products are sourced directly from local farms, ensuring quality 
+          and supporting local agriculture.
+        </p>
+      </div>
+
       {/* Product Display Section */}
       {loading ? (
         <Loading />

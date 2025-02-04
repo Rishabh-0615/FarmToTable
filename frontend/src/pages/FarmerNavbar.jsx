@@ -26,16 +26,20 @@ const FarmerNavbar = () => {
 
   return (
     <>
-      {/* Navbar Section */}
-        <nav className="bg-green-800 text-white w-full z-10 shadow-md">
-        <div className="max-w-7xl mx-auto  ">
+      <nav className="bg-gradient-to-r from-green-700 to-green-900 text-white w-full z-10 shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            
             {/* Logo & Name Section */}
             <div className="flex items-center">
-              <a href="/" className="flex items-center">
-                <img src={myimg} alt="Farm To Table" className="w-10 h-10" />
-                <span className="ml-2 text-xl font-semibold">Farm To Table</span>
+              <a href="/" className="flex items-center group">
+                <img 
+                  src={myimg} 
+                  alt="Farm To Table" 
+                  className="w-10 h-10 rounded-lg shadow-md" 
+                />
+                <span className="ml-2 text-xl font-bold text-green-100 group-hover:text-green-300 transition-colors duration-200">
+                  DailyVegies
+                </span>
               </a>
             </div>
 
@@ -44,41 +48,49 @@ const FarmerNavbar = () => {
               <div className="block lg:hidden">
                 <button
                   onClick={() => setIsOpen(!isOpen)}
-                  className="text-white focus:outline-none"
+                  className="text-green-100 hover:text-green-300 focus:outline-none transition-colors duration-200"
                 >
                   {isOpen ? <X size={28} /> : <Menu size={28} />}
                 </button>
               </div>
 
-              <div className={`${isOpen ? "block" : "hidden"} lg:flex lg:items-center lg:space-x-6`}>
-                <ul className="flex flex-col lg:flex-row lg:space-x-4">
+              <div className={`${isOpen ? "block absolute top-16 right-0 w-48 bg-green-800 shadow-xl rounded-bl-lg" : "hidden"} lg:relative lg:flex lg:items-center lg:space-x-6 lg:bg-transparent lg:w-auto`}>
+                <ul className="flex flex-col lg:flex-row lg:space-x-4 p-2 lg:p-0">
                   <li>
-                    <a href="/farmer" className="block px-3 py-2 hover:text-green-400 relative group">
+                    <a 
+                      href="/farmer" 
+                      className="block px-4 py-2 text-green-100 hover:bg-green-600 hover:text-white rounded-lg transition-all duration-200 lg:hover:bg-transparent lg:hover:text-green-300"
+                    >
                       Home
-                      <span className="absolute left-0 bottom-0 w-0 h-[2px] bg-green-400 group-hover:w-full transition-all"></span>
                     </a>
                   </li>
                   <li>
-                    <a href="/mylistings" className="block px-3 py-2 hover:text-green-400 relative group">
+                    <a 
+                      href="/mylistings" 
+                      className="block px-4 py-2 text-green-100 hover:bg-green-600 hover:text-white rounded-lg transition-all duration-200 lg:hover:bg-transparent lg:hover:text-green-300"
+                    >
                       My Listings
-                      <span className="absolute left-0 bottom-0 w-0 h-[2px] bg-green-400 group-hover:w-full transition-all"></span>
                     </a>
                   </li>
                   <li>
-                    <a href="/addproduct" className="block px-3 py-2 hover:text-green-400 relative group">
+                    <a 
+                      href="/addproduct" 
+                      className="block px-4 py-2 text-green-100 hover:bg-green-600 hover:text-white rounded-lg transition-all duration-200 lg:hover:bg-transparent lg:hover:text-green-300"
+                    >
                       Add Product
-                      <span className="absolute left-0 bottom-0 w-0 h-[2px] bg-green-400 group-hover:w-full transition-all"></span>
                     </a>
                   </li>
                   <li>
-                    <button onClick={logoutHandler} className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded">
+                    <button 
+                      onClick={logoutHandler} 
+                      className="w-full lg:w-auto px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
+                    >
                       Logout
                     </button>
                   </li>
                 </ul>
               </div>
             </div>
-
           </div>
         </div>
       </nav>
