@@ -29,10 +29,25 @@ const schema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    isVerifiedByAdmin: {
+      type: Boolean,
+      default: false,
+      required: function() {
+        return this.role === 'farmer'; //isVerifiedByAdmin only for farmer
+      },
+    }
   },
   {
     timestamps: true,
   }
 );
+
+schema.pre('save', function(next) {
+  if (this.role !== 'farmer') {
+    this.isVerifiedByAdmin = undefined; // ensure isVerifiedByAdmin is not for others
+  }
+  next();
+});
+
 
 export const User = mongoose.model("User", schema);
