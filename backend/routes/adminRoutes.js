@@ -4,6 +4,6 @@ import {getUnverifiedFarmers, verifyFarmer} from '../controllers/adminController
 
 const router=express.Router();
 router.get("/verify-farmer", getUnverifiedFarmers);
-router.put("/verify-farmer/:id", verifyFarmer);
+router.put("/verify-farmer/:userId", verifyFarmer);
 
 export default router;

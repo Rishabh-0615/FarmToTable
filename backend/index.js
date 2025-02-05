@@ -28,7 +28,7 @@ import adminRoutes from './routes/adminRoutes.js'
 app.use("/api/user",userRoutes);
 app.use("/api/user/farmer",farmerRoutes)
 app.use("/api/user/customer",customerRoutes)
-app.use("/api", adminRoutes)
+app.use("/api/admin", adminRoutes)
 
 
 
