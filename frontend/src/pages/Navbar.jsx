@@ -44,6 +44,11 @@ const Navbar = () => {
                   Sign In
                 </a>
               </li>
+              <li>
+                <a href="/admin-login" className="block px-2 sm:px-3 py-1 sm:py-2 rounded-lg hover:bg-white hover:text-green-600 transition-all duration-200 border border-white text-xs sm:text-sm md:text-base">
+                  Admin
+                </a>
+              </li>
             </ul>
           </div>
         </div>

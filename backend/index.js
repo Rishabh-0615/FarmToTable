@@ -6,6 +6,7 @@ import path from 'path';
 import cookieParser from 'cookie-parser';
 import cloudinary from 'cloudinary';
 import axios from 'axios';
+import cors from 'cors';
 dotenv.config();
 const port=process.env.PORT || 5000;
 cloudinary.v2.config({
@@ -16,7 +17,7 @@ cloudinary.v2.config({
 
 const app=express();
 
-
+app.use(cors());
 app.use(bodyParser.json()); 
 app.use(express.json());
 app.use(cookieParser());
