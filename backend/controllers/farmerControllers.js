@@ -3,6 +3,7 @@ import TryCatch from "../utils/TryCatch.js";
 import getDataUrl from "../utils/urlGenerator.js";
 import cloudinary from 'cloudinary';
 import uploadFile from "../middlewares/multer.js";
+import { OrderDetails } from "../models/orderDetailsModel.js";
 
 export const addProduct = TryCatch(async (req, res) => {
   const { 
@@ -151,3 +152,57 @@ export const editProduct = TryCatch(async (req, res) => {
     res.status(500).json({ message: "Failed to update product" });
   }
 });
+
+export const getFarmerOrders = async (req, res) => {
+  try {
+    const farmerId = req.user._id; // Assuming the farmer is authenticated
+
+    if (!farmerId) {
+      return res.status(400).json({ error: "Farmer not authenticated" });
+    }
+
+    // Fetch orders containing products owned by the farmer
+    const orders = await OrderDetails.find({
+      "cartItems.productId": { $exists: true }
+    })
+      .populate({
+        path: "cartItems.productId",
+        select: "name price owner quantity",
+        match: { owner: farmerId }, // Filter products by the farmer's ownership
+      }).populate({
+        path: "userId",
+        select: "name", // Assuming "name" exists in the User schema
+      })
+      .sort({ createdAt: -1 });
+
+    // Filter orders with products belonging to this farmer
+    const farmerOrders = orders
+      .map(order => {
+        // Filter only products owned by the farmer
+        const relevantCartItems = order.cartItems.filter(item => item.productId);
+        
+        return {
+          orderId: order._id,
+          consumerId: order.userId,
+          deliveryAddress: order.location?.address,
+          cartItems: relevantCartItems,
+          totalPrice: order.totalPrice,
+          orderStatus: order.deliveryStatus,
+          createdAt: order.createdAt,
+        };
+      })
+      .filter(order => order.cartItems.length > 0); // Only return orders with relevant cart items
+
+    if (farmerOrders.length === 0) {
+      return res.status(404).json({ error: "No orders found for this farmer" });
+    }
+
+    return res.status(200).json({
+      message: "Farmer-specific orders retrieved successfully",
+      orders: farmerOrders,
+    });
+  } catch (error) {
+    console.error("Failed to fetch farmer orders:", error);
+    return res.status(500).json({ error: "Failed to fetch orders" });
+  }
+};
