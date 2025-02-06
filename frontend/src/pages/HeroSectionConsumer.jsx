@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import farmer from "../assets/indianFarmer.png";
+import farmer from "../assets/woman-removebg-preview.png";
 
-export default function HeroSection() {
+export default function HeroSectionConsumer() {
   const [text, setText] = useState('');
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);

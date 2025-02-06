@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema(
-  {
+  
+    {  
     category: {
       type: String,
       required: true,
@@ -43,7 +44,7 @@ const productSchema = new mongoose.Schema(
         return this.discountOffer === true;
       }
     },
-    location: {
+    city: {
       type: String,
       required: true,
     },
@@ -64,6 +65,10 @@ const productSchema = new mongoose.Schema(
       type:String,
       default:'',
     },
+    quantityUnit:{
+      type:String,
+      default:'',
+    }
   },
   {
     timestamps: true,

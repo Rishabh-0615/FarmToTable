@@ -96,15 +96,7 @@ const FarmerNavbar = () => {
                     Logout
                   </button>
                 </li>
-                <li>
-                  <button
-                    onClick={() => navigate("/route")}
-                    className="w-full lg:w-auto px-4 py-2 bg-[#1bc06d] hover:bg-[#159a58] text-[#faeedc] rounded-lg transition-all duration-200 shadow-md hover:shadow-xl hover:text-white transform hover:-translate-y-1 hover:scale-105 border border-transparent hover:border-white/20 flex items-center"
-                  >
-                    <User className="mr-2" />
-                    My Profile
-                  </button>
-                </li>
+               
               </ul>
             </div>
           </div>
