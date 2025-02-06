@@ -24,6 +24,8 @@ import Account from "./pages/Account";
 import Model from './pages/Model'
 import OrderDetails from "./pages/OrderDetails";
 import AdminDashboard from "./pages/AdminDashboard";
+import UserOrdersPage from "./components/RouteMap";
+import OrderList from "./components/RouteMap";
 
 const App = () => {
   const { user, loading, isAuth,fetchUser } = UserData();
@@ -145,7 +147,7 @@ const AppWithLocation = ({ user, isAuth }) => {
         <Route path="/cart" element={isAuth && user.role==="customer"? <CartPage/>:<Home/>}/>
         <Route path="/past-orders" element={isAuth && user.role==="customer"? <OrderPage/>:<Home/>}/>
         <Route path="/order" element={<OrderDetails/>}/>
-        <Route path="/routemap" element={<AddToCart/>}/>
+        <Route path="/routemap" element={<OrderList/>}/>
         <Route path="/model" element={<Model/>}/>
         <Route path="/verify-farmer" element={<AdminDashboard />} />
       </Routes>

@@ -393,3 +393,31 @@ export const updatePaymentStatus = async (req, res) => {
     return res.status(500).json({ error: 'Failed to update payment status' });
   }
 };
+
+
+export const getDetailsAll = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    if (!userId) {
+      return res.status(400).json({ error: 'User not found' });
+    }
+
+    // Fetch all orders for the user, sorted by creation date
+    const allOrders = await OrderDetails.find({ userId })
+      .populate('cartItems.productId', 'name price image')
+      .sort({ createdAt: -1 });
+
+    if (!allOrders || allOrders.length === 0) {
+      return res.status(404).json({ error: 'No orders found' });
+    }
+
+    return res.status(200).json({
+      message: 'Orders retrieved successfully',
+      orders: allOrders
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Failed to fetch orders' });
+  }
+};
