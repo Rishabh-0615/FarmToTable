@@ -37,12 +37,13 @@ export const ProductProvider = ({ children }) => {
 
   const [product, setProduct] = useState([]);
 
-  async function fetchProduct(id) {
+  async function fetchProduct() {
     setLoading(true);
     try {
-      const { data } = await axios.get("/api/user/farmer/" + id);
+      const { data } = await axios.get("/api/user/farmer/myproducts");
 
       setProduct(data);
+      console.log(data)
       setLoading(false);
     } catch (error) {
       console.log(error);

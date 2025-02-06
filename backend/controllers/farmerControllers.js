@@ -69,10 +69,22 @@ export const getAllProducts = TryCatch(async (req, res) => {
   res.json(products);
 });
 
+
+
 export const getSingleProduct = TryCatch(async (req, res) => {
-  const product = await Product.findById(req.params.id).populate("owner", "-password");
-  res.json(product);
+  const userId = req.user._id;
+
+  // Fetch all products owned by this user
+  const products = await Product.find({ owner: userId }).populate("owner", "-password");
+
+  if (!products.length) {
+    return res.status(404).json({ message: "No products found for this user." });
+  }
+
+  res.json(products);
 });
+
+
 
 export const deleteProduct = TryCatch(async (req, res) => {
   const { id } = req.body;

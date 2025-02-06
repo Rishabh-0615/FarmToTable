@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.post("/addproduct",isAuth,uploadFile,addProduct);
 router.get("/all",isAuth,getAllProducts);
-router.get("/:id",isAuth,getSingleProduct);
+router.get("/myproducts",isAuth,getSingleProduct);
 router.delete("/delete", isAuth, deleteProduct);
 router.put("/edit", isAuth, editProduct);
 

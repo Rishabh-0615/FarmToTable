@@ -6,10 +6,12 @@ import { toast } from "react-hot-toast";
 import axios from "axios";
 
 const MyListings = ({ user }) => {
-  const { products, fetchProducts, setProducts, loading } = ProductData();
+  const { product, fetchProduct, setProduct, loading } = ProductData();
+  
 
   useEffect(() => {
-    fetchProducts(); // Fetch all products when component mounts
+    fetchProduct(); // Fetch all products when component mounts
+    
   }, []);
 
   // Delete product function
@@ -24,7 +26,7 @@ const MyListings = ({ user }) => {
       toast.success(data.message);
 
       // Update local state to remove the deleted product
-      setProducts((prevProducts) =>
+      setProduct((prevProducts) =>
         prevProducts.filter((product) => product._id !== productId)
       );
     } catch (error) {
@@ -43,7 +45,7 @@ const MyListings = ({ user }) => {
       toast.success(data.message);
 
       // Update local state with edited product
-      setProducts((prevProducts) =>
+      setProduct((prevProducts) =>
         prevProducts.map((product) =>
           product._id === productId ? { ...product, ...updatedDetails } : product
         )
@@ -54,8 +56,8 @@ const MyListings = ({ user }) => {
     }
   };
 
-  // Filter products for the logged-in user
-  const userProducts = products?.filter((product) => product.owner === user._id);
+  const userProducts = product?.filter((product) => product.owner._id === user._id);
+
 
   return (
     <div>

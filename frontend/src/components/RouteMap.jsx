@@ -7,7 +7,7 @@ import {
   CheckCircle,
   AlertCircle,
   Loader2,
-  CreditCard,
+  Truck
 } from 'lucide-react';
 
 const PaymentStatus = {
@@ -15,6 +15,14 @@ const PaymentStatus = {
   PROCESSING: 'PROCESSING',
   COMPLETED: 'COMPLETED',
   FAILED: 'FAILED',
+};
+
+const DeliveryStatus = {
+  PROCESSING: 'PROCESSING',
+  SHIPPED: 'SHIPPED',
+  OUT_FOR_DELIVERY: 'OUT_FOR_DELIVERY',
+  DELIVERED: 'DELIVERED',
+  CANCELLED: 'CANCELLED'
 };
 
 const OrderList = () => {
@@ -81,6 +89,40 @@ const OrderList = () => {
     );
   };
 
+  const DeliveryStatusBadge = ({ status }) => {
+    const statusConfig = {
+      [DeliveryStatus.PROCESSING]: {
+        color: 'bg-yellow-100 text-yellow-800',
+        icon: <Package className="w-4 h-4 mr-2" />
+      },
+      [DeliveryStatus.SHIPPED]: {
+        color: 'bg-blue-100 text-blue-800',
+        icon: <Truck className="w-4 h-4 mr-2" />
+      },
+      [DeliveryStatus.OUT_FOR_DELIVERY]: {
+        color: 'bg-orange-100 text-orange-800',
+        icon: <Truck className="w-4 h-4 mr-2 animate-bounce" />
+      },
+      [DeliveryStatus.DELIVERED]: {
+        color: 'bg-green-100 text-green-800',
+        icon: <CheckCircle className="w-4 h-4 mr-2" />
+      },
+      [DeliveryStatus.CANCELLED]: {
+        color: 'bg-red-100 text-red-800',
+        icon: <AlertCircle className="w-4 h-4 mr-2" />
+      }
+    };
+
+    return (
+      <span
+        className={`flex items-center px-3 py-1 rounded-full text-sm font-medium ${statusConfig[status]?.color}`}
+      >
+        {statusConfig[status]?.icon}
+        {status.replace('_', ' ')}
+      </span>
+    );
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -117,7 +159,10 @@ const OrderList = () => {
               <Package className="mr-3 text-blue-500" />
               Order ID: {order._id}
             </h2>
-            <PaymentStatusBadge status={order.paymentStatus} />
+            <div className="flex items-center space-x-2">
+              <PaymentStatusBadge status={order.paymentStatus} />
+              <DeliveryStatusBadge status={order.deliveryStatus} />
+            </div>
           </div>
 
           <div className="grid md:grid-cols-2 gap-4 mb-4">

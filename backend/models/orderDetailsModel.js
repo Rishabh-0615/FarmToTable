@@ -46,6 +46,11 @@ const schema = new mongoose.Schema(
         required: true
       }
     },
+    deliveryStatus: {
+      type: String,
+      enum: ['PROCESSING', 'SHIPPED', 'OUT_FOR_DELIVERY', 'DELIVERED', 'CANCELLED'],
+      default: 'PROCESSING'
+    },
     paymentStatus: {
       type: String,
       enum: ['PENDING', 'PROCESSING', 'COMPLETED', 'FAILED'],

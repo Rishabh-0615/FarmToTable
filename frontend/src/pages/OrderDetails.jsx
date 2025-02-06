@@ -13,7 +13,8 @@ import {
   Loader2,
   Shield,
   X,
-  Info
+  Info,
+  Truck
 } from 'lucide-react';
 
 const PaymentStatus = {
@@ -21,6 +22,14 @@ const PaymentStatus = {
   PROCESSING: 'PROCESSING',
   COMPLETED: 'COMPLETED',
   FAILED: 'FAILED'
+};
+
+const DeliveryStatus = {
+  PROCESSING: 'PROCESSING',
+  SHIPPED: 'SHIPPED',
+  OUT_FOR_DELIVERY: 'OUT_FOR_DELIVERY',
+  DELIVERED: 'DELIVERED',
+  CANCELLED: 'CANCELLED'
 };
 
 const OrderDetails = () => {
@@ -119,6 +128,40 @@ const OrderDetails = () => {
       }`}>
         {statusConfig[order.paymentStatus].icon}
         {order.paymentStatus}
+      </span>
+    );
+  };
+
+  const DeliveryStatusBadge = () => {
+    const statusConfig = {
+      [DeliveryStatus.PROCESSING]: {
+        color: 'bg-yellow-100 text-yellow-800',
+        icon: <Package className="w-4 h-4 mr-2" />
+      },
+      [DeliveryStatus.SHIPPED]: {
+        color: 'bg-blue-100 text-blue-800',
+        icon: <Truck className="w-4 h-4 mr-2" />
+      },
+      [DeliveryStatus.OUT_FOR_DELIVERY]: {
+        color: 'bg-orange-100 text-orange-800',
+        icon: <Truck className="w-4 h-4 mr-2 animate-bounce" />
+      },
+      [DeliveryStatus.DELIVERED]: {
+        color: 'bg-green-100 text-green-800',
+        icon: <CheckCircle className="w-4 h-4 mr-2" />
+      },
+      [DeliveryStatus.CANCELLED]: {
+        color: 'bg-red-100 text-red-800',
+        icon: <AlertCircle className="w-4 h-4 mr-2" />
+      }
+    };
+
+    return (
+      <span className={`flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+        statusConfig[order.deliveryStatus].color
+      }`}>
+        {statusConfig[order.deliveryStatus].icon}
+        {order.deliveryStatus.replace('_', ' ')}
       </span>
     );
   };
@@ -265,7 +308,10 @@ const OrderDetails = () => {
             <Package className="mr-3 text-blue-500" />
             Order Details
           </h1>
-          <PaymentStatusBadge />
+          <div className="flex items-center space-x-2">
+            <PaymentStatusBadge />
+            <DeliveryStatusBadge />
+          </div>
         </div>
 
         <div className="grid md:grid-cols-2 gap-4 mb-6">

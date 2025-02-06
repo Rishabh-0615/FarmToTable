@@ -26,6 +26,7 @@ import OrderDetails from "./pages/OrderDetails";
 import AdminDashboard from "./pages/AdminDashboard";
 import UserOrdersPage from "./components/RouteMap";
 import OrderList from "./components/RouteMap";
+import DeliveryDashboard from "./components/RoutePage";
 
 const App = () => {
   const { user, loading, isAuth,fetchUser } = UserData();
@@ -47,6 +48,7 @@ const AppWithLocation = ({ user, isAuth }) => {
   // Determine which navbar to display
   const showFarmerNavbar = isAuth && user.role === "farmer";
   const showConsumerNavbar = isAuth && user.role === "customer";
+  const showDeliveryNavbar = isAuth && user.role === "delivery boy";
   
 
   return (
@@ -147,9 +149,10 @@ const AppWithLocation = ({ user, isAuth }) => {
         <Route path="/cart" element={isAuth && user.role==="customer"? <CartPage/>:<Home/>}/>
         <Route path="/past-orders" element={isAuth && user.role==="customer"? <OrderPage/>:<Home/>}/>
         <Route path="/order" element={<OrderDetails/>}/>
-        <Route path="/routemap" element={<OrderList/>}/>
+        <Route path="/orders" element={<OrderList/>}/>
         <Route path="/model" element={<Model/>}/>
         <Route path="/verify-farmer" element={<AdminDashboard />} />
+      
       </Routes>
       
     </>
