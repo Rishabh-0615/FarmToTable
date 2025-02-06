@@ -23,10 +23,13 @@ app.use(cookieParser());
 import userRoutes from './routes/userRoutes.js';
 import farmerRoutes from './routes/farmerRoutes.js'
 import customerRoutes from './routes/customerRoutes.js'
+import adminRoutes from './routes/adminRoutes.js'
 
 app.use("/api/user",userRoutes);
 app.use("/api/user/farmer",farmerRoutes)
 app.use("/api/user/customer",customerRoutes)
+app.use("/api/admin", adminRoutes)
+
 
 
 
