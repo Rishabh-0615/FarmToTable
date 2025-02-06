@@ -1,23 +1,15 @@
 import React, { useState } from "react";
-import { ShoppingCart, User, Menu, X, Home, Clock, Info, PhoneCall, LogOut } from "lucide-react";
+import { ShoppingCart, User, Menu, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { UserData } from "../context/UserContext";
-import { useNavigate, Link } from "react-router-dom";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import axios from "axios";
-import ProductSearch from "../components/ProductSearch";
+import myimg from "../assets/logo.png"; // Ensure the logo path is correct
 
-const NAV_ITEMS = [
-  { name: "Home", path: "/consumer", icon: Home },
-  { name: "Cart", path: "/cart", icon: ShoppingCart },
-  { name: "Past Orders", path: "/past-orders", icon: Clock },
-  { name: "About Us", path: "/about-us", icon: Info },
-  { name: "Contact Us", path: "/contact-us", icon: PhoneCall },
-];
-
-export default function ConsumerNavbar() {
+const ConsumerNavbar = () => {
   const navigate = useNavigate();
   const { setIsAuth, setUser } = UserData();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const logoutHandler = async () => {
     try {
@@ -33,85 +25,95 @@ export default function ConsumerNavbar() {
   };
 
   return (
-    <header className="bg-green-600 shadow-sm sticky top-0 z-50">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <img src="/logo.svg" alt="Farm-to-Table Logo" className="w-8 h-8" />
-            <span className="text-xl font-bold text-white hidden sm:block">Farm-to-Table</span>
-          </Link>
+    <>
+      <nav className="bg-gradient-to-r from-green-700 to-green-900 text-white w-full z-10 shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo & Name Section */}
+            <div className="flex items-center">
+              <a href="/" className="flex items-center group">
+                <img src={myimg} alt="Farm To Table" className="w-10 h-10 rounded-lg shadow-md" />
+                <span className="ml-2 text-xl font-bold text-green-100 group-hover:text-green-300 transition-colors duration-200">
+                  Farm-to-Table
+                </span>
+              </a>
+            </div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:block">
-            <ul className="flex items-center space-x-8">
-              {NAV_ITEMS.map(({ name, path, icon: Icon }) => (
-                <li key={name}>
-                  <Link
-                    to={path}
-                    className="flex items-center space-x-1 text-green-100 hover:text-white transition-colors duration-200"
-                  >
-                    <Icon className="w-4 h-4" />
-                    <span>{name}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-
-          {/* Desktop Actions */}
-          <div className="hidden md:flex items-center space-x-4">
-            <button
-              onClick={logoutHandler}
-              className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-green-700 text-white hover:bg-green-800 transition-colors duration-200"
-            >
-              <LogOut className="w-4 h-4" />
-              <span>Logout</span>
-            </button>
-          </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="p-2 rounded-lg text-green-100 hover:bg-green-500 md:hidden"
-          >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-        </div>
-
-        {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <div className="md:hidden py-4">
-            <ul className="space-y-4">
-              {NAV_ITEMS.map(({ name, path, icon: Icon }) => (
-                <li key={name}>
-                  <Link
-                    to={path}
-                    className="flex items-center space-x-2 text-green-100 hover:text-white transition-colors duration-200"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <Icon className="w-5 h-5" />
-                    <span>{name}</span>
-                  </Link>
-                </li>
-              ))}
-              <li>
+            {/* Navigation Menu */}
+            <div className="flex items-center">
+              {/* Mobile Menu Button */}
+              <div className="block lg:hidden">
                 <button
-                  onClick={() => {
-                    logoutHandler();
-                    setIsMenuOpen(false);
-                  }}
-                  className="flex items-center space-x-2 text-red-200 hover:text-red-100 transition-colors duration-200"
+                  onClick={() => setIsOpen(!isOpen)}
+                  className="text-green-100 hover:text-green-300 focus:outline-none transition-colors duration-200"
                 >
-                  <LogOut className="w-5 h-5" />
-                  <span>Logout</span>
+                  {isOpen ? <X size={28} /> : <Menu size={28} />}
                 </button>
-              </li>
-            </ul>
+              </div>
+
+              {/* Menu Items */}
+              <div
+                className={`${
+                  isOpen ? "block absolute top-16 right-0 w-48 bg-green-800 shadow-xl rounded-bl-lg" : "hidden"
+                } lg:relative lg:flex lg:items-center lg:space-x-6 lg:bg-transparent lg:w-auto`}
+              >
+                <ul className="flex flex-col lg:flex-row lg:space-x-4 p-2 lg:p-0">
+                  <li>
+                    <a
+                      href="/consumer"
+                      className="block px-4 py-2 text-green-100 hover:bg-green-600 hover:text-white rounded-lg transition-all duration-200 lg:hover:bg-transparent lg:hover:text-green-300"
+                    >
+                      Home
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="/cart"
+                      className="block px-4 py-2 text-green-100 hover:bg-green-600 hover:text-white rounded-lg transition-all duration-200 lg:hover:bg-transparent lg:hover:text-green-300"
+                    >
+                      Cart
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="/past-orders"
+                      className="block px-4 py-2 text-green-100 hover:bg-green-600 hover:text-white rounded-lg transition-all duration-200 lg:hover:bg-transparent lg:hover:text-green-300"
+                    >
+                      Past Orders
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="/about-us"
+                      className="block px-4 py-2 text-green-100 hover:bg-green-600 hover:text-white rounded-lg transition-all duration-200 lg:hover:bg-transparent lg:hover:text-green-300"
+                    >
+                      About Us
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="/contact-us"
+                      className="block px-4 py-2 text-green-100 hover:bg-green-600 hover:text-white rounded-lg transition-all duration-200 lg:hover:bg-transparent lg:hover:text-green-300"
+                    >
+                      Contact Us
+                    </a>
+                  </li>
+                  <li>
+                    <button
+                      onClick={logoutHandler}
+                      className="w-full lg:w-auto px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
+                    >
+                      Logout
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            </div>
           </div>
-        )}
-      </div>
-      <Toaster position="top-center" />
-    </header>
+        </div>
+      </nav>
+    </>
   );
-}
+};
+
+export default ConsumerNavbar;

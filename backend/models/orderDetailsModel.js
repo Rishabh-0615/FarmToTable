@@ -1,0 +1,56 @@
+import mongoose from "mongoose";
+
+const schema = new mongoose.Schema(
+  {
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+      },
+      cartItems: [
+        {
+          productId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Product',
+            required: true
+          },
+          quantity: {
+            type: Number,
+            required: true
+          },
+          price: {
+            type: Number,
+            required: true
+          }
+        }
+      ],
+      totalPrice: {
+        type: Number,
+        required: true
+      },
+      subTotal: {
+        type: Number,
+        required: true
+      },
+      deliveryFee: {
+        type: Number,
+        required: true
+      },
+      location: {
+        address: {
+          type: String,
+          required: true
+        },
+        coordinates: {
+          type: [Number],  // [longitude, latitude]
+          required: true
+        }
+      },
+      createdAt: {
+        type: Date,
+        default: Date.now
+      }
+    }
+);
+
+export const OrderDetails = mongoose.model("OrderDetails", schema);

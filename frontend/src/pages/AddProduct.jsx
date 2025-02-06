@@ -12,6 +12,11 @@ const LoadingAnimation = () => (
 );
 
 const AddProduct = () => {
+  const shelfLifeOptions = {
+    Vegetable: ["3-5 days", "5-7 days", "7-10 days", "10-14 days"],
+    Fruit: ["2-4 days", "4-7 days", "7-10 days", "10-14 days"],
+    Grains: ["15-30 days", "30-60 days", "60-90 days", "90+ days"],
+  };
   const inputRef = useRef(null);
   const navigate = useNavigate();
   const [file, setFile] = useState("");
@@ -26,23 +31,16 @@ const AddProduct = () => {
     formState: { errors },
   } = useForm();
 
-  // State for selected category
   const selectedCategoryValue = watch("productCategory");
-
-  // Show error if user tries to select product without selecting a category
+  const isDiscountOfferEnabled = watch("discountOffer");
   const categoryError = !selectedCategoryValue && "Please select a category first.";
 
-  // Watch the discount offer checkbox
-  const isDiscountOfferEnabled = watch("discountOffer");
-
-  // Product options for different categories
   const productOptions = {
     Vegetable: ["Carrot", "Tomato", "Cabbage", "Spinach"],
     Fruit: ["Apples", "Watermelon", "Mango", "Banana"],
     Grains: ["Rice", "Wheat", "Corn", "Barley"],
   };
 
-  // Handle image selection
   const handleClick = () => inputRef.current.click();
 
   const changeFileHandler = (e) => {
@@ -56,11 +54,12 @@ const AddProduct = () => {
     };
   };
 
-  // Handle form submission
   const onSubmit = async (data) => {
     setLoading(true);
     const formData = new FormData();
 
+    // ... (keeping the same form submission logic)
+    
     formData.append("category", data.productCategory);
     formData.append("name", data.productName);
     formData.append("quantity", data.quantity);
@@ -71,6 +70,7 @@ const AddProduct = () => {
     formData.append("notes", data.notes);
     formData.append("file", file);
     formData.append("userId", user.id);
+    formData.append("life",data.life);
 
     // Add discount offer data if enabled
     if (isDiscountOfferEnabled) {
@@ -94,217 +94,240 @@ const AddProduct = () => {
   };
 
   return (
-    <div className="min-h-screen bg-green-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl w-full bg-white p-8 rounded-lg shadow-lg">
-        <h1 className="text-2xl font-bold text-green-700 mb-6 text-center">Add New Product</h1>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white rounded-2xl shadow-xl overflow-hidden transform transition-all hover:shadow-2xl">
+          <div className="bg-gradient-to-r from-green-600 to-green-400 p-6">
+            <h1 className="text-3xl font-bold text-white text-center">Add New Product</h1>
+          </div>
 
-        {/* Image Upload Section */}
-        <div className="flex flex-col items-center mb-6">
-          <div className="flex flex-col items-center justify-center w-64 h-64 border-2 border-dashed border-green-400 rounded-lg">
-            {filePrev && <img src={filePrev} alt="Preview" className="w-full h-full object-cover rounded-lg" />}
-            <div className="flex flex-col items-center justify-center h-full cursor-pointer" onClick={handleClick}>
-              <input
-                ref={inputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={changeFileHandler}
-              />
-              {!filePrev && (
-                <>
-                  <div className="w-12 h-12 mb-4 flex items-center justify-center bg-green-100 text-green-500 rounded-full">
-                    <FaPlus size={24} />
+          <div className="p-8">
+            {/* Image Upload Section */}
+            <div className="mb-8">
+              <div className="relative group">
+                <div className="flex flex-col items-center justify-center w-full h-72 border-3 border-dashed border-green-300 rounded-xl bg-green-50 transition-all duration-300 group-hover:border-green-400 group-hover:bg-green-100">
+                  {filePrev ? (
+                    <img src={filePrev} alt="Preview" className="w-full h-full object-cover rounded-xl" />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-full cursor-pointer" onClick={handleClick}>
+                      <input
+                        ref={inputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={changeFileHandler}
+                      />
+                      <div className="w-16 h-16 mb-4 flex items-center justify-center bg-green-200 text-green-600 rounded-full transition-transform duration-300 transform group-hover:scale-110">
+                        <FaPlus size={24} />
+                      </div>
+                      <p className="text-green-600 font-medium">Choose a file</p>
+                      <p className="mt-2 text-sm text-green-500">High-quality .jpg files recommended (max 10MB)</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Product Form */}
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Category and Product Name */}
+                <div className="space-y-6">
+                  <div className="group">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2 transition-colors group-hover:text-green-600">
+                      Product Category
+                    </label>
+                    <select
+                      className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-green-500 focus:ring focus:ring-green-200 transition-all duration-300"
+                      {...register("productCategory", { required: "Product Category is required" })}
+                    >
+                      <option value="">Select a category</option>
+                      <option value="Vegetable">Vegetable</option>
+                      <option value="Fruit">Fruit</option>
+                      <option value="Grains">Grains</option>
+                    </select>
+                    {errors.productCategory && (
+                      <p className="mt-1 text-red-500 text-sm">{errors.productCategory.message}</p>
+                    )}
                   </div>
-                  <p className="text-gray-500">Choose a file</p>
-                </>
-              )}
-            </div>
-          </div>
-          <p className="mt-4 text-sm text-gray-400">We recommend using high-quality .jpg files but less than 10MB.</p>
-        </div>
 
-        {/* Product Form */}
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Product Category */}
-          <div>
-            <label htmlFor="productCategory" className="block text-sm font-medium text-gray-700">
-              Product Category
-            </label>
-            <select
-              id="productCategory"
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              {...register("productCategory", { required: "Product Category is required" })}
-            >
-              <option value="">Select a category</option>
-              <option value="Vegetable">Vegetable</option>
-              <option value="Fruit">Fruit</option>
-              <option value="Grains">Grains</option>
-            </select>
-            {errors.productCategory && <p className="text-red-500 text-sm mt-1">{errors.productCategory.message}</p>}
-          </div>
+                  <div className="group">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2 transition-colors group-hover:text-green-600">
+                      Product Name
+                    </label>
+                    <select
+                      className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-green-500 focus:ring focus:ring-green-200 transition-all duration-300"
+                      {...register("productName", { required: "Product name is required" })}
+                      disabled={!selectedCategoryValue}
+                    >
+                      <option value="">
+                        {selectedCategoryValue ? "Select a product" : "Please select category first"}
+                      </option>
+                      {selectedCategoryValue &&
+                        productOptions[selectedCategoryValue]?.map((product) => (
+                          <option key={product} value={product}>
+                            {product}
+                          </option>
+                        ))}
+                    </select>
+                    {!selectedCategoryValue && <p className="mt-1 text-red-500 text-sm">{categoryError}</p>}
+                    {errors.productName && <p className="mt-1 text-red-500 text-sm">{errors.productName.message}</p>}
+                  </div>
+                </div>
 
-          {/* Product Name - Dynamically Updated */}
-          <div>
-            <label htmlFor="productName" className="block text-sm font-medium text-gray-700">
-              Product Name
-            </label>
-            <select
-              id="productName"
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              {...register("productName", { required: "Product name is required" })}
-              disabled={!selectedCategoryValue}
-            >
-              <option value="">{selectedCategoryValue ? "Select a product" : "Please select the above field first"}</option>
-              {selectedCategoryValue &&
-                productOptions[selectedCategoryValue]?.map((product) => (
-                  <option key={product} value={product}>
-                    {product}
-                  </option>
-                ))}
-            </select>
-            {!selectedCategoryValue && <p className="text-red-500 text-sm mt-1">{categoryError}</p>}
-            {errors.productName && <p className="text-red-500 text-sm mt-1">{errors.productName.message}</p>}
-          </div>
+                {/* Quantity and Price */}
+                <div className="space-y-6">
+                  <div className="group">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2 transition-colors group-hover:text-green-600">
+                      Quantity Available
+                    </label>
+                    <input
+                      type="number"
+                      className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-green-500 focus:ring focus:ring-green-200 transition-all duration-300"
+                      {...register("quantity", {
+                        required: "Quantity is required",
+                        min: { value: 1, message: "Value must be greater than 0" },
+                      })}
+                    />
+                    {errors.quantity && <p className="mt-1 text-red-500 text-sm">{errors.quantity.message}</p>}
+                  </div>
 
-          {/* Other Fields (Quantity, Weight, Price, etc.) */}
-          <div>
-            <label htmlFor="quantity" className="block text-sm font-medium text-gray-700">Quantity Available</label>
-            <input
-              type="number"
-              id="quantity"
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              {...register("quantity", { required: "Quantity is required", min: { value: 1, message: "Value must be greater than 0" } })}
-            />
-            {errors.quantity && <p className="text-red-500 text-sm mt-1">{errors.quantity.message}</p>}
-          </div>
+                  <div className="group">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2 transition-colors group-hover:text-green-600">
+                      Price (per unit)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-green-500 focus:ring focus:ring-green-200 transition-all duration-300"
+                      {...register("price", {
+                        required: "Price is required",
+                        min: { value: 1, message: "Value must be greater than 0" },
+                      })}
+                    />
+                    {errors.price && <p className="mt-1 text-red-500 text-sm">{errors.price.message}</p>}
+                  </div>
+                </div>
+              </div>
 
-          <div>
-            <label htmlFor="price" className="block text-sm font-medium text-gray-700">Price (per unit)</label>
-            <input
-              type="number"
-              id="price"
-              step="0.01"
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              {...register("price", { required: "Price is required", min: { value: 1, message: "Value must be greater than 0" } })}
-            />
-            {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price.message}</p>}
-          </div>
+              {/* Discount Section */}
+              <div className="p-6 bg-green-50 rounded-xl space-y-6">
+                <div className="flex items-center space-x-3">
+                  <input
+                    type="checkbox"
+                    className="w-5 h-5 text-green-600 border-2 border-gray-300 rounded focus:ring-green-500"
+                    {...register("discountOffer")}
+                  />
+                  <label className="text-sm font-semibold text-gray-700">
+                    Offer discount for bulk purchases
+                  </label>
+                </div>
 
-          {/* Discount Offer Section */}
-          <div>
-            <label htmlFor="discountOffer" className="block text-sm font-medium text-gray-700">
-              Do you want to offer a discount for bulk purchases?
-            </label>
-            <div className="mt-2">
-              <label className="inline-flex items-center">
-                <input
-                  type="checkbox"
-                  id="discountOffer"
-                  className="form-checkbox h-4 w-4 text-green-500"
-                  {...register("discountOffer")}
-                />
-                <span className="ml-2">Yes, offer a discount</span>
-              </label>
-            </div>
-          </div>
+                {isDiscountOfferEnabled && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                    <div className="group">
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Minimum Quantity
+                      </label>
+                      <input
+                        type="number"
+                        className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-green-500 focus:ring focus:ring-green-200 transition-all duration-300"
+                        {...register("minQuantityForDiscount", {
+                          required: "Minimum quantity is required",
+                          min: { value: 1, message: "Value must be greater than 0" },
+                        })}
+                      />
+                      {errors.minQuantityForDiscount && (
+                        <p className="mt-1 text-red-500 text-sm">{errors.minQuantityForDiscount.message}</p>
+                      )}
+                    </div>
 
-          {/* Discount Rules (Conditional Rendering) */}
-          {isDiscountOfferEnabled && (
-            <>
-              <div>
-                <label htmlFor="minQuantityForDiscount" className="block text-sm font-medium text-gray-700">
-                  Minimum Quantity for Discount
-                </label>
-                <input
-                  type="number"
-                  id="minQuantityForDiscount"
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                  {...register("minQuantityForDiscount", {
-                    required: "Minimum quantity is required",
-                    min: { value: 1, message: "Value must be greater than 0" },
-                  })}
-                />
-                {errors.minQuantityForDiscount && (
-                  <p className="text-red-500 text-sm mt-1">{errors.minQuantityForDiscount.message}</p>
+                    <div className="group">
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Discount Percentage (%)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-green-500 focus:ring focus:ring-green-200 transition-all duration-300"
+                        {...register("discountPercentage", {
+                          required: "Discount percentage is required",
+                          min: { value: 1, message: "Value must be greater than 0" },
+                          max: { value: 100, message: "Value must be less than or equal to 100" },
+                        })}
+                      />
+                      {errors.discountPercentage && (
+                        <p className="mt-1 text-red-500 text-sm">{errors.discountPercentage.message}</p>
+                      )}
+                    </div>
+                  </div>
                 )}
               </div>
 
-              <div>
-                <label htmlFor="discountPercentage" className="block text-sm font-medium text-gray-700">
-                  Discount Percentage (%)
-                </label>
-                <input
-                  type="number"
-                  id="discountPercentage"
-                  step="0.01"
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                  {...register("discountPercentage", {
-                    required: "Discount percentage is required",
-                    min: { value: 1, message: "Value must be greater than 0" },
-                    max: { value: 100, message: "Value must be less than or equal to 100" },
-                  })}
-                />
-                {errors.discountPercentage && (
-                  <p className="text-red-500 text-sm mt-1">{errors.discountPercentage.message}</p>
-                )}
-              </div>
-            </>
-          )}
+              {/* Location and Condition */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="group">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2 transition-colors group-hover:text-green-600">
+                    Farm Location
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-green-500 focus:ring focus:ring-green-200 transition-all duration-300"
+                    {...register("location", { required: "Location is required" })}
+                  />
+                  {errors.location && <p className="mt-1 text-red-500 text-sm">{errors.location.message}</p>}
+                </div>
 
-          {/* Farm Location */}
-          <div>
-            <label htmlFor="location" className="block text-sm font-medium text-gray-700">
-              Farm Location
-            </label>
-            <input
-              type="text"
-              id="location"
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              {...register("location", { required: "Location is required" })}
-            />
-            {errors.location && <p className="text-red-500 text-sm mt-1">{errors.location.message}</p>}
-          </div>
-
-          {/* Product Condition */}
-          <div>
-            <label htmlFor="condition" className="block text-sm font-medium text-gray-700">
-              Product Condition
-            </label>
-            <select
-              id="condition"
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              {...register("condition", { required: "Condition is required" })}
-            >
-              <option value="">Select condition</option>
-              <option value="Ripe">Ripe</option>
-              <option value="Unripe">Unripe</option>
-              <option value="Other">Other</option>
-            </select>
-            {errors.condition && <p className="text-red-500 text-sm mt-1">{errors.condition.message}</p>}
-          </div>
-
-          {/* Additional Notes */}
-          <div>
-            <label htmlFor="notes" className="block text-sm font-medium text-gray-700">
-              Additional Notes (Optional)
-            </label>
-            <textarea
-              id="notes"
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              rows="4"
-              {...register("notes")}
-            ></textarea>
-          </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            className={`w-full py-2 px-4 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
-            disabled={loading}
+                <div className="group">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2 transition-colors group-hover:text-green-600">
+                      Shelf Life: 
+                    </label>
+                    <select
+            className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-green-500 focus:ring focus:ring-green-200 transition-all duration-300"
+            {...register("life", { 
+              required: "Shelf Life is required",
+              disabled: !selectedCategoryValue
+            })}
+            disabled={!selectedCategoryValue}
           >
-            {loading ? <LoadingAnimation /> : "Add Product"}
-          </button>
-        </form>
+            <option value="">
+              {selectedCategoryValue ? "Select shelf life" : "Select category first"}
+            </option>
+            {selectedCategoryValue &&
+              shelfLifeOptions[selectedCategoryValue]?.map((life) => (
+                <option key={life} value={life}>
+                  {life}
+                </option>
+              ))
+            }
+          </select>
+                    {errors.life && <p className="mt-1 text-red-500 text-sm">{errors.life.message}</p>}
+                  </div>
+                </div>
+
+              {/* Notes */}
+              <div className="group">
+                <label className="block text-sm font-semibold text-gray-700 mb-2 transition-colors group-hover:text-green-600">
+                  Additional Notes (Optional)
+                </label>
+                <textarea
+                  className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-green-500 focus:ring focus:ring-green-200 transition-all duration-300"
+                  rows="4"
+                  {...register("notes")}
+                ></textarea>
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-4 px-6 bg-gradient-to-r from-green-600 to-green-400 text-white text-lg font-semibold rounded-xl shadow-lg hover:from-green-700 hover:to-green-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transform transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              >
+                {loading ? <LoadingAnimation /> : "Add Product"}
+              </button>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
   );

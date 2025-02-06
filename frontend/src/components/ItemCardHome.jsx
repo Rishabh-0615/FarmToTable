@@ -9,6 +9,9 @@ const ItemCardHome = ({ product }) => {
         className="w-full h-48 object-cover transition-transform duration-500 hover:scale-110"
       />
       <div className="p-4">
+        <h3 className="text-sm text-gray-600 mb-1">
+          Farmer: {product.owner?.name|| 'Unknown Farmer'}
+        </h3>
         <h3 className="text-xl font-semibold text-green-800 transition-colors duration-300 hover:text-green-600">
           Category: {product.category}
         </h3>
@@ -17,10 +20,19 @@ const ItemCardHome = ({ product }) => {
         </p>
         <p className="text-gray-700 mt-2 text-lg font-semibold">
           Price: <span className="text-green-500">₹{product.price}</span>
+          {product.discountOffer && (
+            <p className="ml-2 text-sm text-green-600">
+              ({product.discountPercentage}% off on {product.minQuantityForDiscount}+ items)
+            </p>
+          )}
         </p>
         <p className="text-gray-700 mt-2 text-lg font-semibold">
-          Listed on: {new Date(product.createdAt).toLocaleDateString("en-GB")}</p>
+          Listed on: {new Date(product.createdAt).toLocaleDateString("en-GB")}
+        </p>
         <p className="text-gray-600 mt-1">Quantity: {product.quantity}</p>
+        <p className="text-gray-600 mt-1">
+          Shelf Life: <span className="text-green-500">{product.life || 'Not specified'}</span>
+        </p>
       </div>
       {/* Hover effect for the card */}
       <div className="absolute inset-0 bg-gradient-to-t from-green-100 via-transparent to-transparent opacity-0 group-hover:opacity-50 transition-opacity duration-300"></div>

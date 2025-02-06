@@ -31,14 +31,6 @@ app.use("/api/user/customer",customerRoutes)
 
 
 
-
-// Route for Reverse Geocoding (Coordinates to Address)
-
-
-
-
-// Route for Geolocation (Approximate Device Location using nearby cell towers and WiFi nodes)
-
 const __dirname = path.resolve();
 
 app.use(express.static(path.join(__dirname, "/frontend/dist")));
