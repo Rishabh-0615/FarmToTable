@@ -24,6 +24,7 @@ import Account from "./pages/Account";
 import Model from './pages/Model'
 import OrderDetails from "./pages/OrderDetails";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminLogin from "./pages/AdminLogin";
 
 const App = () => {
   const { user, loading, isAuth,fetchUser } = UserData();
@@ -147,7 +148,9 @@ const AppWithLocation = ({ user, isAuth }) => {
         <Route path="/order" element={<OrderDetails/>}/>
         <Route path="/routemap" element={<AddToCart/>}/>
         <Route path="/model" element={<Model/>}/>
+        <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/verify-farmer" element={<AdminDashboard />} />
+       
       </Routes>
       
     </>
