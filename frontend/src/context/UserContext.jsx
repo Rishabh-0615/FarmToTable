@@ -8,7 +8,7 @@ export const UserProvider = ({ children }) => {
     const [user, setUser] = useState([]);
     const [isAuth, setIsAuth] = useState(false);
     const [btnLoading, setBtnLoading] = useState(false);
-    
+    const [admin, setAdmin] = useState(null);
   
     // Function to handle user login
     async function loginUser(email, password,role, navigate) {
@@ -115,6 +115,21 @@ export const UserProvider = ({ children }) => {
     
   }
 
+  async function loginAdmin(username, password, navigate) {
+    setBtnLoading(true);
+    try {
+      const { data } = await axios.post("/api/admin/admin-login", { username, password });
+      toast.success(data.message);
+      setAdmin(data.admin);
+      setIsAuth(true);
+      setBtnLoading(false);
+      navigate("/verify-farmer");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Admin login failed");
+      setBtnLoading(false);
+    }
+  }
+
   useEffect(()=>{
     fetchUser();
   },[]);
@@ -123,9 +138,11 @@ export const UserProvider = ({ children }) => {
       <UserContext.Provider
         value={{
           loginUser,
+          loginAdmin,
           btnLoading,
           isAuth,
           user,
+          admin,
           loading,
           setIsAuth,
           setUser,
@@ -133,6 +150,7 @@ export const UserProvider = ({ children }) => {
           verifyUser,
           forgotUser,
           resetUser,
+          setAdmin,
         }}
       >
         {children}

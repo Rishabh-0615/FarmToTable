@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
   const [farmers, setFarmers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchFarmers = async () => {
@@ -23,11 +25,29 @@ const AdminDashboard = () => {
     fetchFarmers();
   }, []);
 
+  const logout = async () => {
+    try {
+      await axios.get("/api/admin/logout");
+      navigate("/admin-login"); // Redirect
+    } catch (err) {
+      console.error("Logout failed:", err);
+      setError("Failed to log out.");
+    }
+  };
+
   if (loading) return <h1 className="text-center text-lg font-bold">Loading...</h1>;
   if (error) return <h1 className="text-center text-lg font-bold text-red-500">{error}</h1>;
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-10">
+    <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-10 relative">
+      {/* Logout Button at Top Right */}
+      <button
+        onClick={logout}
+        className="absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition"
+      >
+        Logout
+      </button>
+
       <h1 className="text-2xl font-bold text-center mb-4">Admin Dashboard - Verify Farmers</h1>
       {farmers.length === 0 ? (
         <p className="text-center text-gray-600">No farmers waiting for approval.</p>
