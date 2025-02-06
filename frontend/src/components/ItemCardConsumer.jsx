@@ -14,7 +14,7 @@ const ItemCardConsumer = ({ product }) => {
   }, [product, quantity]);
 
   const handleAddToCart = async (event) => {
-    event.stopPropagation(); // Prevent parent div interference
+    event.stopPropagation();
     try {
       if (quantity > product.quantity) {
         toast.error("Not enough stock available.");
@@ -39,93 +39,96 @@ const ItemCardConsumer = ({ product }) => {
   };
 
   return (
-    <div className="group bg-white shadow-lg rounded-lg overflow-hidden w-80 transform transition-all duration-300 hover:scale-105 hover:shadow-xl relative">
-      <img
-        src={product.image?.url || "https://via.placeholder.com/150"}
-        alt={product.name}
-        className="w-full h-48 object-cover transition-transform duration-500 hover:scale-110"
-      />
-      <div className="p-4 relative z-10">
-        <h3 className="text-sm text-gray-600 mb-1">
-          Farmer: {product.owner?.name || "Unknown Farmer"}
-        </h3>
-        <h3 className="text-xl font-semibold text-green-800 transition-colors duration-300 hover:text-green-600">
-          Category: {product.category}
-        </h3>
-        <p className="text-gray-700 mt-2 text-lg font-semibold">
-          Name: <span className="text-green-500">{product.name}</span>
-        </p>
+    <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 w-full max-w-sm">
+      {/* Image Container */}
+      <div className="relative h-48 overflow-hidden">
+        <img
+          src={product.image?.url || "https://via.placeholder.com/150"}
+          alt={product.name}
+          className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+        />
+        {product.discountOffer && (
+          <div className="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+            {product.discountPercentage}% OFF
+          </div>
+        )}
+      </div>
 
-        {/* Price section */}
-        <div className="mt-2">
-          <p className="text-gray-700 text-lg font-semibold">
-            Price: <span className="text-green-500">₹{product.price}</span>
-            {product.discountOffer && (
-              <span className="ml-2 text-sm text-green-600">
-                ({product.discountPercentage}% off on {product.minQuantityForDiscount}+ items)
-              </span>
+      {/* Content Container */}
+      <div className="p-5 space-y-4">
+        {/* Header */}
+        <div className="space-y-2">
+          <div className="flex justify-between items-start">
+            <h2 className="text-xl font-semibold text-gray-800">{product.name}</h2>
+            <span className="text-sm text-gray-500">
+              {new Date(product.createdAt).toLocaleDateString("en-GB")}
+            </span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-gray-600">{product.owner?.name || "Unknown Farmer"}</span>
+            <span className="text-gray-300">•</span>
+            <span className="text-sm text-gray-600">{product.category}</span>
+          </div>
+        </div>
+
+        {/* Price Section */}
+        <div className="space-y-1">
+          <div className="flex items-baseline space-x-2">
+            <span className="text-2xl font-bold text-green-600">₹{calculatePrice}</span>
+            {product.discountOffer && quantity >= product.minQuantityForDiscount && (
+              <span className="text-lg text-gray-400 line-through">₹{product.price}</span>
             )}
-          </p>
-
-          {/* Discounted Price */}
-          {product.discountOffer && quantity >= product.minQuantityForDiscount && (
-            <p className="text-green-600 font-semibold">
-              Discounted Price: ₹{calculatePrice}
-              <span className="text-sm ml-2">
-                (You save ₹{(product.price - calculatePrice).toFixed(2)})
-              </span>
+          </div>
+          {product.discountOffer && quantity < product.minQuantityForDiscount && (
+            <p className="text-sm text-orange-500">
+              Add {product.minQuantityForDiscount - quantity} more for {product.discountPercentage}% off
             </p>
           )}
         </div>
 
-        <p className="text-gray-600 mt-1">Available: {product.quantity}</p>
-        <p className="text-gray-600 mt-1">
-          Shelf Life:{" "}
-          <span className="text-green-500">{product.life || "Not specified"}</span>
-        </p>
-        <p className="text-gray-700 mt-2 text-lg font-semibold">
-          Listed on: {new Date(product.createdAt).toLocaleDateString("en-GB")}
-        </p>
+        {/* Details */}
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <span className="text-gray-500">Available</span>
+            <p className="font-medium text-gray-800">{product.quantity} units</p>
+          </div>
+          <div>
+            <span className="text-gray-500">Shelf Life</span>
+            <p className="font-medium text-gray-800">{product.life || "Not specified"}</p>
+          </div>
+        </div>
 
-        {/* Discount eligibility message */}
-        {product.discountOffer && quantity < product.minQuantityForDiscount && (
-          <p className="text-orange-500 text-sm mt-2">
-            Add {product.minQuantityForDiscount - quantity} more items to get {product.discountPercentage}% off!
-          </p>
-        )}
-
-        {/* Quantity Controls & Add to Cart */}
-        <div className="flex items-center mt-4 space-x-3 relative z-20">
+        {/* Quantity and Cart Controls */}
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 bg-gray-100 rounded-lg p-1">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setQuantity((prev) => Math.max(prev - 1, 1));
+              }}
+              className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-200 rounded-md transition-colors"
+            >
+              -
+            </button>
+            <span className="w-8 text-center font-medium">{quantity}</span>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setQuantity((prev) => Math.min(prev + 1, product.quantity));
+              }}
+              className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-200 rounded-md transition-colors"
+            >
+              +
+            </button>
+          </div>
           <button
-            className="px-3 py-1 bg-gray-200 rounded-md focus:outline-none active:scale-95"
-            onClick={(e) => {
-              e.stopPropagation();
-              setQuantity((prev) => Math.max(prev - 1, 1));
-            }}
-          >
-            -
-          </button>
-          <span className="text-lg font-semibold">{quantity}</span>
-          <button
-            className="px-3 py-1 bg-gray-200 rounded-md focus:outline-none active:scale-95"
-            onClick={(e) => {
-              e.stopPropagation();
-              setQuantity((prev) => Math.min(prev + 1, product.quantity));
-            }}
-          >
-            +
-          </button>
-          <button
-            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none active:scale-95"
             onClick={handleAddToCart}
+            className="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors font-medium"
           >
             Add to Cart
           </button>
         </div>
       </div>
-
-      {/* Hover Gradient Effect */}
-      <div className="absolute inset-0 bg-gradient-to-t from-green-100 via-transparent to-transparent opacity-0 group-hover:opacity-50 transition-opacity duration-300"></div>
     </div>
   );
 };
