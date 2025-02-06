@@ -20,9 +20,13 @@ export const UserProvider = ({ children }) => {
         setUser(data.user);
         setIsAuth(true);
         setBtnLoading(false);
+        if(Role==="customer"){
+          navigate("/customer");
+        }
         if(Role==="farmer"){
           navigate("/farmer");
         }
+       
       } catch (error) {
         toast.error(error.response.data.message);
         setBtnLoading(false);
@@ -49,10 +53,15 @@ export const UserProvider = ({ children }) => {
       try {
         const {data} = await axios.post("/api/user/verifyOtp/"+token, {otp,token});
         toast.success(data.message);
+        
         setUser(data.user);
-        setIsAuth(true);
-        setBtnLoading(false);
-        navigate("/");
+        if(data.user.role==="customer"){
+          setIsAuth(true);
+          setBtnLoading(false);
+          navigate("/");
+        }
+        navigate("/login")
+       
       
     } catch (error) {
       toast.error(error.response.data.message);

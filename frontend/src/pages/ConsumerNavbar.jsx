@@ -74,6 +74,16 @@ const ConsumerNavbar = () => {
                       Cart
                     </a>
                   </li>
+                  
+                  
+                  <li>
+                    <a
+                      href="/order"
+                      className="block px-4 py-2 text-green-100 hover:bg-green-600 hover:text-white rounded-lg transition-all duration-200 lg:hover:bg-transparent lg:hover:text-green-300"
+                    >
+                      Order
+                    </a>
+                  </li>
                   <li>
                     <a
                       href="/past-orders"
@@ -82,22 +92,7 @@ const ConsumerNavbar = () => {
                       Past Orders
                     </a>
                   </li>
-                  <li>
-                    <a
-                      href="/about-us"
-                      className="block px-4 py-2 text-green-100 hover:bg-green-600 hover:text-white rounded-lg transition-all duration-200 lg:hover:bg-transparent lg:hover:text-green-300"
-                    >
-                      About Us
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="/contact-us"
-                      className="block px-4 py-2 text-green-100 hover:bg-green-600 hover:text-white rounded-lg transition-all duration-200 lg:hover:bg-transparent lg:hover:text-green-300"
-                    >
-                      Contact Us
-                    </a>
-                  </li>
+                 
                   <li>
                     <button
                       onClick={logoutHandler}

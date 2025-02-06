@@ -10,8 +10,11 @@ import {
   Utensils,
   ShoppingBasket,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
 
 const CartPage = () => {
+  const navigate = useNavigate();
   const [cart, setCart] = useState({ items: [], totalPrice: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -84,6 +87,8 @@ const CartPage = () => {
         toast.success("Harvest order placed successfully!");
         setCart({ items: [], totalPrice: 0 });
       }
+      navigate("/order")
+      
     } catch (err) {
       toast.error(err.response?.data?.error || "Failed to place farm order");
     }

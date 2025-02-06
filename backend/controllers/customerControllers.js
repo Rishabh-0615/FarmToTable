@@ -168,96 +168,7 @@ export const mockApi=TryCatch(async(req,res)=>{
   }, 2000);
 })
 
-export const saveOrder = async (req, res) => {
-  try {
-    const { cartItems, totalPrice: subTotal, locationAddress } = req.body;
-    const userId = req.user._id;
 
-    if (!userId || !cartItems || !subTotal || !locationAddress) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
-
-    // Get the coordinates of the user's location using geocoding (previously defined)
-    const { latitude, longitude } = await getLocationCoordinates(locationAddress);
-
-    // Calculate the distance between the user's location and the hub
-    const distanceData = await calculateDistance({ latitude, longitude });
-    const { distanceInKm } = distanceData;
-
-    // Calculate the delivery fee based on the distance
-    const deliveryFee = calculateDeliveryFee(distanceInKm);
-
-    // Update the total price by adding the delivery fee
-    const updatedTotalPrice = subTotal + deliveryFee;
-
-    // Create a new order with the updated price and location
-    const orderDetails = new OrderDetails({
-      userId,
-      cartItems,
-      deliveryFee,
-      subTotal,
-      totalPrice: updatedTotalPrice,
-      location: {
-        address: locationAddress,
-        coordinates: [longitude, latitude]
-      }
-    });
-
-    // Save the order in the database
-    await orderDetails.save();
-    await Cart.findOneAndUpdate(
-      { consumer: userId },
-      { items: [], totalPrice: 0 },
-      { new: true }
-    );
-   
-   
-
-    return res.status(201).json({
-      message: 'Order saved successfully',
-      order: orderDetails,
-      deliveryFee,
-      subTotal,
-      updatedTotalPrice,
-      distance: distanceData.distanceInKm,
-      duration: distanceData.duration
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: 'Failed to save order' });
-  }
-};
-
-
-export const getDetails = async (req, res) => {
-  try {
-    const userId = req.user._id;
-
-    if (!userId) {
-      return res.status(400).json({ error: 'User not found' });
-    }
-
-    // Fetch the latest order for the user
-    const latestOrder = await OrderDetails.findOne({ userId })
-      .populate('cartItems.productId', 'name price image')
-      .sort({ createdAt: -1 });
-
-    if (!latestOrder) {
-      return res.status(404).json({ error: 'No orders found' });
-    }
-
-    return res.status(200).json({
-      message: 'Latest order retrieved successfully',
-      order: latestOrder,
-      deliveryFee: latestOrder.deliveryFee,
-      subTotal: latestOrder.subTotal, // Correct subtotal value
-      totalPrice: latestOrder.totalPrice,
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: 'Failed to fetch the latest order' });
-  }
-};
 
 const getLocationCoordinates = async (address) => {
   try {
@@ -359,5 +270,126 @@ export const getUserLocation = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({ error: 'Failed to fetch location' });
+  }
+};
+
+// Schema
+
+
+// Controllers
+export const saveOrder = async (req, res) => {
+  try {
+    const { cartItems, totalPrice: subTotal, locationAddress } = req.body;
+    const userId = req.user._id;
+
+    if (!userId || !cartItems || !subTotal || !locationAddress) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Get the coordinates of the user's location using geocoding
+    const { latitude, longitude } = await getLocationCoordinates(locationAddress);
+
+    // Calculate the distance between the user's location and the hub
+    const distanceData = await calculateDistance({ latitude, longitude });
+    const { distanceInKm } = distanceData;
+
+    // Calculate the delivery fee based on the distance
+    const deliveryFee = calculateDeliveryFee(distanceInKm);
+
+    // Update the total price by adding the delivery fee
+    const updatedTotalPrice = subTotal + deliveryFee;
+
+    // Create a new order with the updated price and location
+    const orderDetails = new OrderDetails({
+      userId,
+      cartItems,
+      deliveryFee,
+      subTotal,
+      totalPrice: updatedTotalPrice,
+      location: {
+        address: locationAddress,
+        coordinates: [longitude, latitude]
+      },
+      paymentStatus: 'PENDING'
+    });
+
+    // Save the order in the database
+    await orderDetails.save();
+    
+    // Clear the cart
+    await Cart.findOneAndUpdate(
+      { consumer: userId },
+      { items: [], totalPrice: 0 },
+      { new: true }
+    );
+
+    return res.status(201).json({
+      message: 'Order saved successfully',
+      order: orderDetails,
+      deliveryFee,
+      subTotal,
+      updatedTotalPrice,
+      distance: distanceData.distanceInKm,
+      duration: distanceData.duration
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Failed to save order' });
+  }
+};
+
+export const getDetails = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    if (!userId) {
+      return res.status(400).json({ error: 'User not found' });
+    }
+
+    // Fetch the latest order for the user
+    const latestOrder = await OrderDetails.findOne({ userId })
+      .populate('cartItems.productId', 'name price image')
+      .sort({ createdAt: -1 });
+
+    if (!latestOrder) {
+      return res.status(404).json({ error: 'No orders found' });
+    }
+
+    return res.status(200).json({
+      message: 'Latest order retrieved successfully',
+      order: latestOrder
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Failed to fetch the latest order' });
+  }
+};
+
+// New controller for updating payment status
+export const updatePaymentStatus = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { paymentStatus, paymentMethod } = req.body;
+    const userId = req.user._id;
+
+    const order = await OrderDetails.findOne({ _id: orderId, userId });
+
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    order.paymentStatus = paymentStatus;
+    order.paymentMethod = paymentMethod;
+    order.paymentUpdatedAt = new Date();
+
+    await order.save();
+
+    return res.status(200).json({
+      message: 'Payment status updated successfully',
+      order
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Failed to update payment status' });
   }
 };

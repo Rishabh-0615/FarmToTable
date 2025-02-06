@@ -1,6 +1,6 @@
 import express from 'express';
 import { isAuth } from '../middlewares/isAuth.js';
-import { addCart, clearCart,  getCart,  getDetails,   getUserLocation, mockApi,    saveOrder, searchProducts, updateLocation } from '../controllers/customerControllers.js';
+import { addCart, clearCart,  getCart,  getDetails,   getUserLocation, mockApi,    saveOrder, searchProducts, updateLocation, updatePaymentStatus } from '../controllers/customerControllers.js';
 const router = express.Router();
 
 router.post("/add", isAuth, addCart);
@@ -23,6 +23,6 @@ router.get('/order', isAuth,getDetails);
   // In routes
   router.post('/update-location', isAuth, updateLocation);
   router.get('/get-location', isAuth, getUserLocation);
-
+  router.patch('/payment/status/:orderId', isAuth,updatePaymentStatus);
 
 export default router;
