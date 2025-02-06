@@ -4,6 +4,8 @@ import { useForm } from "react-hook-form";
 import { ProductData } from "../context/FarmerContext";
 import { useNavigate } from "react-router-dom";
 import { UserData } from "../context/UserContext";
+import { useEffect } from "react";
+
 
 const LoadingAnimation = () => (
   <div className="flex justify-center items-center">
@@ -30,6 +32,7 @@ const AddProduct = () => {
     watch,
     formState: { errors },
   } = useForm();
+
 
   const selectedCategoryValue = watch("productCategory");
   const isDiscountOfferEnabled = watch("discountOffer");
@@ -59,7 +62,7 @@ const AddProduct = () => {
     const formData = new FormData();
 
     // ... (keeping the same form submission logic)
-    
+
     formData.append("category", data.productCategory);
     formData.append("name", data.productName);
     formData.append("quantity", data.quantity);
@@ -70,7 +73,9 @@ const AddProduct = () => {
     formData.append("notes", data.notes);
     formData.append("file", file);
     formData.append("userId", user.id);
-    formData.append("life",data.life);
+    formData.append("life", data.life);
+    formData.append("city", data.city);
+    formData.append("quantityUnit",data.quantityUnit);
 
     // Add discount offer data if enabled
     if (isDiscountOfferEnabled) {
@@ -83,6 +88,7 @@ const AddProduct = () => {
 
     const listingDate = new Date().toISOString();
     formData.append("listingDate", listingDate);
+    console.log(formData.quantityUnit)
 
     try {
       await addProduct(formData, setFilePrev, setFile, navigate);
@@ -92,6 +98,7 @@ const AddProduct = () => {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 py-12 px-4 sm:px-6 lg:px-8">
@@ -177,38 +184,68 @@ const AddProduct = () => {
 
                 {/* Quantity and Price */}
                 <div className="space-y-6">
-                  <div className="group">
+                  {/* Quantity Section */}
+                  <div className="grid grid-cols-[15fr_0.1fr] gap-6 items-end">
+                    <div className="group">
+                      <label className="block text-sm font-semibold text-gray-700 mb-2 transition-colors group-hover:text-green-600">
+                        Quantity Available
+                      </label>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="number"
+                          className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-green-500 focus:ring focus:ring-green-200 transition-all duration-300"
+                          {...register("quantity", {
+                            required: "Quantity is required",
+                            min: { value: 1, message: "Value must be greater than 0" },
+                          })}
+                        />
+                        
+                      </div>
+                      {errors.quantity && <p className="mt-1 text-red-500 text-sm">{errors.quantity.message}</p>}
+                    </div>
+                    <div className="group">
                     <label className="block text-sm font-semibold text-gray-700 mb-2 transition-colors group-hover:text-green-600">
-                      Quantity Available
+                      Quantity Unit
                     </label>
-                    <input
-                      type="number"
+                    <select
                       className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-green-500 focus:ring focus:ring-green-200 transition-all duration-300"
-                      {...register("quantity", {
-                        required: "Quantity is required",
-                        min: { value: 1, message: "Value must be greater than 0" },
-                      })}
-                    />
-                    {errors.quantity && <p className="mt-1 text-red-500 text-sm">{errors.quantity.message}</p>}
+                      {...register("quantityUnit", { required: "Product quantity unit is required" })}
+                    >
+                      <option value="">Select a Unit</option>
+                      <option value="Kg">Kg</option>
+                      <option value="Piece">Piece</option>
+                      
+                    </select>
+                    {errors.quantityUnit && (
+                      <p className="mt-1 text-red-500 text-sm">{errors.quantityUnit.message}</p>
+                    )}
+                  </div>
                   </div>
 
-                  <div className="group">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2 transition-colors group-hover:text-green-600">
-                      Price (per unit)
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-green-500 focus:ring focus:ring-green-200 transition-all duration-300"
-                      {...register("price", {
-                        required: "Price is required",
-                        min: { value: 1, message: "Value must be greater than 0" },
-                      })}
-                    />
-                    {errors.price && <p className="mt-1 text-red-500 text-sm">{errors.price.message}</p>}
+                  {/* Price Section */}
+                  <div className="grid grid-cols-[15fr_0.2fr] gap-6 items-end">
+                    <div className="group">
+                      <label className="block text-sm font-semibold text-gray-700 mb-2 transition-colors group-hover:text-green-600">
+                        Price (per unit)
+                      </label>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="number"
+                          step="0.01"
+                          className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-green-500 focus:ring focus:ring-green-200 transition-all duration-300"
+                          {...register("price", {
+                            required: "Price is required",
+                            min: { value: 1, message: "Value must be greater than 0" },
+                          })}
+                        />
+                        
+                      </div>
+                      {errors.price && <p className="mt-1 text-red-500 text-sm">{errors.price.message}</p>}
+                    </div>
                   </div>
                 </div>
               </div>
+
 
               {/* Discount Section */}
               <div className="p-6 bg-green-50 rounded-xl space-y-6">
@@ -270,40 +307,45 @@ const AddProduct = () => {
                   <label className="block text-sm font-semibold text-gray-700 mb-2 transition-colors group-hover:text-green-600">
                     Farm Location
                   </label>
-                  <input
-                    type="text"
-                    className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-green-500 focus:ring focus:ring-green-200 transition-all duration-300"
-                    {...register("location", { required: "Location is required" })}
-                  />
-                  {errors.location && <p className="mt-1 text-red-500 text-sm">{errors.location.message}</p>}
+                  <select className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-green-500 focus:ring focus:ring-green-200 transition-all duration-300"
+                    {...register("city", { required: "Farm City is required" })}
+                  >
+                    <option value="">Select a city</option>
+                    <option value="Kolhapur">Kolhapur</option>
+                    <option value="Pune">Pune</option>
+                    <option value="Mumbai">Mumbai</option>
+                  </select>
+                  {errors.city && (
+                    <p className="mt-1 text-red-500 text-sm">{errors.city.message}</p>
+                  )}
                 </div>
 
                 <div className="group">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2 transition-colors group-hover:text-green-600">
-                      Shelf Life: 
-                    </label>
-                    <select
-            className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-green-500 focus:ring focus:ring-green-200 transition-all duration-300"
-            {...register("life", { 
-              required: "Shelf Life is required",
-              disabled: !selectedCategoryValue
-            })}
-            disabled={!selectedCategoryValue}
-          >
-            <option value="">
-              {selectedCategoryValue ? "Select shelf life" : "Select category first"}
-            </option>
-            {selectedCategoryValue &&
-              shelfLifeOptions[selectedCategoryValue]?.map((life) => (
-                <option key={life} value={life}>
-                  {life}
-                </option>
-              ))
-            }
-          </select>
-                    {errors.life && <p className="mt-1 text-red-500 text-sm">{errors.life.message}</p>}
-                  </div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2 transition-colors group-hover:text-green-600">
+                    Shelf Life:
+                  </label>
+                  <select
+                    className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-green-500 focus:ring focus:ring-green-200 transition-all duration-300"
+                    {...register("life", {
+                      required: "Shelf Life is required",
+                      disabled: !selectedCategoryValue
+                    })}
+                    disabled={!selectedCategoryValue}
+                  >
+                    <option value="">
+                      {selectedCategoryValue ? "Select shelf life" : "Select category first"}
+                    </option>
+                    {selectedCategoryValue &&
+                      shelfLifeOptions[selectedCategoryValue]?.map((life) => (
+                        <option key={life} value={life}>
+                          {life}
+                        </option>
+                      ))
+                    }
+                  </select>
+                  {errors.life && <p className="mt-1 text-red-500 text-sm">{errors.life.message}</p>}
                 </div>
+              </div>
 
               {/* Notes */}
               <div className="group">

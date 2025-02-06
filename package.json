@@ -32,6 +32,9 @@
     "nodemailer": "^6.9.16",
     "python-shell": "^5.0.0",
     "react-i18next": "^15.4.0",
+
+    "react-typed": "^2.0.12",
+
     "swiper": "^11.2.2",
     "validator": "^13.12.0"
   },

@@ -14,8 +14,8 @@ export const ProductProvider = ({ children }) => {
       setFile("");
       navigate("/farmer");
     } catch (error) {
-      toast.error("Failed to add product. Please try again.");
-      throw error;
+      console.error("Error adding product:", error.response?.data || error.message);
+      toast.error(error.response?.data?.message || "Failed to add product. Please try again.");
     }
   };
 

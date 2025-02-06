@@ -11,10 +11,11 @@ export const addProduct = TryCatch(async (req, res) => {
     quantity, 
     weight, 
     price, 
-    location, 
+    city, 
     condition, 
     notes,
     life,
+    quantityUnit,
     
     // Add new discount fields
     discountOffer,
@@ -38,10 +39,11 @@ export const addProduct = TryCatch(async (req, res) => {
     quantity,
     weight,
     price,
-    location,
+    city,
     condition,
     notes,
     life,
+    quantityUnit,
     image: {
       id: cloud.public_id,
       url: cloud.secure_url,
@@ -104,7 +106,7 @@ export const editProduct = TryCatch(async (req, res) => {
     discountOffer,
     minQuantityForDiscount,
     discountPercentage,
-    life 
+    
   } = req.body;
 
   try {
