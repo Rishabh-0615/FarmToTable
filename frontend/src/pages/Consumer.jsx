@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Search, SlidersHorizontal, Leaf, MapPin, Star } from "lucide-react";
+import { Search } from "lucide-react";
 import ItemCardConsumer from "../components/ItemCardConsumer";
 import myimg from "../assets/farm2.jpg";
 import HeroSection from "./HeroSection";

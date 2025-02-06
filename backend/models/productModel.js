@@ -31,7 +31,6 @@ const productSchema = new mongoose.Schema(
     minQuantityForDiscount: {
       type: Number,
       min: 1,
-      // Only required if discountOffer is true
       required: function() {
         return this.discountOffer === true;
       }
@@ -40,7 +39,6 @@ const productSchema = new mongoose.Schema(
       type: Number,
       min: 1,
       max: 100,
-      // Only required if discountOffer is true
       required: function() {
         return this.discountOffer === true;
       }

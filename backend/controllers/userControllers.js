@@ -102,7 +102,7 @@ export const registerWithOtp = TryCatch(async (req, res) => {
  
    try {
      const { email } = jwt.verify(token, process.env.JWT_SEC);
- 
+
      const tempUser = TEMP_USERS[email];
      if (!tempUser) {
        return res.status(400).json({ message: "No OTP request found for this email" });
@@ -128,7 +128,14 @@ export const registerWithOtp = TryCatch(async (req, res) => {
      });
  
      delete TEMP_USERS[email]; 
- 
+
+     if (user.role === "farmer") {
+      return res.status(201).json({
+        user,
+        message: "Farmer registered successfully. Admin approval required before login.",
+      });
+    }
+
      generateToken(user, res);
  
      res.status(201).json({
@@ -165,6 +172,9 @@ export const loginUser=TryCatch(async(req,res)=>{
         return res.status(400).json({
             message:"Role Incorrect.",
         });
+    }
+    if (user.role === "farmer" && !user.isVerifiedByAdmin) { //if user is farmer adn not verified
+      return res.status(403).json({ message: "Account not verified by admin" });
     }
     generateToken(user,res);
 
@@ -207,6 +217,7 @@ export const forgetPassword=TryCatch(async(req,res)=>{
             pass:process.env.MY_PASS,
         }
     })
+    console.log(otp);
     
     try {
       

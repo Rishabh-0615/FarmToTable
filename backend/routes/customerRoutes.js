@@ -1,6 +1,6 @@
 import express from 'express';
 import { isAuth } from '../middlewares/isAuth.js';
-import { addCart, clearCart, geocode, getCart, getLoaction, getOrders, mockApi, optimizeRoute, placeOrder, reverseGeocode, searchProducts } from '../controllers/customerControllers.js';
+import { addCart, clearCart,  getCart,  getDetails,   getUserLocation, mockApi,    saveOrder, searchProducts, updateLocation, updatePaymentStatus } from '../controllers/customerControllers.js';
 const router = express.Router();
 
 router.post("/add", isAuth, addCart);
@@ -9,17 +9,20 @@ router.post("/add", isAuth, addCart);
 router.get("/getcart", isAuth, getCart);
 
 
-router.post("/order", isAuth, placeOrder);
 
-router.get("/getorder",isAuth,getOrders)
 
-router.post("/geocode",geocode)
-router.post("/reverse",reverseGeocode)
-router.post("/optimize",optimizeRoute)
 
-router.post("/getlocation",getLoaction)
+
 router.post("/clear",isAuth,clearCart)
 router.get("/search",searchProducts)
 router.post("/mock-payment",mockApi)
+router.post('/save', isAuth,saveOrder);
+router.get('/order', isAuth,getDetails);
+
+  
+  // In routes
+  router.post('/update-location', isAuth, updateLocation);
+  router.get('/get-location', isAuth, getUserLocation);
+  router.patch('/payment/status/:orderId', isAuth,updatePaymentStatus);
 
 export default router;
