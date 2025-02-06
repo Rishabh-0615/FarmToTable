@@ -24,6 +24,7 @@ import Account from "./pages/Account";
 import Model from './pages/Model'
 import OrderDetails from "./pages/OrderDetails";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminLogin from "./pages/AdminLogin";
 import UserOrdersPage from "./components/RouteMap";
 import OrderList from "./components/RouteMap";
 import DeliveryDashboard from "./components/RoutePage";
@@ -151,7 +152,9 @@ const AppWithLocation = ({ user, isAuth }) => {
         <Route path="/order" element={<OrderDetails/>}/>
         <Route path="/orders" element={<OrderList/>}/>
         <Route path="/model" element={<Model/>}/>
+        <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/verify-farmer" element={<AdminDashboard />} />
+       
       
       </Routes>
       
