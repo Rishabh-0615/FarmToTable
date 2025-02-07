@@ -2,9 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Search, MapPin } from "lucide-react";
 import ItemCardConsumer from "../components/ItemCardConsumer";
-import HeroSection from "./HeroSection";
-import NewFooter from "./Footer";
 import HeroSectionConsumer from "./HeroSectionConsumer";
+import NewFooter from "./Footer";
 
 const Consumer = () => {
   const [products, setProducts] = useState([]);
@@ -19,6 +18,21 @@ const Consumer = () => {
   const [debounceTimeout, setDebounceTimeout] = useState(null);
 
   const AVAILABLE_CITIES = ["Kolhapur", "Pune", "Mumbai"];
+
+  // Load previously selected city from localStorage
+  useEffect(() => {
+    const savedCity = localStorage.getItem("selectedCity");
+    if (savedCity) {
+      setSelectedCity(savedCity);
+    }
+  }, []);
+
+  // Save selected city to localStorage when user changes it
+  const handleCityChange = (e) => {
+    const city = e.target.value;
+    setSelectedCity(city);
+    localStorage.setItem("selectedCity", city);
+  };
 
   // Fetch all products from the backend
   const fetchProducts = async () => {
@@ -39,6 +53,11 @@ const Consumer = () => {
     }
   };
 
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  // Search functionality with debounce
   const handleSearchChange = (e) => {
     const queryText = e.target.value;
     setQuery(queryText);
@@ -66,7 +85,7 @@ const Consumer = () => {
     }
   };
 
-  // Filter by category and discount
+  // Filtering functions
   const getFilteredProducts = () => {
     let filteredProducts = [...products];
 
@@ -108,10 +127,6 @@ const Consumer = () => {
     return filteredProducts;
   };
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
   const sortedProducts = getSortedProducts();
 
   return (
@@ -129,7 +144,7 @@ const Consumer = () => {
           <div>
             <select
               value={selectedCity}
-              onChange={(e) => setSelectedCity(e.target.value)}
+              onChange={handleCityChange}
               className="px-4 py-3 border border-[#1dcc75]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1dcc75] bg-white/90 w-full md:w-48 hover:border-[#1dcc75] transition-colors"
             >
               <option value="">Select City</option>
@@ -156,13 +171,13 @@ const Consumer = () => {
           </div>
         )}
 
-        {/* Only show filters and products if a city is selected */}
+        {/* Filters and Products Section */}
         {selectedCity && (
           <>
-            {/* Filter & Search Section */}
-            <div className="g-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 mb-8 border border-[#1dcc75]/20">
+            {/* Search & Filters */}
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 mb-8 border border-[#1dcc75]/20">
               <div className="flex flex-col md:flex-row gap-4">
-                {/* Search Input */}
+                {/* Search */}
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#19b25e]" />
                   <input
@@ -178,7 +193,7 @@ const Consumer = () => {
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="px-4 py-3 border border-[#1dcc75]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1dcc75] bg-white/90 md:w-48 w-full hover:border-[#1dcc75] transition-colors"
+                  className="px-4 py-3 border border-[#1dcc75]/30 rounded-lg bg-white/90 md:w-48 w-full"
                 >
                   <option value="all">All Categories</option>
                   {categories.map((category) => (
@@ -187,48 +202,19 @@ const Consumer = () => {
                     </option>
                   ))}
                 </select>
-
-                {/* Discount Filter */}
-                <label className="flex items-center space-x-2 cursor-pointer group">
-                  <input
-                    type="checkbox"
-                    checked={showDiscountOnly}
-                    onChange={() => setShowDiscountOnly(!showDiscountOnly)}
-                    className="w-5 h-5 text-[#1dcc75] border-[#1dcc75]/30 focus:ring-[#1dcc75] rounded"
-                  />
-                  <span className="text-gray-700 group-hover:text-[#19b25e] transition-colors">Discount Only</span>
-                </label>
-              {/* Sort Options */}
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-3 border border-[#1dcc75]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1dcc75] bg-white/90 md:w-48 w-full hover:border-[#1dcc75] transition-colors"
-            >
-              <option value="latest">Latest</option>
-              <option value="priceLowToHigh">Price: Low to High</option>
-              <option value="priceHighToLow">Price: High to Low</option>
-            </select>
-            </div>
+              </div>
             </div>
 
-            {/* Products Grid */}
-            {loading ? (
-              <div className="flex justify-center items-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1dcc75]"></div>
-              </div>
-            ) : error ? (
-              <div className="text-red-500 bg-red-50 p-4 rounded-lg border border-red-200 text-center">{error}</div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                {sortedProducts.length > 0 ? (
-                  sortedProducts.map((product) => (
-                    <ItemCardConsumer key={product._id} product={product} />
-                  ))
-                ) : (
-                  <p className="text-gray-600 text-center col-span-full">No products found in {selectedCity}.</p>
-                )}
-              </div>
-            )}
+            {/* Product Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+              {sortedProducts.length > 0 ? (
+                sortedProducts.map((product) => (
+                  <ItemCardConsumer key={product._id} product={product} />
+                ))
+              ) : (
+                <p className="text-gray-600 text-center col-span-full">No products found in {selectedCity}.</p>
+              )}
+            </div>
           </>
         )}
       </div>

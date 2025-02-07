@@ -1,6 +1,30 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
-const ItemCardHome = ({ product }) => {
+const ItemCardHome = ({ product, onRemove }) => {
+  const [daysElapsed, setDaysElapsed] = useState(0);
+
+  useEffect(() => {
+    // Calculate the number of days since the product was created
+    const createdAtDate = new Date(product.createdAt);
+    const currentDate = new Date();
+    const diffInDays = Math.floor(
+      (currentDate - createdAtDate) / (1000 * 60 * 60 * 24)
+    );
+    setDaysElapsed(diffInDays);
+
+    // Trigger prompt if product is reaching shelf life
+    if (diffInDays === product.minlife) {
+      toast.warning(`${product.name} is reaching its shelf life.`);
+    }
+
+    // Remove product automatically when maxlife is reached
+    if (diffInDays >= product.maxlife) {
+      onRemove(product._id);
+      toast.error(`${product.name} has been removed as it exceeded its shelf life.`);
+    }
+  }, [product, onRemove]);
+
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 w-full max-w-sm hover:scale-105">
       {/* Image Container */}
@@ -50,11 +74,15 @@ const ItemCardHome = ({ product }) => {
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <span className="text-gray-500">Available</span>
-            <p className="font-medium text-gray-800">{product.quantity} units</p>
+            <p className="font-medium text-gray-800">
+              {product.quantity} {product.quantityUnit}
+            </p>
           </div>
           <div>
             <span className="text-gray-500">Shelf Life</span>
-            <p className="font-medium text-gray-800">{product.life || "Not specified"}</p>
+            <p className="font-medium text-gray-800">
+              {product.minlife}-{product.maxlife} days
+            </p>
           </div>
         </div>
       </div>
