@@ -1,89 +1,66 @@
-// import { Link } from "react-router-dom";
+import React from 'react';
+import { Facebook, Twitter, Instagram, Mail } from 'lucide-react';
 
-// export const Footer = () => {
-//   return (
-//     <footer className="bg-green-200 text-green-800 py-8">
-//       <div className="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-//         <div className="flex flex-col items-center md:items-start">
-//           <img src="/logo.svg" alt="Farm to Table Logo" className="w-16 h-16" />
-//           <p className="mt-2 text-center md:text-left">Connecting farmers and consumers directly.</p>
-//         </div>
-//         <div className="flex flex-col items-center md:items-start">
-//           <h3 className="font-semibold text-lg mb-2">Contact Us</h3>
-//           <p>Email: <a href="mailto:info@farmtotable.com" className="hover:text-green-600 transition-colors underline">info@farmtotable.com</a></p>
-//           <p>Phone: <a href="tel:1234567890" className="hover:text-green-600 transition-colors underline">(123) 456-7890</a></p>
-//         </div>
-//         <div className="flex flex-col items-center md:items-start">
-//           <h3 className="font-semibold text-lg mb-2">Follow Us</h3>
-//           <div className="flex space-x-4">
-//             <a href="#" className="hover:text-green-600 transition-colors underline">Facebook</a>
-//             <a href="#" className="hover:text-green-600 transition-colors underline">Twitter</a>
-//             <a href="#" className="hover:text-green-600 transition-colors underline">Instagram</a>
-//           </div>
-//         </div>
-//       </div>
-//       <div className="container mx-auto mt-8 pt-4 border-t border-green-800/20 flex flex-col md:flex-row justify-between items-center">
-//         <p className="text-center md:text-left">&copy; 2025 Farm to Table Marketplace. All rights reserved.</p>
-//         <Link to="/terms" className="hover:text-green-600 transition-colors underline mt-4 md:mt-0 mr-3">Terms of Service</Link>
-//       </div>
-//     </footer>
-//   );
-// };
-
-
-import { Link } from "react-router-dom";
-
-export const Footer = () => {
+const NewFooter = () => {
   return (
-    <footer className="bg-gradient-to-r from-green-600 to-green-700 text-white py-12">
-      <div className="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 px-6">
-        {/* Logo and Description */}
-        <div className="flex flex-col items-center md:items-start">
-          <img src="/logo.svg" alt="Farm to Table Logo" className="w-28 h-28 mb-6" />
-          <p className="text-lg font-semibold text-center md:text-left tracking-wide leading-relaxed">
-            Connecting farmers and consumers directly for a healthier, sustainable future.
-          </p>
-        </div>
+    <footer className="bg-transparent text-white py-8 text-center relative">
+      <div className="absolute inset-0 bg-black opacity-50 z-0"></div>
+      
+      <div className="container mx-auto px-4 relative z-10">
+        {/* Main Footer Content */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+          {/* Company Info */}
+          <div className="text-left">
+            <h3 className="text-xl font-bold mb-4">About Us</h3>
+            <p className="text-gray-300 mb-4">
+              Creating amazing digital experiences since 2020. We're passionate about delivering value to our customers.
+            </p>
+          </div>
 
-        {/* Contact Us */}
-        <div className="flex flex-col items-center md:items-start">
-          <h3 className="text-2xl font-bold mb-4 text-yellow-300">Contact Us</h3>
-          <p className="mb-2 text-lg font-medium">
-            Email:{" "}
-            <a href="mailto:info@farmtotable.com" className="hover:text-yellow-300 transition-colors duration-300 ease-in-out underline">
-              info@farmtotable.com
-            </a>
-          </p>
-          <p className="text-lg font-medium">
-            Phone:{" "}
-            <a href="tel:1234567890" className="hover:text-yellow-300 transition-colors duration-300 ease-in-out underline">
-              (123) 456-7890
-            </a>
-          </p>
-        </div>
+          {/* Quick Links */}
+          <div className="text-left">
+            <h3 className="text-xl font-bold mb-4">Quick Links</h3>
+            <ul className="space-y-2">
+              <li><a href="#" className="text-gray-300 hover:text-white">Home</a></li>
+              <li><a href="#" className="text-gray-300 hover:text-white">Services</a></li>
+              <li><a href="#" className="text-gray-300 hover:text-white">About</a></li>
+              <li><a href="#" className="text-gray-300 hover:text-white">Contact</a></li>
+            </ul>
+          </div>
 
-        {/* Social Media */}
-        <div className="flex flex-col items-center md:items-start">
-          <h3 className="text-2xl font-bold mb-4 text-yellow-300">Follow Us</h3>
-          <div className="flex space-x-6 text-lg font-medium">
-            <a href="#" className="hover:text-yellow-300 transition-colors duration-300 ease-in-out">Facebook</a>
-            <a href="#" className="hover:text-yellow-300 transition-colors duration-300 ease-in-out">Twitter</a>
-            <a href="#" className="hover:text-yellow-300 transition-colors duration-300 ease-in-out">Instagram</a>
+          {/* Contact Info */}
+          <div className="text-left">
+            <h3 className="text-xl font-bold mb-4">Contact Us</h3>
+            <p className="text-gray-300 mb-2">123 Business Street</p>
+            <p className="text-gray-300 mb-2">New York, NY 10001</p>
+            <p className="text-gray-300 mb-2">Phone: (555) 123-4567</p>
+            <p className="text-gray-300">Email: info@mywebsite.com</p>
           </div>
         </div>
-      </div>
 
+        {/* Social Links */}
+        <div className="flex justify-center space-x-6 mb-6">
+          <a href="#" className="text-gray-300 hover:text-white">
+            <Facebook size={24} />
+          </a>
+          <a href="#" className="text-gray-300 hover:text-white">
+            <Twitter size={24} />
+          </a>
+          <a href="#" className="text-gray-300 hover:text-white">
+            <Instagram size={24} />
+          </a>
+          <a href="#" className="text-gray-300 hover:text-white">
+            <Mail size={24} />
+          </a>
+        </div>
 
-      {/* Footer Bottom Section */}
-      <div className="container mx-auto mt-8 pt-6 border-t border-white/40 flex flex-col md:flex-row justify-between items-center px-6">
-        <p className="text-center md:text-left text-sm font-light opacity-80">
-          &copy; 2025 Farm to Table Marketplace. All rights reserved.
-        </p>
-        <Link to="/terms" className="hover:text-yellow-300 transition-colors duration-300 ease-in-out underline mt-4 md:mt-0 text-sm font-light opacity-80">
-          Terms of Service
-        </Link>
-
+        {/* Copyright */}
+        <div className="border-t border-gray-700 pt-6">
+          <p className="text-gray-300">&copy; 2025 My Website. All rights reserved.</p>
+        </div>
       </div>
     </footer>
   );
 };
+
+export default NewFooter;

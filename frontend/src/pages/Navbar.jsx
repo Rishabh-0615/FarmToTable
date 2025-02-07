@@ -1,53 +1,88 @@
-import React, { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react'; // Import lucide-react icons
-import myimg1 from '../assets/logo100.jpeg';
-import myimg2 from '../assets/about.png';
-import myimg3 from '../assets/farm2.jpg';
+import React, { useState, useEffect } from "react";
+import { Menu, X } from "lucide-react";
+import left from "../assets/seller.webp";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    setIsVisible(true);
+
+    const handleScroll = () => {
+      const elements = document.querySelectorAll(".scroll-animate");
+      elements.forEach((element) => {
+        const rect = element.getBoundingClientRect();
+        const isInView = rect.top <= window.innerHeight * 0.75;
+        if (isInView) {
+          element.classList.add("animate-in");
+        }
+      });
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <div className="h-screen bg-white relative overflow-hidden no-scrollbar">
-      {/* Navbar */}
-      <nav className="absolute top-0 left-0 w-full z-20 bg-gradient-to-r from-green-500 to-green-700 shadow-md">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+    <div className="relative">
+      <nav className="fixed top-0 left-0 w-full z-20 backdrop-blur-lg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            {/* Logo Section */}
             <div className="flex items-center">
               <a href="/" className="flex items-center">
-                <span className="text-3xl font-extrabold text-white tracking-wide flex items-center">
+                <span className="ml-2 text-white text-xl font-semibold">
                   DailyVegies
                 </span>
               </a>
             </div>
 
-            {/* Hamburger Menu */}
+            {/* Mobile menu button */}
             <div className="lg:hidden">
-              <button 
+              <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="text-white focus:outline-none"
+                className="text-white p-2 hover:bg-green-600 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
               >
-                {isOpen ? <X size={30} /> : <Menu size={30} />}
+                {isOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
             </div>
 
-            {/* Navbar Links */}
-            <div className={`${isOpen ? 'block absolute top-16 right-0 w-[60%] bg-green-600 p-5 rounded-md shadow-lg' : 'hidden'} lg:flex lg:items-center lg:space-x-8`}>
-              <ul className="flex flex-col lg:flex-row lg:space-x-6 text-white text-lg font-medium">
-                <li>
-                  <a href="/register" className="block px-4 py-2 rounded-lg transition-all duration-300 hover:bg-white hover:text-green-700">
-                    Sign Up
+            {/* Desktop and mobile menu */}
+            <div
+              className={`
+                ${isOpen ? "translate-x-0" : "translate-x-full"}
+                text-green-500
+                lg:translate-x-0
+                fixed lg:relative
+                top-0 lg:top-auto
+                right-0
+                h-screen lg:h-auto
+                w-30vw md:w-64 lg:w-auto
+                lg:bg-transparent
+                p-6 lg:p-0
+                transform transition-all duration-300 ease-in-out
+                lg:flex lg:items-center
+                z-50 lg:z-auto
+                shadow-lg lg:shadow-none
+                mt-16 lg:mt-0
+              `}
+            >
+              <ul className="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-6">
+                <li className="w-full lg:w-auto">
+                  <a
+                    href="/register"
+                    className="block w-full lg:w-auto px-6 py-2.5 text-white text-sm font-medium rounded-lg border-2 border-white hover:bg-white hover:text-green-600 transition-all duration-300 text-center lg:text-left"
+                  >
+                    Register
                   </a>
                 </li>
-                <li>
-                  <a href="/login" className="block px-4 py-2 rounded-lg transition-all duration-300 hover:bg-white hover:text-green-700">
-                    Sign In
-                  </a>
-                </li>
-                <li>
-                  <a href="/admin-login" className="block px-4 py-2 rounded-lg transition-all duration-300 hover:bg-white hover:text-green-700">
-                    Admin
+                <li className="w-full lg:w-auto">
+                  <a
+                    href="/login"
+                    className="block w-full lg:w-auto px-6 py-2.5 text-white text-sm font-medium rounded-lg border-2 border-white hover:bg-white hover:text-green-600 transition-all duration-300 text-center lg:text-left"
+                  >
+                    Login
                   </a>
                 </li>
               </ul>
@@ -56,60 +91,27 @@ const Navbar = () => {
         </div>
       </nav>
 
-      {/* Middle Content */}
-      <div className="flex flex-col lg:flex-row items-center justify-center h-full px-6 sm:px-12 pt-24 lg:pt-0">
-        <div className="lg:w-1/2 text-center lg:text-left">
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900">Your Guide to Modern Agriculture</h1>
-          <p className="mt-4 text-lg text-gray-700">
-            Explore the future of agriculture with us. Discover cutting-edge insights, practical tips, and the latest trends in modern farming.
+      {/* Hero Section */}
+      <div className="flex flex-col lg:flex-row items-center justify-between min-h-screen px-4 sm:px-8 lg:px-12 pt-24 lg:pt-16 pb-8 lg:pb-2">
+        {/* Left Image */}
+        <div className="w-full lg:w-1/2 flex justify-center lg:justify-start items-center">
+          <img 
+            src={left} 
+            alt="Fresh vegetables" 
+            className="w-full max-w-xl h-auto object-contain mt-16 lg:mt-0"
+          />
+        </div>
+
+        {/* Right Content */}
+        <div className="w-full lg:w-1/2 mt-8 lg:mt-0 flex flex-col text-left">
+          <h1 className="text-4xl lg:text-6xl font-bold text-white">
+            From Our Fields to Your Family Table
+          </h1>
+          <p className="mt-4 text-xl lg:text-2xl text-white">
+            We connect you with local farmers, bringing the freshest, healthiest
+            ingredients to your kitchen. Taste the love in every bite.
           </p>
-          <div className="mt-8 flex flex-wrap justify-center lg:justify-start gap-4">
-            <button className="bg-gradient-to-r from-green-500 to-green-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:scale-105 transition-all duration-300">
-              Getting Started
-            </button>
-            <button className="border-2 border-gray-900 text-gray-900 font-semibold py-3 px-6 rounded-lg hover:bg-gray-900 hover:text-white transition-all duration-300 hover:shadow-md">
-              Our Services
-            </button>
-          </div>
         </div>
-
-        {/* Slideshow on the Right */}
-        <Slideshow />
-      </div>
-    </div>
-  );
-};
-
-const Slideshow = () => {
-  const [slideIndex, setSlideIndex] = useState(1);
-  const images = [myimg1, myimg2, myimg3];
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setSlideIndex((prevIndex) => (prevIndex % images.length) + 1);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <div className="relative w-full sm:w-[400px] md:w-[500px] lg:w-[750px] h-[300px] sm:h-[350px] md:h-[400px] lg:h-[500px] mx-auto overflow-hidden rounded-lg shadow-lg mt-6 lg:mt-0">
-      {images.map((img, index) => (
-        <div key={index} className={`absolute w-full h-full transition-opacity duration-1000 ${slideIndex === index + 1 ? 'opacity-100' : 'opacity-0'}`}>
-          <img src={img} className="w-full h-full object-cover rounded-lg shadow-2xl" alt={`Slide ${index + 1}`} />
-        </div>
-      ))}
-
-      <button className="absolute top-1/2 left-2 transform -translate-y-1/2 bg-black bg-opacity-50 p-3 text-white rounded-full cursor-pointer hover:bg-opacity-70 transition-all" onClick={() => setSlideIndex(slideIndex === 1 ? images.length : slideIndex - 1)}>
-        &#10094;
-      </button>
-      <button className="absolute top-1/2 right-2 transform -translate-y-1/2 bg-black bg-opacity-50 p-3 text-white rounded-full cursor-pointer hover:bg-opacity-70 transition-all" onClick={() => setSlideIndex(slideIndex === images.length ? 1 : slideIndex + 1)}>
-        &#10095;
-      </button>
-
-      <div className="text-center mt-2">
-        {images.map((_, index) => (
-          <span key={index} className={`dot inline-block h-3 w-3 rounded-full mx-1 cursor-pointer transition-all ${slideIndex === index + 1 ? 'bg-gray-700' : 'bg-gray-400 hover:bg-gray-600'}`} onClick={() => setSlideIndex(index + 1)}></span>
-        ))}
       </div>
     </div>
   );
