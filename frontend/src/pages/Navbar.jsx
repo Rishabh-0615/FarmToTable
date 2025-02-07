@@ -1,113 +1,120 @@
-import React, { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react'; // Import lucide-react icons
-import myimg1 from '../assets/logo100.jpeg';
-import myimg2 from '../assets/about.png';
-import myimg3 from '../assets/farm2.jpg';
+import React, { useState, useEffect } from "react";
+import { Menu, X } from "lucide-react";
+import left from "../assets/seller.webp";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <div className="h-screen bg-white relative overflow-hidden no-scrollbar">
-      {/* Navbar */}
-      <nav className="absolute top-0 left-0 w-full z-20 bg-gradient-to-r from-green-400 to-green-600">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo Section */}
-          <div className="flex items-center">
-            <a href="/" className="flex items-center">
-              <span className="ml-2 text-white text-xl font-semibold">DailyVegies</span>
-            </a>
-          </div>
-
-          {/* Hamburger Menu */}
-          <div className="lg:hidden relative">
-            <button 
-              onClick={() => setIsOpen(!isOpen)} 
-              className="text-white focus:outline-none relative z-30"
-              style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)' }}
-            >
-              {isOpen ? <X size={28}  /> : <Menu size={28} />}
-            </button>
-          </div>
-
-          {/* Navbar Links */}
-          <div className={`${isOpen ? 'block absolute top-16 right-0 w-[20vw] bg-green-500 p-4 shadow-lg' : 'hidden'} lg:flex lg:items-center lg:space-x-6 ml-auto relative z-20`}>
-            <ul className="flex flex-col lg:flex-row lg:space-x-4 text-white text-sm sm:text-base md:text-lg">
-              <li>
-                <a href="/register" className="block px-2 sm:px-3 py-1 sm:py-2 rounded-lg hover:bg-white hover:text-green-600 transition-all duration-200 border border-white text-xs sm:text-sm md:text-base">
-                  Sign Up
-                </a>
-              </li>
-              <li>
-                <a href="/login" className="block px-2 sm:px-3 py-1 sm:py-2 rounded-lg hover:bg-white hover:text-green-600 transition-all duration-200 border border-white text-xs sm:text-sm md:text-base">
-                  Sign In
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </nav>
-
-      {/* Middle Content */}
-      <div className="flex flex-col lg:flex-row items-center justify-center h-full px-6 sm:px-12 pt-24 lg:pt-0">
-        <div className="lg:w-1/2 text-center lg:text-left">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-black">Your Guide to Modern Agriculture</h1>
-          <p className="mt-4 text-sm sm:text-base md:text-lg text-black">
-            Explore the future of agriculture with us. Discover cutting-edge insights, practical tips, and the latest trends in modern farming.
-          </p>
-          <div className="mt-8 space-y-4 sm:space-y-0 sm:space-x-4 flex flex-col sm:flex-row justify-center lg:justify-start">
-            <button className="bg-gradient-to-r from-green-400 to-green-600 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:from-green-600 hover:to-green-400 transition-all duration-300 transform hover:scale-105">
-              Getting Started
-            </button>
-            <button className="bg-transparent text-black font-bold py-3 px-6 rounded-full border-2 border-black hover:border-green-500 transition-all duration-300 transform hover:scale-105 hover:bg-black hover:text-white hover:shadow-xl">
-              Our Services
-            </button>
-          </div>
-        </div>
-
-        {/* Slideshow on the Right */}
-        <Slideshow />
-      </div>
-    </div>
-  );
-};
-
-const Slideshow = () => {
-  const [slideIndex, setSlideIndex] = useState(1);
-  const images = [myimg1, myimg2, myimg3];
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setSlideIndex((prevIndex) => (prevIndex % images.length) + 1);
-    }, 3000);
-    return () => clearInterval(interval);
+    setIsVisible(true);
+
+    const handleScroll = () => {
+      const elements = document.querySelectorAll(".scroll-animate");
+      elements.forEach((element) => {
+        const rect = element.getBoundingClientRect();
+        const isInView = rect.top <= window.innerHeight * 0.75;
+        if (isInView) {
+          element.classList.add("animate-in");
+        }
+      });
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
-    <div className="relative w-full sm:w-[400px] md:w-[500px] lg:w-[750px] h-[300px] sm:h-[350px] md:h-[400px] lg:h-[500px] mx-auto overflow-hidden rounded-lg shadow-lg mt-6 lg:mt-0">
-      {images.map((img, index) => (
-        <div key={index} className="absolute w-full h-full transition-opacity duration-1000" style={{ display: slideIndex === index + 1 ? 'block' : 'none' }}>
-          <img src={img} className="w-full h-full object-cover rounded-lg shadow-2xl" alt={`Slide ${index + 1}`} />
+    <div className="relative">
+      <nav className="fixed top-0 left-0 w-full z-20 backdrop-blur-lg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <a href="/" className="flex items-center">
+                <span className="ml-2 text-white text-xl font-semibold">
+                  DailyVegies
+                </span>
+              </a>
+            </div>
+
+            {/* Mobile menu button */}
+            <div className="lg:hidden">
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="text-white p-2 hover:bg-green-600 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
+              >
+                {isOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+            </div>
+
+            {/* Desktop and mobile menu */}
+            <div
+              className={`
+                ${isOpen ? "translate-x-0" : "translate-x-full"}
+                text-green-500
+                lg:translate-x-0
+                fixed lg:relative
+                top-0 lg:top-auto
+                right-0
+                h-screen lg:h-auto
+                w-30vw md:w-64 lg:w-auto
+                lg:bg-transparent
+                p-6 lg:p-0
+                transform transition-all duration-300 ease-in-out
+                lg:flex lg:items-center
+                z-50 lg:z-auto
+                shadow-lg lg:shadow-none
+                mt-16 lg:mt-0
+              `}
+            >
+              <ul className="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-6">
+                <li className="w-full lg:w-auto">
+                  <a
+                    href="/register"
+                    className="block w-full lg:w-auto px-6 py-2.5 text-white text-sm font-medium rounded-lg border-2 border-white hover:bg-white hover:text-green-600 transition-all duration-300 text-center lg:text-left"
+                  >
+                    Register
+                  </a>
+                </li>
+                <li className="w-full lg:w-auto">
+                  <a
+                    href="/login"
+                    className="block w-full lg:w-auto px-6 py-2.5 text-white text-sm font-medium rounded-lg border-2 border-white hover:bg-white hover:text-green-600 transition-all duration-300 text-center lg:text-left"
+                  >
+                    Login
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
-      ))}
+      </nav>
 
-      <button className="absolute top-1/2 left-2 transform -translate-y-1/2 bg-black bg-opacity-50 p-2 text-white rounded-full cursor-pointer" onClick={() => setSlideIndex(slideIndex === 1 ? images.length : slideIndex - 1)}>
-        &#10094;
-      </button>
-      <button className="absolute top-1/2 right-2 transform -translate-y-1/2 bg-black bg-opacity-50 p-2 text-white rounded-full cursor-pointer" onClick={() => setSlideIndex(slideIndex === images.length ? 1 : slideIndex + 1)}>
-        &#10095;
-      </button>
+      {/* Hero Section */}
+      <div className="flex flex-col lg:flex-row items-center justify-between min-h-screen px-4 sm:px-8 lg:px-12 pt-24 lg:pt-16 pb-8 lg:pb-2">
+        {/* Left Image */}
+        <div className="w-full lg:w-1/2 flex justify-center lg:justify-start items-center">
+          <img 
+            src={left} 
+            alt="Fresh vegetables" 
+            className="w-full max-w-xl h-auto object-contain mt-16 lg:mt-0"
+          />
+        </div>
 
-      <div className="text-center mt-2">
-        {images.map((_, index) => (
-          <span key={index} className={`dot inline-block h-3 w-3 rounded-full mx-1 cursor-pointer ${slideIndex === index + 1 ? 'bg-gray-600' : 'bg-gray-300'}`} onClick={() => setSlideIndex(index + 1)}></span>
-        ))}
+        {/* Right Content */}
+        <div className="w-full lg:w-1/2 mt-8 lg:mt-0 flex flex-col text-left">
+          <h1 className="text-4xl lg:text-6xl font-bold text-white">
+            From Our Fields to Your Family Table
+          </h1>
+          <p className="mt-4 text-xl lg:text-2xl text-white">
+            We connect you with local farmers, bringing the freshest, healthiest
+            ingredients to your kitchen. Taste the love in every bite.
+          </p>
+        </div>
       </div>
     </div>
   );
 };
-
 
 export default Navbar;

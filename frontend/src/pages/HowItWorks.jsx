@@ -1,94 +1,60 @@
-// import React from "react";
-// import { Clipboard, Users, Truck } from "lucide-react";
-
-// const steps = [
-//   {
-//     icon: Clipboard,
-//     title: "List Products",
-//     description: "Easily add your farm products to our marketplace.",
-//   },
-//   {
-//     icon: Users,
-//     title: "Connect with Buyers",
-//     description: "Engage directly with consumers interested in your produce.",
-//   },
-//   {
-//     icon: Truck,
-//     title: "Deliver",
-//     description: "Coordinate delivery or pickup of fresh products.",
-//   },
-// ];
-
-// const HowItWorks = () => {
-//   return (
-//     <section className="py-16 bg-gradient-to-b from-green-50 via-white to-green-50">
-//       <div className="container mx-auto px-4">
-//         <h2 className="text-4xl font-bold text-center mb-12 text-green-700 animate-slide-up">How It Works</h2>
-//         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-//           {steps.map((step, index) => (
-//             <div
-//               key={index}
-//               className="flex flex-col items-center text-center bg-white rounded-lg shadow-lg p-6 transition-transform transform hover:scale-105 hover:shadow-2xl animate-fade-in"
-//             >
-//               <div className="flex items-center justify-center bg-green-200 text-green-700 rounded-full p-6 mb-6 w-20 h-20 animate-bounce">
-//                 <step.icon size={48} />
-//               </div>
-//               <h3 className="text-xl font-semibold text-green-700 mb-2">{step.title}</h3>
-//               <p className="text-gray-600">{step.description}</p>
-//             </div>
-//           ))}
-//         </div>
-//       </div>
-//     </section>
-//   );
-// };
-
-// export default HowItWorks;
-
-import React from "react";
-import { Clipboard, Users, Truck } from "lucide-react";
+import React from 'react';
+import { Clipboard, Users, Truck, Bike } from "lucide-react";
+import myimg1 from "../assets/stick.png";
 
 const steps = [
-  {
-    icon: Clipboard,
-    title: "List Products",
-    description: "Easily add your farm products to our marketplace.",
-  },
-  {
-    icon: Users,
-    title: "Connect with Buyers",
-    description: "Engage directly with consumers interested in your produce.",
-  },
-  {
-    icon: Truck,
-    title: "Deliver",
-    description: "Coordinate delivery or pickup of fresh products.",
-  },
+    {
+        icons: Truck,
+        title: "Transport",
+        description: "Easily add your farm products to our marketplace.",
+    },
+    {
+        icons: Clipboard,
+        title: "List Products",
+        description: "Easily add your farm products to our marketplace.",
+    },
+    {
+        icons: Users,
+        title: "Connect Buyers",
+        description: "Engage directly with consumers interested in your produce.",
+    },
+    {
+        icons: Bike,
+        title: "Deliver",
+        description: "Delivers the fresh produce from farm to your table.",
+    },
 ];
 
 const HowItWorks = () => {
   return (
-    <section className="py-20 bg-gradient-to-b from-green-800 via-green-600 to-green-400 px-6 md:px-16">
-      <div className="container mx-auto">
-        <h2 className="text-4xl font-bold text-center mb-16 text-green-200 animate-slide-up">
-          How It Works
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
-          {steps.map((step, index) => (
-            <div
-              key={index}
-              className="flex flex-col items-center text-center bg-gray-100 rounded-2xl shadow-xl p-8 border border-green-200 transition-transform transform hover:scale-105 hover:shadow-2xl duration-300"
+    <div id="services" className="px-4 py-16">
+        <h2 className="text-3xl font-bold text-white mb-8 text-center">Our Services</h2>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+            {steps.map((service, index) => (
+            <div 
+                key={index} 
+                className="group rounded-lg shadow-lg hover:scale-105 transition duration-300 flex flex-col items-center justify-center bg-cover bg-center sm:h-72 h-60 w-full relative" 
+                style={{ backgroundImage: `url(${myimg1})`, backgroundSize: 'cover', backgroundPosition: 'center', width: '90%', height: '250px' }}
             >
-              <div className="flex items-center justify-center bg-green-300 text-green-800 rounded-full p-4 mb-4 w-16 h-16 animate-bounce shadow-md border-2 border-green-400">
-                <step.icon size={48} />
-              </div>
-              <h3 className="text-2xl font-semibold text-green-800 mb-3">{step.title}</h3>
-              <p className="text-gray-700 leading-relaxed">{step.description}</p>
+                {/* Icon & Title (Visible by default) */}
+                <div className="flex flex-col items-center group-hover:hidden">
+                    <service.icons size={48} className="text-black mb-2" />
+                    <h3 className="text-lg sm:text-xl font-semibold text-black mb-1 text-center p-1 rounded-lg w-4/5 bg-opacity-50">
+                        {service.title}
+                    </h3>
+                </div>
+
+                {/* Description (Hidden by default, shown on hover) */}
+                <div className="hidden group-hover:flex flex-col items-center">
+                    <p className="text-sm sm:text-base text-black text-center p-1 rounded-lg w-3/5 bg-opacity-50">
+                        {service.description}
+                    </p>
+                </div>
             </div>
-          ))}
+            ))}
         </div>
-      </div>
-    </section>
+    </div>
   );
 };
 
