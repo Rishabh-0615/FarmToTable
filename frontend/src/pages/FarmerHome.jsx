@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import FarmerNavbar from './FarmerNavbar';
-import HeroSection from './HeroSection';
-import { Footer } from './Footer';
+
+import  HeroSection  from './HeroSection';
+
 import { ProductData } from '../context/FarmerContext';
 import { Loading } from '../components/Loading';
 import ItemCardHome from '../components/ItemCardHome';
@@ -79,8 +80,7 @@ const FarmerHome = () => {
         </div>
       )}
 
-      {/* Footer Section */}
-      <Footer />
+      
     </div>
   );
 };

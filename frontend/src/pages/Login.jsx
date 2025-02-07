@@ -27,7 +27,7 @@ const Login = () => {
   return (
     <div className="relative min-h-screen bg-gray-100">
       {/* Render Navbar at the Top */}
-      <ConsumerNavbar />
+      {/* <ConsumerNavbar /> */}
 
       <div className="flex items-center justify-center min-h-screen relative overflow-hidden">
         {/* Animated Background */}

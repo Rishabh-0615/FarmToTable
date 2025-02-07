@@ -3,7 +3,7 @@ import axios from "axios";
 import { Search, MapPin } from "lucide-react";
 import ItemCardConsumer from "../components/ItemCardConsumer";
 import HeroSection from "./HeroSection";
-import { Footer } from "./Footer";
+import NewFooter from "./Footer";
 import HeroSectionConsumer from "./HeroSectionConsumer";
 
 const Consumer = () => {
@@ -232,7 +232,7 @@ const Consumer = () => {
           </>
         )}
       </div>
-      <Footer />
+      <NewFooter />
     </div>
   );
 };

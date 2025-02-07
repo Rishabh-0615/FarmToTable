@@ -145,7 +145,7 @@ const CartPage = () => {
                     <h2 className="text-xl font-semibold text-green-900">
                       {item?.productId?.name || "Farm Produce"}
                     </h2>
-                    <p className="text-green-700">{item?.productId?.weight}</p>
+                    <p className="text-green-700">Quantity: {item?.quantity}{item?.productId?.quantityUnit}</p>
                     {item?.productId?.discountOffer && (
                       <p className="text-green-600 text-sm">
                         <Carrot className="inline mr-1" />

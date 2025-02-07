@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {
   Package,
   MapPin,
@@ -7,22 +7,22 @@ import {
   CheckCircle,
   AlertCircle,
   Loader2,
-  Truck
-} from 'lucide-react';
+  Truck,
+} from "lucide-react";
 
 const PaymentStatus = {
-  PENDING: 'PENDING',
-  PROCESSING: 'PROCESSING',
-  COMPLETED: 'COMPLETED',
-  FAILED: 'FAILED',
+  PENDING: "PENDING",
+  PROCESSING: "PROCESSING",
+  COMPLETED: "COMPLETED",
+  FAILED: "FAILED",
 };
 
 const DeliveryStatus = {
-  PROCESSING: 'PROCESSING',
-  SHIPPED: 'SHIPPED',
-  OUT_FOR_DELIVERY: 'OUT_FOR_DELIVERY',
-  DELIVERED: 'DELIVERED',
-  CANCELLED: 'CANCELLED'
+  PROCESSING: "PROCESSING",
+  SHIPPED: "SHIPPED",
+  OUT_FOR_DELIVERY: "OUT_FOR_DELIVERY",
+  DELIVERED: "DELIVERED",
+  CANCELLED: "CANCELLED",
 };
 
 const OrderList = () => {
@@ -33,12 +33,12 @@ const OrderList = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/api/user/customer/orders');
+      const response = await axios.get("/api/user/customer/orders");
       setOrders(response.data.orders || []);
       setError(null);
     } catch (err) {
-      console.error('Order fetch error:', err);
-      setError(err.response?.data?.error || 'Failed to fetch orders.');
+      console.error("Order fetch error:", err);
+      setError(err.response?.data?.error || "Failed to fetch orders.");
     } finally {
       setLoading(false);
     }
@@ -50,11 +50,11 @@ const OrderList = () => {
 
   const formatDate = (dateString) => {
     const options = {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
@@ -62,19 +62,19 @@ const OrderList = () => {
   const PaymentStatusBadge = ({ status }) => {
     const statusConfig = {
       [PaymentStatus.PENDING]: {
-        color: 'bg-yellow-100 text-yellow-800',
+        color: "bg-yellow-100 text-yellow-800",
         icon: <Clock className="w-4 h-4 mr-2" />,
       },
       [PaymentStatus.PROCESSING]: {
-        color: 'bg-blue-100 text-blue-800',
+        color: "bg-blue-100 text-blue-800",
         icon: <Loader2 className="w-4 h-4 mr-2 animate-spin" />,
       },
       [PaymentStatus.COMPLETED]: {
-        color: 'bg-green-100 text-green-800',
+        color: "bg-green-100 text-green-800",
         icon: <CheckCircle className="w-4 h-4 mr-2" />,
       },
       [PaymentStatus.FAILED]: {
-        color: 'bg-red-100 text-red-800',
+        color: "bg-red-100 text-red-800",
         icon: <AlertCircle className="w-4 h-4 mr-2" />,
       },
     };
@@ -92,25 +92,25 @@ const OrderList = () => {
   const DeliveryStatusBadge = ({ status }) => {
     const statusConfig = {
       [DeliveryStatus.PROCESSING]: {
-        color: 'bg-yellow-100 text-yellow-800',
-        icon: <Package className="w-4 h-4 mr-2" />
+        color: "bg-yellow-100 text-yellow-800",
+        icon: <Package className="w-4 h-4 mr-2" />,
       },
       [DeliveryStatus.SHIPPED]: {
-        color: 'bg-blue-100 text-blue-800',
-        icon: <Truck className="w-4 h-4 mr-2" />
+        color: "bg-blue-100 text-blue-800",
+        icon: <Truck className="w-4 h-4 mr-2" />,
       },
       [DeliveryStatus.OUT_FOR_DELIVERY]: {
-        color: 'bg-orange-100 text-orange-800',
-        icon: <Truck className="w-4 h-4 mr-2 animate-bounce" />
+        color: "bg-orange-100 text-orange-800",
+        icon: <Truck className="w-4 h-4 mr-2 animate-bounce" />,
       },
       [DeliveryStatus.DELIVERED]: {
-        color: 'bg-green-100 text-green-800',
-        icon: <CheckCircle className="w-4 h-4 mr-2" />
+        color: "bg-green-100 text-green-800",
+        icon: <CheckCircle className="w-4 h-4 mr-2" />,
       },
       [DeliveryStatus.CANCELLED]: {
-        color: 'bg-red-100 text-red-800',
-        icon: <AlertCircle className="w-4 h-4 mr-2" />
-      }
+        color: "bg-red-100 text-red-800",
+        icon: <AlertCircle className="w-4 h-4 mr-2" />,
+      },
     };
 
     return (
@@ -118,7 +118,7 @@ const OrderList = () => {
         className={`flex items-center px-3 py-1 rounded-full text-sm font-medium ${statusConfig[status]?.color}`}
       >
         {statusConfig[status]?.icon}
-        {status.replace('_', ' ')}
+        {status.replace("_", " ")}
       </span>
     );
   };
@@ -197,9 +197,12 @@ const OrderList = () => {
           </div>
 
           <h3 className="font-semibold mb-2">Order Items</h3>
-          {order.cartItems.map((item) => (
-            <div key={item.productId._id} className="flex items-center border-b py-3 last:border-b-0">
-              {item.productId.image?.url && (
+          {order.cartItems?.map((item) => (
+            <div
+              key={item.productId?._id}
+              className="flex items-center border-b py-3 last:border-b-0"
+            >
+              {item.productId?.image?.url && (
                 <img
                   src={item.productId.image.url}
                   alt={item.productId.name}
@@ -207,10 +210,14 @@ const OrderList = () => {
                 />
               )}
               <div className="flex-grow">
-                <h4 className="font-medium">{item.productId.name}</h4>
-                <p className="text-gray-600">₹{item.productId.price} × {item.quantity}</p>
+                <h4 className="font-medium">{item.productId?.name}</h4>
+                <p className="text-gray-600">
+                  ₹{item.productId?.price} × {item.quantity}
+                </p>
               </div>
-              <div className="font-semibold">₹{item.productId.price * item.quantity}</div>
+              <div className="font-semibold">
+                ₹{(item.productId?.price || 0) * item.quantity}
+              </div>
             </div>
           ))}
         </div>
