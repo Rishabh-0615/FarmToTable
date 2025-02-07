@@ -5,6 +5,7 @@
   import toast from "react-hot-toast";
   import axios from "axios";
   import { ShoppingCart, LogOut, Home } from "lucide-react";
+  import myimg from "../assets/logo.png";
 
   const ConsumerNavbar = () => {
     const navigate = useNavigate();
@@ -32,10 +33,10 @@
             <div className="flex items-center">
               <a href="/" className="flex items-center group">
                 <img
-                  src="/api/placeholder/40/40"
+                  src={myimg}
                   alt="Farm To Table"
                   className="w-10 h-10 rounded-lg shadow-md transform group-hover:scale-105 transition-transform duration-200"
-                />
+                  />
                 <span className="ml-2 text-xl font-bold text-[#faeedc] group-hover:text-white transition-all duration-200 transform group-hover:translate-x-1">
                   DailyVegies
                 </span>
