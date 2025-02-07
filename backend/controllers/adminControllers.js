@@ -38,6 +38,18 @@ export const getUnverifiedFarmers = TryCatch(async (req, res) => {
   res.status(200).json({ farmers: unverifiedFarmers }); 
 });
 
+export const getUnverifiedDelivery = TryCatch(async (req, res) => {
+  const unverifiedDelivery = await User.find({ role: "delivery boy", isVerifiedByAdmin: false }); //find unverified  
+
+  // console.log("Fetching unverified farmers:", unverifiedFarmers); 
+
+  if (!unverifiedDelivery || unverifiedDelivery.length === 0) {
+    return res.status(200).json({ farmers: [] });
+  }
+
+  res.status(200).json({ delivery: unverifiedDelivery }); 
+});
+
 
 export const verifyFarmer = TryCatch(async (req, res) => {
   console.log("helloadmin");
@@ -59,9 +71,31 @@ export const verifyFarmer = TryCatch(async (req, res) => {
   }
 });
 
+export const verifyDelivery = TryCatch(async (req, res) => {
+  console.log("helloadmin");
+  try {
+    const { userId } = req.params;
+    const delivery = await User.findById(userId);
+
+    if (!delivery || delivery.role !== "delivery boy") {
+      return res.status(404).json({ message: "delivery boy not found" });
+    }
+
+    delivery.isVerifiedByAdmin = true;
+    await delivery.save();
+
+    res.status(200).json({ message: "delivery boy verified successfully" });
+  } catch (error) {
+    console.error("Verification error:", error); 
+    res.status(500).json({ message: "Server error", error });
+  }
+});
+
 export const logoutAdmin = TryCatch(async(req,res)=>{
   res.clearCookie("token");
   res.json({
       message:"User Logged out",
   })
 })
+
+

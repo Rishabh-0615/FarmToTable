@@ -24,7 +24,7 @@ import Empty from "./pages/Empty";
 import Account from "./pages/Account";
 import Model from './pages/Model'
 import OrderDetails from "./pages/OrderDetails";
-import AdminDashboard from "./pages/AdminDashboard";
+
 import AdminLogin from "./pages/AdminLogin";
 import UserOrdersPage from "./components/RouteMap";
 import OrderList from "./components/RouteMap";
@@ -32,22 +32,25 @@ import OrderList from "./components/RouteMap";
 import Delivery from "./pages/Delivery";
 import DeliveryNavbar from "./components/Delivery-Navbar";
 import FarmerOrders from "./pages/FarmerOrders";
+import Admin from "./pages/Admin";
+import VerifyFarmer from "./pages/VerifyFarmer";
+import VerifyDelivery from "./pages/Delivery-verify";
 
 const App = () => {
-  const { user, loading, isAuth } = UserData();
-
+  const { user, loading, isAuth,isAuthAdmin } = UserData();
+  console.log(isAuthAdmin);
   if (loading) {
     return <Loading />;
   }
 
   return (
     <BrowserRouter>
-      <AppWithLocation user={user} isAuth={isAuth} />
+      <AppWithLocation user={user} isAuth={isAuth} isAuthAdmin={isAuthAdmin} />
     </BrowserRouter>
   );
 };
 
-const AppWithLocation = ({ user, isAuth }) => {
+const AppWithLocation = ({ user, isAuth ,isAuthAdmin}) => {
   const location = useLocation();
 
   // Determine which navbar to display
@@ -124,9 +127,11 @@ const AppWithLocation = ({ user, isAuth }) => {
         <Route path="/order" element={<OrderDetails />} />
         <Route path="/orders" element={<OrderList />} />
         <Route path="/model" element={<Model />} />
-        <Route path="/admin-login" element={<AdminLogin />} />
-        <Route path="/verify-farmer" element={<AdminDashboard />} />
+        <Route path="/admin-login" element={isAuthAdmin ? <Admin/> :<AdminLogin />} />
+        <Route path="/admin" element={isAuthAdmin ?<Admin />:<AdminLogin/>} />
         <Route path="/farmerorder" element={<FarmerOrders />} />
+        <Route path="/verify" element={<VerifyFarmer />} />
+        <Route path="/verify-delivery" element={<VerifyDelivery />} />
 
       </Routes>
     </>

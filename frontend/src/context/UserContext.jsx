@@ -9,6 +9,7 @@ export const UserProvider = ({ children }) => {
     const [isAuth, setIsAuth] = useState(false);
     const [btnLoading, setBtnLoading] = useState(false);
     const [admin, setAdmin] = useState(null);
+    const [isAuthAdmin, setIsAuthAdmin] = useState(() => JSON.parse(localStorage.getItem("isAuthAdmin")) || false);
   
     // Function to handle user login
     async function loginUser(email, password,role, navigate) {
@@ -25,6 +26,9 @@ export const UserProvider = ({ children }) => {
         }
         if(Role==="farmer"){
           navigate("/farmer");
+        }
+        if(Role==="delivery boy"){
+          navigate("/delivery");
         }
        
       } catch (error) {
@@ -121,9 +125,9 @@ export const UserProvider = ({ children }) => {
       const { data } = await axios.post("/api/admin/admin-login", { username, password });
       toast.success(data.message);
       setAdmin(data.admin);
-      setIsAuth(true);
+      setIsAuthAdmin(true);
       setBtnLoading(false);
-      navigate("/verify-farmer");
+      navigate("/admin");
     } catch (error) {
       toast.error(error.response?.data?.message || "Admin login failed");
       setBtnLoading(false);
@@ -151,6 +155,7 @@ export const UserProvider = ({ children }) => {
           forgotUser,
           resetUser,
           setAdmin,
+          isAuthAdmin
         }}
       >
         {children}

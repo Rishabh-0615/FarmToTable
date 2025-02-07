@@ -33,7 +33,8 @@ const schema = new mongoose.Schema(
       type: Boolean,
       default: false,
       required: function() {
-        return this.role === 'farmer'; //isVerifiedByAdmin only for farmer
+        return this.role === 'farmer';
+         //isVerifiedByAdmin only for farmer
       },
     }
   },
