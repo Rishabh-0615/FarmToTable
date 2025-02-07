@@ -1,348 +1,92 @@
 import TryCatch from "../utils/TryCatch.js";
 import { Cart } from "../models/cartModel.js";
 import { Product } from "../models/productModel.js";
-import { calculateDistance } from "../utils/distance.js";
 import { Order } from "../models/orderModel.js";
 import { Location } from "../models/locationModel.js";
 import axios from "axios";
+import { OrderDetails } from "../models/orderDetailsModel.js";
 
-const STATIC_HUB_LOCATION = { lat: 18.7128, lon: 73.0060 };
+
 const GEOCODING_API_KEY = process.env.GEOCODING_API_KEY;
 
 /**
  * Add or remove items from the cart
  */
 export const addCart = TryCatch(async (req, res) => {
-  const { productId, quantity, remove } = req.body;
+  try {
+    const { productId, quantity, price, remove } = req.body;
 
-  const product = await Product.findById(productId);
-  if (!product) {
-    return res.status(404).json({ error: "Product not found" });
-  }
+    if (!productId) return res.status(400).json({ error: "Product ID is required" });
 
-  let cart = await Cart.findOne({ consumer: req.user._id });
+    console.log("Incoming request data:", req.body);
 
-  if (!cart) {
-    cart = new Cart({ consumer: req.user._id, items: [] });
-  }
+    // Fetch the consumer's cart
+    let cart = await Cart.findOne({ consumer: req.user._id });
+    if (!cart) return res.status(404).json({ error: "Cart not found" });
 
-  // Handle remove functionality
-  if (remove) {
-    const productIndex = cart.items.findIndex(item => item.productId.toString() === productId);
-
-    if (productIndex >= 0) {
-      cart.items.splice(productIndex, 1);
+    // Remove item logic
+    if (remove) {
+      cart.items = cart.items.filter(
+        (item) => item.productId.toString() !== productId
+      );
       await cart.save();
 
       return res.status(200).json({
-        message: "Product removed from cart",
+        message: "Item removed from cart",
         cart,
       });
-    } else {
-      return res.status(404).json({ error: "Product not found in cart" });
     }
+
+    // Fetch the product to validate its existence
+    const product = await Product.findById(productId);
+    if (!product) return res.status(404).json({ error: "Product not found" });
+
+    if (product.quantity < quantity) {
+      return res.status(400).json({ error: "Insufficient stock available" });
+    }
+
+    // Find product index in cart
+    const productIndex = cart.items.findIndex(
+      (item) => item.productId.toString() === productId
+    );
+
+    if (productIndex >= 0) {
+      // Update quantity directly based on the request
+      cart.items[productIndex].quantity = quantity;
+      cart.items[productIndex].price = price || cart.items[productIndex].price;
+    } else {
+      cart.items.push({ productId, quantity, price });
+    }
+
+    await cart.save();
+
+    res.status(200).json({
+      message: "Cart updated successfully",
+      cart,
+    });
+  } catch (error) {
+    console.error("Server error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
-
-  // Handle add functionality
-  const existingProductIndex = cart.items.findIndex(item => item.productId.toString() === productId);
-  const currentCartQuantity = existingProductIndex >= 0 ? cart.items[existingProductIndex].quantity : 0;
-
-  if (product.quantity < currentCartQuantity + quantity) {
-    return res.status(400).json({ error: "Insufficient stock available for this product." });
-  }
-
-  if (existingProductIndex >= 0) {
-    cart.items[existingProductIndex].quantity += quantity;
-  } else {
-    cart.items.push({ productId, quantity });
-  }
-
-  await cart.save();
-
-  res.status(200).json({
-    message: "Product added to cart",
-    cart,
-  });
 });
 
 
-/**
- * Retrieve the cart
- */
+
+
+
+
 export const getCart = TryCatch(async (req, res) => {
   let cart = await Cart.findOne({ consumer: req.user._id }).populate("items.productId");
   if (!cart) {
     // Return an empty cart structure
-    cart = { items: [] };
+    cart = { items: [], totalPrice: 0 };
+  } else {
+    cart.calculateTotalPrice(); // Ensure total price is always updated
+    await cart.save();
   }
-
   res.status(200).json(cart);
 });
 
-
-/**
- * Geocode address to get latitude and longitude
- */
-const geocodeAddress = async (address) => {
-  const response = await axios.get(
-    `https://maps.googleapis.com/maps/api/geocode/json`,
-    {
-      params: {
-        address,
-        key: GEOCODING_API_KEY,
-      },
-    }
-  );
-
-  if (response.data.status === "OK" && response.data.results.length > 0) {
-    const location = response.data.results[0].geometry.location;
-    return { lat: location.lat, lon: location.lng };
-  } else {
-    throw new Error("Failed to geocode the provided address");
-  }
-};
-
-/**
- * Place an order
- */
-export const placeOrder = TryCatch(async (req, res) => {
-  const { consumerLocation, consumerAddress } = req.body;
-
-  let finalLocation = consumerLocation;
-
-  // If address is provided but location is not, geocode the address
-  if (!finalLocation && consumerAddress) {
-    try {
-      finalLocation = await geocodeAddress(consumerAddress);
-    } catch (err) {
-      return res.status(400).json({ error: err.message });
-    }
-  }
-
-  if (!finalLocation || !finalLocation.lat || !finalLocation.lon) {
-    return res.status(400).json({
-      error: "Please provide either a valid location or address",
-    });
-  }
-
-  const cart = await Cart.findOne({ consumer: req.user._id }).populate("items.productId");
-
-  if (!cart || cart.items.length === 0) {
-    return res.status(400).json({ error: "Cart is empty" });
-  }
-
-  let totalPrice = 0;
-
-  for (const item of cart.items) {
-    const product = item.productId;
-
-    if (product.quantity < item.quantity) {
-      return res.status(400).json({ error: `Insufficient stock for ${product.name}` });
-    }
-
-    product.quantity -= item.quantity;
-    await product.save();
-
-    totalPrice += product.price * item.quantity;
-  }
-
-  // Calculate delivery fee based on the location
-  const distance = calculateDistance(
-    STATIC_HUB_LOCATION.lat,
-    STATIC_HUB_LOCATION.lon,
-    finalLocation.lat,
-    finalLocation.lon
-  );
-  const deliveryFee = distance * 0.5;
-
-  const finalPrice = totalPrice + deliveryFee;
-
-  // Create the order
-  const order = new Order({
-    consumer: req.user._id,
-    products: cart.items,
-    totalPrice: totalPrice,
-    deliveryFee: deliveryFee,
-    finalPrice: finalPrice,
-    consumerLocation: finalLocation,
-  });
-
-  await order.save();
-
-  // Clear the cart after placing the order
-  await Cart.deleteOne({ consumer: req.user._id });
-
-  res.status(200).json({ message: "Order placed successfully", order });
-});
-
-/**
- * Retrieve all orders for the logged-in user
- */
-export const getOrders = TryCatch(async (req, res) => {
-  const orders = await Order.find({ consumer: req.user._id }).populate("products.productId");
-
-  if (!orders || orders.length === 0) {
-    return res.status(404).json({ message: "No orders found" });
-  }
-
-  res.status(200).json(orders);
-});
-
-
-export const geocode = async (req, res) => {
-  try {
-    const { address } = req.body;
-
-    // Validate input
-    if (!address) {
-      return res.status(400).json({ error: 'Address is required' });
-    }
-
-    // Log request body for debugging
-    console.log('Received address:', address);
-
-    // Call Google Geocoding API
-    const response = await axios.get(
-      `https://maps.googleapis.com/maps/api/geocode/json`,
-      {
-        params: {
-          address: encodeURIComponent(address),
-          key: process.env.GEOCODING_API_KEY, // Use environment variable
-        },
-      }
-    );
-
-    // Check Google API response status
-    if (response.data.status === 'OK') {
-      return res.json(response.data);
-    } else {
-      console.error('Google API error:', response.data);
-      return res.status(400).json({ error: response.data.error_message || 'Failed to geocode address' });
-    }
-  } catch (error) {
-    // Log error and respond with 500
-    console.error('Geocode error:', error.message || error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-};
-
-
-
-
-export const reverseGeocode = async (req, res) => {
-  try {
-    const { lat, lon } = req.body;
-
-    // Validate latitude and longitude
-    if (typeof lat !== 'number' || typeof lon !== 'number' || lat < -90 || lat > 90 || lon < -180 || lon > 180) {
-      return res.status(400).json({ error: 'Invalid latitude or longitude' });
-    }
-
-    // Log incoming request for debugging
-    console.log('Received coordinates:', { lat, lon });
-
-    // Call Google Reverse Geocoding API
-    const response = await axios.get(
-      `https://maps.googleapis.com/maps/api/geocode/json`,
-      {
-        params: {
-          latlng: `${lat},${lon}`,
-          key: process.env.GEOCODING_API_KEY, // Use environment variable
-        },
-      }
-    );
-
-    // Handle API response
-    if (response.data.status === 'OK') {
-      console.log(response.data.results[0].formatted_address);
-      return res.json(response.data.results[0].formatted_address);
-    } else {
-      console.error('Google API error:', response.data);
-      return res.status(400).json({ error: response.data.error_message || 'No results found' });
-    }
-  } catch (error) {
-    // Log error and respond with 500
-    console.error('Reverse Geocode error:', error.message || error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-};
-
-
-
-export const optimizeRoute = async (req, res) => {
-  try {
-    const { origin, destinations } = req.body;
-
-    // Validate request body
-    if (
-      !origin ||
-      !Array.isArray(destinations) ||
-      destinations.length === 0 ||
-      typeof origin.lat !== 'number' ||
-      typeof origin.lon !== 'number'
-    ) {
-      return res.status(400).json({ error: 'Invalid origin or destinations' });
-    }
-
-    destinations.forEach((dest) => {
-      if (typeof dest.lat !== 'number' || typeof dest.lon !== 'number') {
-        throw new Error('Invalid destination coordinates');
-      }
-    });
-
-    // Build waypoints
-    const waypoints = destinations
-      .slice(0, -1) // Exclude the last destination as it's the final stop
-      .map((dest) => `${dest.lat},${dest.lon}`)
-      .join('|');
-
-    // Make API request
-    const response = await axios.get(
-      `https://maps.googleapis.com/maps/api/directions/json`,
-      {
-        params: {
-          origin: `${origin.lat},${origin.lon}`,
-          destination: `${destinations[destinations.length - 1].lat},${destinations[destinations.length - 1].lon}`,
-          waypoints: `optimize:true|${waypoints}`,
-          key: process.env.GEOCODING_API_KEY, // Use environment variable for API key
-        },
-      }
-    );
-
-    // Handle API response
-    if (response.data.status === 'OK') {
-      res.json(response.data);
-    } else {
-      console.error('Google API error:', response.data);
-      res.status(400).json({
-        error: response.data.error_message || 'Failed to optimize routes',
-      });
-    }
-  } catch (error) {
-    // Log and handle server error
-    console.error('Optimize Route error:', error.message || error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-};
-
-
-export const getLoaction =async(req,res)=>{
-  const { latitude, longitude } = req.body;
-
-  if (!latitude || !longitude) {
-    return res.status(400).json({ error: "Location data is required" });
-  }
-
-  try {
-    const newLocation = new Location({ latitude, longitude });
-    await newLocation.save();
-    res.status(200).json({ message: "Location saved successfully" });
-  } catch (error) {
-    console.error("Error saving location:", error);
-    res.status(500).json({ error: "Failed to save location" });
-  }
-
-}
 
 
 
@@ -423,3 +167,229 @@ export const mockApi=TryCatch(async(req,res)=>{
     }
   }, 2000);
 })
+
+
+
+const getLocationCoordinates = async (address) => {
+  try {
+    const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json`, {
+      params: {
+        address: address,
+        key: process.env.GEOCODING_API_KEY
+      }
+    });
+
+    if (response.data.status === 'OK') {
+      const location = response.data.results[0].geometry.location;
+      return {
+        latitude: location.lat,
+        longitude: location.lng
+      };
+    } else {
+      throw new Error('Unable to geocode address');
+    }
+  } catch (error) {
+    throw new Error('Failed to retrieve location data');
+  }
+};
+
+
+const HUB_LOCATION = {
+  latitude: 18.45778632874901, // Example latitude of your hub
+  longitude: 73.85077995089597 // Example longitude of your hub
+};
+
+// Function to calculate distance using Google Maps Distance Matrix API
+const calculateDistance = async (origin) => {
+  try {
+    const response = await axios.get('https://maps.googleapis.com/maps/api/distancematrix/json', {
+      params: {
+        origins: `${origin.latitude},${origin.longitude}`,
+        destinations: `${HUB_LOCATION.latitude},${HUB_LOCATION.longitude}`,
+        key: process.env.GEOCODING_API_KEY
+      }
+    });
+
+    if (response.data.status === 'OK') {
+      const distance = response.data.rows[0].elements[0].distance.value; // Distance in meters
+      const duration = response.data.rows[0].elements[0].duration.text; // Duration text
+      return {
+        distanceInMeters: distance,
+        distanceInKm: distance / 1000, // Convert meters to kilometers
+        duration: duration
+      };
+    } else {
+      throw new Error('Unable to calculate distance');
+    }
+  } catch (error) {
+    throw new Error('Error calculating distance');
+  }
+};
+
+// Function to calculate delivery fee based on distance (e.g., ₹10 per km)
+const calculateDeliveryFee = (distanceInKm) => {
+  const feePerKm = 2; // ₹10 per kilometer, you can adjust this
+  return distanceInKm * feePerKm;
+};
+
+// Controller to get all orders for a specific user
+
+
+
+
+// In user controller
+export const updateLocation = async (req, res) => {
+  try {
+    const { location } = req.body;
+    const userId = req.user._id;
+
+    // Validate location
+    if (!location || location.trim().length < 3) {
+      return res.status(400).json({ error: 'Invalid location' });
+    }
+
+    // Update user's location
+    await User.findByIdAndUpdate(userId, { 
+      deliveryLocation: location 
+    }, { new: true });
+
+    return res.status(200).json({ 
+      message: 'Location updated successfully',
+      location 
+    });
+  } catch (error) {
+    return res.status(500).json({ error: 'Failed to update location' });
+  }
+};
+
+export const getUserLocation = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    return res.status(200).json({ 
+      location: user.deliveryLocation || '' 
+    });
+  } catch (error) {
+    return res.status(500).json({ error: 'Failed to fetch location' });
+  }
+};
+
+// Schema
+
+
+// Controllers
+export const saveOrder = async (req, res) => {
+  try {
+    const { cartItems, totalPrice: subTotal, locationAddress } = req.body;
+    const userId = req.user._id;
+
+    if (!userId || !cartItems || !subTotal || !locationAddress) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Get the coordinates of the user's location using geocoding
+    const { latitude, longitude } = await getLocationCoordinates(locationAddress);
+
+    // Calculate the distance between the user's location and the hub
+    const distanceData = await calculateDistance({ latitude, longitude });
+    const { distanceInKm } = distanceData;
+
+    // Calculate the delivery fee based on the distance
+    const deliveryFee = calculateDeliveryFee(distanceInKm);
+
+    // Update the total price by adding the delivery fee
+    const updatedTotalPrice = subTotal + deliveryFee;
+
+    // Create a new order with the updated price and location
+    const orderDetails = new OrderDetails({
+      userId,
+      cartItems,
+      deliveryFee,
+      subTotal,
+      totalPrice: updatedTotalPrice,
+      location: {
+        address: locationAddress,
+        coordinates: [longitude, latitude]
+      },
+      paymentStatus: 'PENDING'
+    });
+
+    // Save the order in the database
+    await orderDetails.save();
+    
+    // Clear the cart
+    await Cart.findOneAndUpdate(
+      { consumer: userId },
+      { items: [], totalPrice: 0 },
+      { new: true }
+    );
+
+    return res.status(201).json({
+      message: 'Order saved successfully',
+      order: orderDetails,
+      deliveryFee,
+      subTotal,
+      updatedTotalPrice,
+      distance: distanceData.distanceInKm,
+      duration: distanceData.duration
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Failed to save order' });
+  }
+};
+
+export const getDetails = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    if (!userId) {
+      return res.status(400).json({ error: 'User not found' });
+    }
+
+    // Fetch the latest order for the user
+    const latestOrder = await OrderDetails.findOne({ userId })
+      .populate('cartItems.productId', 'name price image')
+      .sort({ createdAt: -1 });
+
+    if (!latestOrder) {
+      return res.status(404).json({ error: 'No orders found' });
+    }
+
+    return res.status(200).json({
+      message: 'Latest order retrieved successfully',
+      order: latestOrder
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Failed to fetch the latest order' });
+  }
+};
+
+// New controller for updating payment status
+export const updatePaymentStatus = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { paymentStatus, paymentMethod } = req.body;
+    const userId = req.user._id;
+
+    const order = await OrderDetails.findOne({ _id: orderId, userId });
+
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    order.paymentStatus = paymentStatus;
+    order.paymentMethod = paymentMethod;
+    order.paymentUpdatedAt = new Date();
+
+    await order.save();
+
+    return res.status(200).json({
+      message: 'Payment status updated successfully',
+      order
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Failed to update payment status' });
+  }
+};

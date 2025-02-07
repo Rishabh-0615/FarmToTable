@@ -18,6 +18,7 @@ const Home = () => {
         <div className="absolute inset-0 bg-black opacity-40"></div>
       </div>
 
+
       {/* Content container */}
       <div className="relative z-10">
         <Navbar />
@@ -26,6 +27,7 @@ const Home = () => {
         <FAQs />
         <NewFooter />
       </div>
+
     </div>
   );
 };

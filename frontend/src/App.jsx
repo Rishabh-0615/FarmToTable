@@ -21,6 +21,10 @@ import RouteMap from "./components/RouteMap";
 import AddToCart from "./components/AddToCart";
 import Empty from "./pages/Empty";
 import Account from "./pages/Account";
+import Model from './pages/Model'
+import OrderDetails from "./pages/OrderDetails";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminLogin from "./pages/AdminLogin";
 
 const App = () => {
   const { user, loading, isAuth,fetchUser } = UserData();
@@ -84,6 +88,7 @@ const AppWithLocation = ({ user, isAuth }) => {
             )
           }
         />
+
         <Route
           path="/farmer"
           element={
@@ -140,9 +145,14 @@ const AppWithLocation = ({ user, isAuth }) => {
         <Route path="/addproduct" element={isAuth && user.role==="farmer"? <AddProduct />:<Home/>} />
         <Route path="/cart" element={isAuth && user.role==="customer"? <CartPage/>:<Home/>}/>
         <Route path="/past-orders" element={isAuth && user.role==="customer"? <OrderPage/>:<Home/>}/>
-        <Route path="/route" element={<Account/>}/>
+        <Route path="/order" element={<OrderDetails/>}/>
         <Route path="/routemap" element={<AddToCart/>}/>
+        <Route path="/model" element={<Model/>}/>
+        <Route path="/admin-login" element={<AdminLogin />} />
+        <Route path="/verify-farmer" element={<AdminDashboard />} />
+       
       </Routes>
+      
     </>
   );
 };

@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema(
-  {
+  
+    {  
     category: {
       type: String,
       required: true,
@@ -31,7 +32,6 @@ const productSchema = new mongoose.Schema(
     minQuantityForDiscount: {
       type: Number,
       min: 1,
-      // Only required if discountOffer is true
       required: function() {
         return this.discountOffer === true;
       }
@@ -40,18 +40,12 @@ const productSchema = new mongoose.Schema(
       type: Number,
       min: 1,
       max: 100,
-      // Only required if discountOffer is true
       required: function() {
         return this.discountOffer === true;
       }
     },
-    location: {
+    city: {
       type: String,
-      required: true,
-    },
-    condition: {
-      type: String,
-      enum: ['Ripe', 'Unripe', 'Other'],
       required: true,
     },
     owner: {
@@ -67,6 +61,14 @@ const productSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    life:{
+      type:String,
+      default:'',
+    },
+    quantityUnit:{
+      type:String,
+      default:'',
+    }
   },
   {
     timestamps: true,

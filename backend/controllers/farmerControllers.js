@@ -11,9 +11,12 @@ export const addProduct = TryCatch(async (req, res) => {
     quantity, 
     weight, 
     price, 
-    location, 
+    city, 
     condition, 
     notes,
+    life,
+    quantityUnit,
+    
     // Add new discount fields
     discountOffer,
     minQuantityForDiscount,
@@ -36,9 +39,11 @@ export const addProduct = TryCatch(async (req, res) => {
     quantity,
     weight,
     price,
-    location,
+    city,
     condition,
     notes,
+    life,
+    quantityUnit,
     image: {
       id: cloud.public_id,
       url: cloud.secure_url,
@@ -62,7 +67,7 @@ export const addProduct = TryCatch(async (req, res) => {
 });
 
 export const getAllProducts = TryCatch(async (req, res) => {
-  const products = await Product.find().sort({ createdAt: -1 });
+  const products = await Product.find().sort({ createdAt: -1 }).populate('owner', 'name');
   res.json(products);
 });
 
@@ -100,7 +105,8 @@ export const editProduct = TryCatch(async (req, res) => {
     category,
     discountOffer,
     minQuantityForDiscount,
-    discountPercentage 
+    discountPercentage,
+    
   } = req.body;
 
   try {
