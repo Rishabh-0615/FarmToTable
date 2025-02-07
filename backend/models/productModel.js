@@ -61,9 +61,15 @@ const productSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
-    life:{
-      type:String,
-      default:'',
+    minlife:{
+      type:Number,
+      required: true,
+      min: 0,
+    },
+    maxlife:{
+      type:Number,
+      required:true,
+      min:0,
     },
     quantityUnit:{
       type:String,

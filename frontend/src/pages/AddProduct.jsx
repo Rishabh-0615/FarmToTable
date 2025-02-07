@@ -75,7 +75,9 @@ const AddProduct = () => {
     formData.append("userId", user.id);
     formData.append("life", data.life);
     formData.append("city", data.city);
-    formData.append("quantityUnit",data.quantityUnit);
+    formData.append("quantityUnit", data.quantityUnit);
+    formData.append("minlife",data.minlife);
+    formData.append("maxlife",data.maxlife);
 
     // Add discount offer data if enabled
     if (isDiscountOfferEnabled) {
@@ -199,27 +201,27 @@ const AddProduct = () => {
                             min: { value: 1, message: "Value must be greater than 0" },
                           })}
                         />
-                        
+
                       </div>
                       {errors.quantity && <p className="mt-1 text-red-500 text-sm">{errors.quantity.message}</p>}
                     </div>
                     <div className="group">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2 transition-colors group-hover:text-green-600">
-                      Quantity Unit
-                    </label>
-                    <select
-                      className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-green-500 focus:ring focus:ring-green-200 transition-all duration-300"
-                      {...register("quantityUnit", { required: "Product quantity unit is required" })}
-                    >
-                      <option value="">Select a Unit</option>
-                      <option value="Kg">Kg</option>
-                      <option value="Piece">Piece</option>
-                      
-                    </select>
-                    {errors.quantityUnit && (
-                      <p className="mt-1 text-red-500 text-sm">{errors.quantityUnit.message}</p>
-                    )}
-                  </div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2 transition-colors group-hover:text-green-600">
+                        Quantity Unit
+                      </label>
+                      <select
+                        className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-green-500 focus:ring focus:ring-green-200 transition-all duration-300"
+                        {...register("quantityUnit", { required: "Product quantity unit is required" })}
+                      >
+                        <option value="">Select a Unit</option>
+                        <option value="Kg">Kg</option>
+                        <option value="Piece">Piece</option>
+
+                      </select>
+                      {errors.quantityUnit && (
+                        <p className="mt-1 text-red-500 text-sm">{errors.quantityUnit.message}</p>
+                      )}
+                    </div>
                   </div>
 
                   {/* Price Section */}
@@ -238,7 +240,7 @@ const AddProduct = () => {
                             min: { value: 1, message: "Value must be greater than 0" },
                           })}
                         />
-                        
+
                       </div>
                       {errors.price && <p className="mt-1 text-red-500 text-sm">{errors.price.message}</p>}
                     </div>
@@ -321,30 +323,32 @@ const AddProduct = () => {
                 </div>
 
                 <div className="group">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2 transition-colors group-hover:text-green-600">
-                    Shelf Life:
-                  </label>
-                  <select
-                    className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-green-500 focus:ring focus:ring-green-200 transition-all duration-300"
-                    {...register("life", {
-                      required: "Shelf Life is required",
-                      disabled: !selectedCategoryValue
-                    })}
-                    disabled={!selectedCategoryValue}
-                  >
-                    <option value="">
-                      {selectedCategoryValue ? "Select shelf life" : "Select category first"}
-                    </option>
-                    {selectedCategoryValue &&
-                      shelfLifeOptions[selectedCategoryValue]?.map((life) => (
-                        <option key={life} value={life}>
-                          {life}
-                        </option>
-                      ))
-                    }
-                  </select>
-                  {errors.life && <p className="mt-1 text-red-500 text-sm">{errors.life.message}</p>}
-                </div>
+  <label className="block text-sm font-semibold text-gray-700 mb-2 transition-colors group-hover:text-green-600">
+    Shelf Life (Days):
+  </label>
+  <div className="flex items-center gap-2">
+    <input
+      type="number"
+      className="w-1/3 px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-green-500 focus:ring focus:ring-green-200 transition-all duration-300"
+      placeholder="Min days"
+      {...register("minlife", { required: "Minimum shelf life is required", valueAsNumber: true })}
+      disabled={!selectedCategoryValue}
+    />
+    <span className="text-gray-600">To</span>
+    <input
+      type="number"
+      className="w-1/3 px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-green-500 focus:ring focus:ring-green-200 transition-all duration-300"
+      placeholder="Max days"
+      {...register("maxlife", { required: "Maximum shelf life is required", valueAsNumber: true })}
+      disabled={!selectedCategoryValue}
+    />
+    <span className="text-gray-600">Days</span>
+  </div>
+  {errors.minLife && <p className="mt-1 text-red-500 text-sm">{errors.minLife.message}</p>}
+  {errors.maxLife && <p className="mt-1 text-red-500 text-sm">{errors.maxLife.message}</p>}
+  
+</div>
+
               </div>
 
               {/* Notes */}

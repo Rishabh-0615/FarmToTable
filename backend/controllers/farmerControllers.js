@@ -15,7 +15,8 @@ export const addProduct = TryCatch(async (req, res) => {
     city, 
     condition, 
     notes,
-    life,
+    minlife,
+    maxlife,
     quantityUnit,
     
     // Add new discount fields
@@ -43,7 +44,8 @@ export const addProduct = TryCatch(async (req, res) => {
     city,
     condition,
     notes,
-    life,
+    minlife,
+    maxlife,
     quantityUnit,
     image: {
       id: cloud.public_id,
