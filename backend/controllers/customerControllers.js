@@ -273,12 +273,17 @@ export const getUserLocation = async (req, res) => {
   }
 };
 
-// Schema
 
+import moment from 'moment';
 
-// Controllers
 export const saveOrder = async (req, res) => {
   try {
+    // Time restriction: block orders after 10 PM
+    const currentHour = moment().hour();
+    if (currentHour >= 22 || currentHour < 6) { // Block between 10 PM and 6 AM
+      return res.status(403).json({ error: 'Orders are not accepted after 10 PM. Please try again tomorrow.' });
+    }
+
     const { cartItems, totalPrice: subTotal, locationAddress } = req.body;
     const userId = req.user._id;
 
@@ -337,6 +342,7 @@ export const saveOrder = async (req, res) => {
     return res.status(500).json({ error: 'Failed to save order' });
   }
 };
+
 
 export const getDetails = async (req, res) => {
   try {
@@ -405,7 +411,7 @@ export const getDetailsAll = async (req, res) => {
 
     // Fetch all orders for the user, sorted by creation date
     const allOrders = await OrderDetails.find({ userId })
-      .populate('cartItems.productId', 'name price image')
+      .populate('cartItems.productId', 'name price image ')
       .sort({ createdAt: -1 });
 
     if (!allOrders || allOrders.length === 0) {

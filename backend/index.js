@@ -26,11 +26,14 @@ import userRoutes from './routes/userRoutes.js';
 import farmerRoutes from './routes/farmerRoutes.js'
 import customerRoutes from './routes/customerRoutes.js'
 import adminRoutes from './routes/adminRoutes.js'
+import deliveryRoutes from './routes/deliveryRoutes.js'
 
 app.use("/api/user",userRoutes);
 app.use("/api/user/farmer",farmerRoutes)
 app.use("/api/user/customer",customerRoutes)
 app.use("/api/admin", adminRoutes)
+app.use("/api/user/deliveries",deliveryRoutes)
+
 
 
 

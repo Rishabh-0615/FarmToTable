@@ -12,14 +12,12 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-
 const CartPage = () => {
   const navigate = useNavigate();
   const [cart, setCart] = useState({ items: [], totalPrice: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [location, setLocation] = useState("");
-  const [discountCode, setDiscountCode] = useState("");
 
   const fetchCart = async () => {
     try {
@@ -27,7 +25,7 @@ const CartPage = () => {
       const response = await axios.get("/api/user/customer/getcart");
       setCart({
         items: response.data.items,
-        totalPrice: response.data.totalPrice, // Ensure this value is populated
+        totalPrice: response.data.totalPrice,
       });
     } catch (err) {
       setError("Failed to harvest cart items. Retry soon.");
@@ -62,6 +60,13 @@ const CartPage = () => {
   };
 
   const handlePlaceOrder = async () => {
+    const currentHour = new Date().getHours();
+
+    if (currentHour >= 22 || currentHour < 6) {
+      toast.error("Orders are not accepted after 10 PM. Please try again tomorrow.");
+      return;
+    }
+
     if (!location) {
       toast.error("Specify your delivery location");
       return;
@@ -87,8 +92,7 @@ const CartPage = () => {
         toast.success("Harvest order placed successfully!");
         setCart({ items: [], totalPrice: 0 });
       }
-      navigate("/order")
-      
+      navigate("/order");
     } catch (err) {
       toast.error(err.response?.data?.error || "Failed to place farm order");
     }
@@ -145,7 +149,7 @@ const CartPage = () => {
                     {item?.productId?.discountOffer && (
                       <p className="text-green-600 text-sm">
                         <Carrot className="inline mr-1" />
-                        {item?.productId?.discountPercentage}% farm discount on{" "}
+                        {item?.productId?.discountPercentage}% farm discount on {" "}
                         {item?.productId?.minQuantityForDiscount}+ items
                       </p>
                     )}
