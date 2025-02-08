@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { UserData } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
 import { FarmLoadingAnimation, LoadingAnimation } from "../components/Loading";
+import HomeNavbar from "./HomeNavbar";
 
 const Forgot = () => {
   const [email, setEmail] = useState("");
@@ -15,6 +16,8 @@ const Forgot = () => {
   };
 
   return (
+    <>
+    <HomeNavbar />
     <div className="flex items-center justify-center min-h-screen relative overflow-hidden bg-gray-100">
       {/* Animated Background */}
       <div
@@ -73,6 +76,7 @@ const Forgot = () => {
         </form>
       </motion.div>
     </div>
+    </>
   );
 };
 

@@ -4,6 +4,7 @@ import { FaGoogle } from "react-icons/fa";
 import { UserData } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
 import { LoadingAnimation } from "../components/Loading";
+import HomeNavbar from "./HomeNavbar";
 
 const Register = () => {
   const [email, setEmail] = useState("");
@@ -22,6 +23,8 @@ const Register = () => {
   };
 
   return (
+    <>
+    <HomeNavbar />
     <div className="flex items-center justify-center min-h-screen relative overflow-hidden bg-gray-100">
       {/* Animated Background */}
       <div
@@ -139,6 +142,7 @@ const Register = () => {
         </p>
       </motion.div>
     </div>
+    </>
   );
 };
 

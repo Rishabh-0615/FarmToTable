@@ -13,7 +13,7 @@ import AddProduct from "./pages/AddProduct";
 import Navbar from "./pages/Navbar";
 import FarmerNavbar from "./pages/FarmerNavbar";
 import ConsumerNavbar from "./pages/ConsumerNavbar"; 
-
+import FarmToTableChat from "./components/chat";
 import Consumer from "./pages/Consumer";
 import CartPage from "./pages/CartPage";
 import OrderPage from "./pages/OrderPage";
@@ -126,12 +126,19 @@ const AppWithLocation = ({ user, isAuth ,isAuthAdmin}) => {
         <Route path="/addproduct" element={isAuth && user.role === "farmer" ? <AddProduct /> : <Home />} />
         <Route path="/cart" element={isAuth && user.role === "customer" ? <CartPage /> : <Home />} />
         <Route path="/past-orders" element={isAuth && user.role === "customer" ? <OrderPage /> : <Home />} />
+        <Route path="/order" element={isAuth && user.role === "customer" ? <OrderDetails /> : <Home />} />
+        <Route path="/orders" element={isAuth && user.role === "customer" ? <OrderList /> : <Home />} />
+        <Route  path="/model" element={isAuth && user.role === "farmer" ? <Model /> : <Home />} />
+        <Route path="admin-login" element={isAuth && user.role === "admin" ? <AdminLogin /> : <Home />} />
+        <Route path="verify-farmer" element={isAuth && user.role === "admin" ? <AdminDashboard /> : <Home />} />
+        <Route path="/farmerorder" element={isAuth && user.role === "farmer" ? <FarmerOrders /> : <Home />} />  
         <Route path="/order" element={<OrderDetails />} />
         <Route path="/orders" element={<OrderList />} />
         <Route path="/model" element={<Model />} />
         <Route path="/admin-login" element={ <AdminLogin/> } />
         
         <Route path="/farmerorder" element={<FarmerOrders />} />
+        <Route path="/chat" element={<FarmToTableChat />} />
         <Route path="/verify" element={<VerifyFarmer />} />
         <Route path="/verify-delivery" element={<VerifyDelivery />} />
         <Route path="/admin" element={isAuthAdmin?<AdminDashboard />:<AdminLogin/>} />

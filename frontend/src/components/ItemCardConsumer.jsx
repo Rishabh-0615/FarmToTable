@@ -77,9 +77,9 @@ const ItemCardConsumer = ({ product, onRemove }) => {
         />
         {product.discountOffer && (
           <div className="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-            {product.discountPercentage}% OFF
+            {product.discountPercentage}% off on {product.minQuantityForDiscount}+ items
           </div>
-        )}
+        ) }
       </div>
 
       {/* Content Section */}
