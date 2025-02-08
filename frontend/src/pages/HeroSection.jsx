@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import farmer from "../assets/indianFarmer.png";
+import { useNavigate } from "react-router-dom";
 
 export default function HeroSection() {
   const [text, setText] = useState('');
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
+  const navigate = useNavigate();
 
   const phrases = [
     'Supporting Local Farmers....',
@@ -58,7 +60,7 @@ export default function HeroSection() {
               <button className="bg-yellow-500 hover:bg-yellow-600 text-black px-8 py-3 rounded-lg font-semibold transition-colors duration-200">
                 Join Us
               </button>
-              <button className="bg-white hover:bg-gray-100 text-green-700 px-8 py-3 rounded-lg font-semibold transition-colors duration-200">
+              <button onClick={()=>navigate("/learnFarmer")} className="bg-white hover:bg-gray-100 text-green-700 px-8 py-3 rounded-lg font-semibold transition-colors duration-200">
                 Learn More
               </button>
             </div>

@@ -4,6 +4,7 @@ import { Search, MapPin } from "lucide-react";
 import ItemCardConsumer from "../components/ItemCardConsumer";
 import HeroSectionConsumer from "./HeroSectionConsumer";
 import NewFooter from "./Footer";
+import Footer from "./NewFooter";
 
 const Consumer = () => {
   const [products, setProducts] = useState([]);
@@ -242,7 +243,7 @@ const Consumer = () => {
           </>
         )}
       </div>
-      <NewFooter />
+      <Footer />
     </div>
   );
 };

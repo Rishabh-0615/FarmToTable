@@ -37,6 +37,8 @@ import VerifyFarmer from "./pages/VerifyFarmer";
 import VerifyDelivery from "./pages/Delivery-verify";
 import AdminDashboard from "./pages/NewAdmin";
 import DeliveryBoyDashboard from "./pages/newDelivery";
+import FarmerLearnMore from "./pages/FarmerLearn";
+import ConsumerLearnMore from "./pages/ConsumerLearn";
 
 const App = () => {
   const { user, loading, isAuth,isAuthAdmin } = UserData();
@@ -132,6 +134,8 @@ const AppWithLocation = ({ user, isAuth ,isAuthAdmin}) => {
         <Route path="admin-login" element={isAuth && user.role === "admin" ? <AdminLogin /> : <Home />} />
         <Route path="verify-farmer" element={isAuth && user.role === "admin" ? <AdminDashboard /> : <Home />} />
         <Route path="/farmerorder" element={isAuth && user.role === "farmer" ? <FarmerOrders /> : <Home />} />  
+        <Route path="/learnFarmer" element={isAuth && user.role === "farmer" ? <FarmerLearnMore /> : <Home />} />  
+        <Route path="/learnConsumer" element={isAuth && user.role === "customer" ? <ConsumerLearnMore /> : <Home />} />  
         <Route path="/order" element={<OrderDetails />} />
         <Route path="/orders" element={<OrderList />} />
         <Route path="/model" element={<Model />} />

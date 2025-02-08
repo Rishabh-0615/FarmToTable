@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import FarmerNavbar from './FarmerNavbar';
-
+import Footer from './NewFooter';
 import  HeroSection  from './HeroSection';
 
 import { ProductData } from '../context/FarmerContext';
@@ -80,7 +80,7 @@ const FarmerHome = () => {
         </div>
       )}
 
-      
+      <Footer />
     </div>
   );
 };
