@@ -1,6 +1,7 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-const deliveryAssignmentSchema = new mongoose.Schema({
+// Delivery Assignment Model
+export const DeliveryAssignment = mongoose.model('DeliveryAssignment', new mongoose.Schema({
   deliveryBoyId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -11,29 +12,17 @@ const deliveryAssignmentSchema = new mongoose.Schema({
     ref: 'OrderDetails',
     required: true
   },
-  status: {
-    type: String,
-    enum: ['ASSIGNED', 'PICKED_UP', 'DELIVERED', 'CANCELLED'],
-    default: 'ASSIGNED'
-  },
-  currentLocation: {
-    coordinates: {
-      type: [Number], // [longitude, latitude]
-      default: null
-    },
-    lastUpdated: {
-      type: Date,
-      default: null
-    }
-  },
-  deliveryNotes: String,
   assignedAt: {
     type: Date,
     default: Date.now
   },
-  completedAt: {
-    type: Date
+  status: {
+    type: String,
+    enum: ['ASSIGNED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'],
+    default: 'ASSIGNED'
+  },
+  city: {
+    type: String,
+    
   }
-});
-
-export const DeliveryAssignment = mongoose.model("DeliveryAssignment", deliveryAssignmentSchema);
+}, { timestamps: true }));

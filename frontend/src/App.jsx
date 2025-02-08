@@ -32,9 +32,11 @@ import OrderList from "./components/RouteMap";
 import Delivery from "./pages/Delivery";
 import DeliveryNavbar from "./components/Delivery-Navbar";
 import FarmerOrders from "./pages/FarmerOrders";
-import Admin from "./pages/Admin";
+
 import VerifyFarmer from "./pages/VerifyFarmer";
 import VerifyDelivery from "./pages/Delivery-verify";
+import AdminDashboard from "./pages/NewAdmin";
+import DeliveryBoyDashboard from "./pages/newDelivery";
 
 const App = () => {
   const { user, loading, isAuth,isAuthAdmin } = UserData();
@@ -127,11 +129,14 @@ const AppWithLocation = ({ user, isAuth ,isAuthAdmin}) => {
         <Route path="/order" element={<OrderDetails />} />
         <Route path="/orders" element={<OrderList />} />
         <Route path="/model" element={<Model />} />
-        <Route path="/admin-login" element={isAuthAdmin ? <Admin/> :<AdminLogin />} />
-        <Route path="/admin" element={isAuthAdmin ?<Admin />:<AdminLogin/>} />
+        <Route path="/admin-login" element={ <AdminLogin/> } />
+        
         <Route path="/farmerorder" element={<FarmerOrders />} />
         <Route path="/verify" element={<VerifyFarmer />} />
         <Route path="/verify-delivery" element={<VerifyDelivery />} />
+        <Route path="/admin" element={isAuthAdmin?<AdminDashboard />:<AdminLogin/>} />
+        <Route path="/newdelivery" element={<DeliveryBoyDashboard />} />
+        
 
       </Routes>
     </>
