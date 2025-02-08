@@ -62,10 +62,10 @@ const CartPage = () => {
   const handlePlaceOrder = async () => {
     const currentHour = new Date().getHours();
 
-    if (currentHour >= 22 || currentHour < 6) {
+    /*if (currentHour >= 22 || currentHour < 6) {
       toast.error("Orders are not accepted after 10 PM. Please try again tomorrow.");
       return;
-    }
+    }*/
 
     if (!location) {
       toast.error("Specify your delivery location");

@@ -1,31 +1,33 @@
-  import React, { useState } from "react";
-  import { User, Menu, X } from "lucide-react";
-  import { useNavigate } from "react-router-dom";
-  import { UserData } from "../context/UserContext";
-  import toast from "react-hot-toast";
-  import axios from "axios";
-  import { ShoppingCart, LogOut, Home } from "lucide-react";
-  import myimg from "../assets/logo.png";
+import React, { useState } from "react";
+import { User, Menu, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { UserData } from "../context/UserContext";
+import toast from "react-hot-toast";
+import axios from "axios";
+import { ShoppingCart, LogOut, Home } from "lucide-react";
+import myimg from "../assets/logo.png";
+import FarmToTableChat from "../components/chat";
 
-  const ConsumerNavbar = () => {
-    const navigate = useNavigate();
-    const { setIsAuth, setUser } = UserData();
-    const [isOpen, setIsOpen] = useState(false);
+const ConsumerNavbar = () => {
+  const navigate = useNavigate();
+  const { setIsAuth, setUser } = UserData();
+  const [isOpen, setIsOpen] = useState(false);
 
-    const logoutHandler = async () => {
-      try {
-        const { data } = await axios.get("/api/user/logout");
-        toast.success(data.message);
-        setIsAuth(false);
-        setUser([]);
-        navigate("/");
-      } catch (error) {
-        const errorMessage = error.response ? error.response.data.message : error.message;
-        toast.error(errorMessage);
-      }
-    };
+  const logoutHandler = async () => {
+    try {
+      const { data } = await axios.get("/api/user/logout");
+      toast.success(data.message);
+      setIsAuth(false);
+      setUser([]);
+      navigate("/");
+    } catch (error) {
+      const errorMessage = error.response ? error.response.data.message : error.message;
+      toast.error(errorMessage);
+    }
+  };
 
-    return (
+  return (
+    <>
       <nav className="bg-green-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -36,7 +38,7 @@
                   src={myimg}
                   alt="Farm To Table"
                   className="w-10 h-10 rounded-lg shadow-md transform group-hover:scale-105 transition-transform duration-200"
-                  />
+                />
                 <span className="ml-2 text-xl font-bold text-[#faeedc] group-hover:text-white transition-all duration-200 transform group-hover:translate-x-1">
                   DailyVegies
                 </span>
@@ -70,6 +72,7 @@
                       className="block px-4 py-2 text-[#faeedc] hover:text-white rounded-lg transition-all duration-200 transform hover:-translate-y-1 hover:shadow-lg hover:bg-white/10 h-10"
                     >
                       <Home className="mr-0 h-7 w-7" />
+                      <span className="lg:hidden ml-2">Home</span>
                     </a>
                   </li>
                   <li>
@@ -78,11 +81,12 @@
                       className="block px-4 py-2 text-[#faeedc] hover:text-white rounded-lg transition-all duration-200 transform hover:-translate-y-1 hover:shadow-lg hover:bg-white/10 flex items-center"
                     >
                       <ShoppingCart className="mr-0 h-7 w-7" />
+                      <span className="lg:hidden ml-2">Cart</span>
                     </a>
                   </li>
                   <li>
                     <a
-                      href="/past-orders"
+                      href="/order"
                       className="block px-4 py-2 text-[#faeedc] hover:text-white rounded-lg transition-all duration-200 transform hover:-translate-y-1 hover:shadow-lg hover:bg-white/10"
                     >
                       Order
@@ -90,7 +94,7 @@
                   </li>
                   <li>
                     <a
-                      href="/past-orders"
+                      href="/orders"
                       className="block px-4 py-2 text-[#faeedc] hover:text-white rounded-lg transition-all duration-200 transform hover:-translate-y-1 hover:shadow-lg hover:bg-white/10"
                     >
                       All Orders
@@ -98,18 +102,10 @@
                   </li>
                   <li>
                     <a
-                      href="/about-us"
+                      href="/chat"
                       className="block px-4 py-2 text-[#faeedc] hover:text-white rounded-lg transition-all duration-200 transform hover:-translate-y-1 hover:shadow-lg hover:bg-white/10"
                     >
-                      About Us
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="/contact-us"
-                      className="block px-4 py-2 text-[#faeedc] hover:text-white rounded-lg transition-all duration-200 transform hover:-translate-y-1 hover:shadow-lg hover:bg-white/10"
-                    >
-                      Contact Us
+                      AI Chatbot
                     </a>
                   </li>
                   <li>
@@ -127,7 +123,8 @@
           </div>
         </div>
       </nav>
-    );
-  };
+    </>
+  );
+};
 
-  export default ConsumerNavbar;
+export default ConsumerNavbar;

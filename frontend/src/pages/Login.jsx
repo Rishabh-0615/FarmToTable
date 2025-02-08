@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { UserData } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
 import { FarmLoadingAnimation } from "../components/Loading";
+import HomeNavbar from "./HomeNavbar"
 
 import { Eye } from "lucide-react";
 import { EyeOff } from "lucide-react";
@@ -25,7 +26,10 @@ const Login = () => {
   };
 
   return (
+    <>
+    <HomeNavbar />
     <div className="relative min-h-screen bg-gray-100">
+      
       {/* Render Navbar at the Top */}
       {/* <ConsumerNavbar /> */}
 
@@ -132,6 +136,7 @@ const Login = () => {
         </motion.div>
       </div>
     </div>
+    </>
   );
 };
 

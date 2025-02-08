@@ -187,7 +187,7 @@ const AddProduct = () => {
                 {/* Quantity and Price */}
                 <div className="space-y-6">
                   {/* Quantity Section */}
-                  <div className="grid grid-cols-[15fr_0.1fr] gap-6 items-end">
+                  <div className="grid grid-cols-[5fr_0.1fr] gap-6 items-end">
                     <div className="group">
                       <label className="block text-sm font-semibold text-gray-700 mb-2 transition-colors group-hover:text-green-600">
                         Quantity Available
@@ -207,7 +207,7 @@ const AddProduct = () => {
                     </div>
                     <div className="group">
                       <label className="block text-sm font-semibold text-gray-700 mb-2 transition-colors group-hover:text-green-600">
-                        Quantity Unit
+                        Unit
                       </label>
                       <select
                         className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-green-500 focus:ring focus:ring-green-200 transition-all duration-300"
