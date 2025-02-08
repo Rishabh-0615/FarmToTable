@@ -126,6 +126,9 @@ const Consumer = () => {
     }
     return filteredProducts;
   };
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   const sortedProducts = getSortedProducts();
 
@@ -174,10 +177,10 @@ const Consumer = () => {
         {/* Filters and Products Section */}
         {selectedCity && (
           <>
-            {/* Search & Filters */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 mb-8 border border-[#1dcc75]/20">
+            {/* Filter & Search Section */}
+            <div className="g-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 mb-8 border border-[#1dcc75]/20">
               <div className="flex flex-col md:flex-row gap-4">
-                {/* Search */}
+                {/* Search Input */}
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#19b25e]" />
                   <input
@@ -193,7 +196,7 @@ const Consumer = () => {
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="px-4 py-3 border border-[#1dcc75]/30 rounded-lg bg-white/90 md:w-48 w-full"
+                  className="px-4 py-3 border border-[#1dcc75]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1dcc75] bg-white/90 md:w-48 w-full hover:border-[#1dcc75] transition-colors"
                 >
                   <option value="all">All Categories</option>
                   {categories.map((category) => (
@@ -202,7 +205,28 @@ const Consumer = () => {
                     </option>
                   ))}
                 </select>
-              </div>
+
+                {/* Discount Filter */}
+                <label className="flex items-center space-x-2 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={showDiscountOnly}
+                    onChange={() => setShowDiscountOnly(!showDiscountOnly)}
+                    className="w-5 h-5 text-[#1dcc75] border-[#1dcc75]/30 focus:ring-[#1dcc75] rounded"
+                  />
+                  <span className="text-gray-700 group-hover:text-[#19b25e] transition-colors">Discount Only</span>
+                </label>
+              {/* Sort Options */}
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="px-4 py-3 border border-[#1dcc75]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1dcc75] bg-white/90 md:w-48 w-full hover:border-[#1dcc75] transition-colors"
+            >
+              <option value="latest">Latest</option>
+              <option value="priceLowToHigh">Price: Low to High</option>
+              <option value="priceHighToLow">Price: High to Low</option>
+            </select>
+            </div>
             </div>
 
             {/* Product Grid */}

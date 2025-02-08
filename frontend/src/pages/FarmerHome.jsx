@@ -43,7 +43,7 @@ const FarmerHome = () => {
 
       {/* Recently Added Products Section */}
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+        <h2 className="text-4xl font-bold text-gray-800 mb-6 text-center">
         Fresh Produce from Fellow Farmers
         </h2>
         <p className="text-center text-gray-600 mb-8 max-w-2xl mx-auto">

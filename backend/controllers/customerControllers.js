@@ -279,10 +279,10 @@ import moment from 'moment';
 export const saveOrder = async (req, res) => {
   try {
     // Time restriction: block orders after 10 PM
-    const currentHour = moment().hour();
-    if (currentHour >= 22 || currentHour < 6) { // Block between 10 PM and 6 AM
+    /*const currentHour = moment().hour();
+    if (currentHour >=22 || currentHour < 6) { // Block between 10 PM and 6 AM
       return res.status(403).json({ error: 'Orders are not accepted after 10 PM. Please try again tomorrow.' });
-    }
+    }*/
 
     const { cartItems, totalPrice: subTotal, locationAddress } = req.body;
     const userId = req.user._id;
@@ -378,15 +378,28 @@ export const updatePaymentStatus = async (req, res) => {
     const { paymentStatus, paymentMethod } = req.body;
     const userId = req.user._id;
 
-    const order = await OrderDetails.findOne({ _id: orderId, userId });
+    // Find the order based on orderId and userId
+    const order = await OrderDetails.findOne({ _id: orderId, userId }).populate('cartItems.productId');
 
     if (!order) {
       return res.status(404).json({ error: 'Order not found' });
     }
 
+    // Update the payment status
     order.paymentStatus = paymentStatus;
     order.paymentMethod = paymentMethod;
     order.paymentUpdatedAt = new Date();
+
+    // If payment is successful, update product stock
+    if (paymentStatus === "SUCCESS") {
+      for (const item of order.cartItems) {
+        const product = await Product.findById(item.productId);
+        if (product) {
+          product.quantity -= item.quantity;
+          await product.save();
+        }
+      }
+    }
 
     await order.save();
 
