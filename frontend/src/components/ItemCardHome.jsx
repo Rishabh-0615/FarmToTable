@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import PropTypes from "prop-types";
 
-const ItemCardHome = ({ product, onRemove }) => {
+const ItemCardHome = ({ product, onRemove = () => {} }) => {
   const [daysElapsed, setDaysElapsed] = useState(0);
 
   useEffect(() => {
@@ -20,8 +21,10 @@ const ItemCardHome = ({ product, onRemove }) => {
 
     // Remove product automatically when maxlife is reached
     if (diffInDays >= product.maxlife) {
-      onRemove(product._id);
-      toast.error(`${product.name} has been removed as it exceeded its shelf life.`);
+      if (typeof onRemove === "function") {
+        onRemove(product._id);
+        toast.error(`${product.name} has been removed as it exceeded its shelf life.`);
+      }
     }
   }, [product, onRemove]);
 
@@ -88,6 +91,11 @@ const ItemCardHome = ({ product, onRemove }) => {
       </div>
     </div>
   );
+};
+
+ItemCardHome.propTypes = {
+  product: PropTypes.object.isRequired,
+  onRemove: PropTypes.func
 };
 
 export default ItemCardHome;

@@ -392,7 +392,7 @@ export const updatePaymentStatus = async (req, res) => {
     order.paymentStatus = paymentStatus;
     order.paymentMethod = paymentMethod;
     order.paymentUpdatedAt = new Date();
-
+    
     // If payment is successful, update product stock
     if (paymentStatus === "SUCCESS") {
       for (const item of order.cartItems) {
@@ -443,3 +443,5 @@ export const getDetailsAll = async (req, res) => {
     return res.status(500).json({ error: 'Failed to fetch orders' });
   }
 };
+
+
