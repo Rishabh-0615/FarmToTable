@@ -5,8 +5,8 @@ import {getUnverifiedFarmers, verifyFarmer, adminLogin, logoutAdmin, getUnverifi
 
 const router=express.Router();
 router.post("/admin-login", adminLogin);
-router.get("/verify-farmer",isAdminAuth, getUnverifiedFarmers);
-router.put("/verify-farmer/:userId",isAdminAuth, verifyFarmer);
+router.get("/verify-farmer", getUnverifiedFarmers);
+router.put("/verify-farmer/:userId", verifyFarmer);
 router.get("/verify-delivery",isAdminAuth, getUnverifiedDelivery);
 router.put("/verify-delivery/:userId",isAdminAuth, verifyDelivery);
 router.get("/logout",isAdminAuth, logoutAdmin);

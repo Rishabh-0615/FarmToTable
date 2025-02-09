@@ -20,9 +20,12 @@ export const addCart = TryCatch(async (req, res) => {
 
     console.log("Incoming request data:", req.body);
 
-    // Fetch the consumer's cart
+    // Fetch or create the consumer's cart
     let cart = await Cart.findOne({ consumer: req.user._id });
-    if (!cart) return res.status(404).json({ error: "Cart not found" });
+
+    if (!cart) {
+      cart = new Cart({ consumer: req.user._id, items: [] });
+    }
 
     // Remove item logic
     if (remove) {

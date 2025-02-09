@@ -39,7 +39,7 @@ const AddProduct = () => {
   const categoryError = !selectedCategoryValue && "Please select a category first.";
 
   const productOptions = {
-    Vegetable: ["Carrot", "Tomato", "Cabbage", "Spinach"],
+    Vegetable: ["Carrot", "Tomato", "Cabbage", "Spinach","Corn"],
     Fruit: ["Apples", "Watermelon", "Mango", "Banana"],
     Grains: ["Rice", "Wheat", "Corn", "Barley"],
   };

@@ -8,17 +8,17 @@ const router = express.Router();
 
 // Admin Routes
 router.get('/unassigned-orders', 
-  isAdminAuth,
+  
   adminController3.getUnassignedOrders
 );
 
 router.get('/available-delivery-boys', 
-    isAdminAuth,
+    
   adminController3.getAvailableDeliveryBoys
 );
 
 router.post('/assign-order', 
-    isAdminAuth, 
+  
   adminController3.assignOrderToDeliveryBoy
 );
 

@@ -39,6 +39,10 @@ import AdminDashboard from "./pages/NewAdmin";
 import DeliveryBoyDashboard from "./pages/newDelivery";
 import FarmerLearnMore from "./pages/FarmerLearn";
 import ConsumerLearnMore from "./pages/ConsumerLearn";
+import PredictPrice from "./pages/model1";
+import VegetablePricePredictor from "./pages/model1";
+import VegetableDemandPredictor from "./pages/Model2";
+import PredictionMenu from "./pages/Predict";
 
 const App = () => {
   const { user, loading, isAuth,isAuthAdmin } = UserData();
@@ -138,15 +142,18 @@ const AppWithLocation = ({ user, isAuth ,isAuthAdmin}) => {
         <Route path="/learnConsumer" element={isAuth && user.role === "customer" ? <ConsumerLearnMore /> : <Home />} />  
         <Route path="/order" element={<OrderDetails />} />
         <Route path="/orders" element={<OrderList />} />
-        <Route path="/model" element={<Model />} />
+        <Route path="/model" element={<PredictionMenu />} />
         <Route path="/admin-login" element={ <AdminLogin/> } />
         
         <Route path="/farmerorder" element={<FarmerOrders />} />
         <Route path="/chat" element={<FarmToTableChat />} />
         <Route path="/verify" element={<VerifyFarmer />} />
         <Route path="/verify-delivery" element={<VerifyDelivery />} />
-        <Route path="/admin" element={isAuthAdmin?<AdminDashboard />:<AdminLogin/>} />
+        <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/newdelivery" element={<DeliveryBoyDashboard />} />
+        <Route path="/model1" element={<VegetablePricePredictor/>} />
+        <Route path="/model2" element={<VegetableDemandPredictor/>} />
+        <Route path="/predict" element={<PredictionMenu/>} />
         
 
       </Routes>

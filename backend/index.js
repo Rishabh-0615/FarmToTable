@@ -48,22 +48,80 @@ app.get("*", (req, res) => {
 });
 
 
-app.post("/api/predict-demand", async (req, res) => {
+
+
+const FLASK_API_URL_PRICE = 'http://localhost:5001/predict-price';
+const FLASK_API_URL_DEMAND = 'http://localhost:5001/predict-demand';
+
+
+
+
+const validatePredictionInput = (req, res, next) => {
+  const requiredFields = ['Vegetable', 'Temperature', 'Rainfall', 'Seasonal Factor', 'Fuel Price'];
+  const missingFields = requiredFields.filter(field => !req.body[field]);
+
+  if (missingFields.length > 0) {
+    return res.status(400).json({
+      status: 'error',
+      message: `Missing required fields: ${missingFields.join(', ')}`
+    });
+  }
+
+  
+  const numericFields = ['Temperature', 'Rainfall', 'Seasonal Factor', 'Fuel Price'];
+  for (const field of numericFields) {
+    const value = parseFloat(req.body[field]);
+    if (isNaN(value) || value < 0) {
+      return res.status(400).json({
+        status: 'error',
+        message: `Invalid value for ${field}: must be a non-negative number`
+      });
+    }
+    req.body[field] = value; 
+  }
+
+  next();
+};
+
+
+app.post('/api/predict-price', validatePredictionInput, async (req, res) => {
   try {
-    // Send input data to the Python API
-    const response = await axios.post("http://localhost:5001/predict", req.body);
-    res.json(response.data);  // Send the prediction back to the frontend
+    const response = await axios.post(FLASK_API_URL_PRICE, req.body);
+    return res.json(response.data);
   } catch (error) {
-    console.error("Error predicting demand:", error.message);
-    res.status(500).json({ error: "Failed to predict demand" });
+    console.error('Error calling Flask API for price prediction:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Failed to get price prediction',
+      error: error.response?.data || error.message
+    });
   }
 });
+
+
+app.post('/api/predict-demand', validatePredictionInput, async (req, res) => {
+  try {
+    const response = await axios.post(FLASK_API_URL_DEMAND, req.body);
+    return res.json(response.data);
+  } catch (error) {
+    console.error('Error calling Flask API for demand prediction:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Failed to get demand prediction',
+      error: error.response?.data || error.message
+    });
+  }
+});
+
+
+
+
+
 
 
 app.listen(port , ()=>{
     console.log(`Server is running on http://localhost:${port}`);
     connectDb();
 })
-
 
 

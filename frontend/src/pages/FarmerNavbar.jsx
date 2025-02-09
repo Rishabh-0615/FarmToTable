@@ -8,6 +8,7 @@ import myimg from "../assets/logo.png";
 import FarmToTableChat from "../components/chat";
 import Model from "./Model";
 import FarmerOrders from "./FarmerOrders";
+import PredictionMenu from "./Predict";
 
 const FarmerNavbar = () => {
   const navigate = useNavigate();
@@ -109,10 +110,10 @@ const FarmerNavbar = () => {
                   </li>
                   <li>
                     <a
-                      href="/model"
+                      href="/predict"
                       className="block px-4 py-2 text-[#faeedc] hover:text-white rounded-lg transition-all duration-200 transform hover:-translate-y-1 hover:shadow-lg hover:bg-white/10"
                     >
-                      Predict Demand
+                      Predict
                     </a>
                   </li>
                   <li>

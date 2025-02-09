@@ -177,7 +177,7 @@ const Model = () => {
 
             <div style={inputGroupStyle}>
               <label style={labelStyle}>
-                Price per Unit ($)
+                Price per Unit/Kg (₹)
               </label>
               <input
                 type="number"
