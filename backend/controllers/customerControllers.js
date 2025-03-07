@@ -2,7 +2,7 @@ import TryCatch from "../utils/TryCatch.js";
 import { Cart } from "../models/cartModel.js";
 import { Product } from "../models/productModel.js";
 import { Order } from "../models/orderModel.js";
-import { Location } from "../models/locationModel.js";
+
 import axios from "axios";
 import { OrderDetails } from "../models/orderDetailsModel.js";
 
@@ -13,64 +13,42 @@ const GEOCODING_API_KEY = process.env.GEOCODING_API_KEY;
  * Add or remove items from the cart
  */
 export const addCart = TryCatch(async (req, res) => {
-  try {
-    const { productId, quantity, price, remove } = req.body;
+  const { productId, quantity, price, remove } = req.body;
 
-    if (!productId) return res.status(400).json({ error: "Product ID is required" });
+  if (!productId) return res.status(400).json({ error: "Product ID is required" });
+  if (!quantity || quantity <= 0) return res.status(400).json({ error: "Invalid quantity" });
+  if (price !== undefined && price < 0) return res.status(400).json({ error: "Invalid price" });
 
-    console.log("Incoming request data:", req.body);
+  console.log("Incoming request data:", req.body);
 
-    // Fetch or create the consumer's cart
-    let cart = await Cart.findOne({ consumer: req.user._id });
+  let cart = await Cart.findOne({ consumer: req.user._id });
 
-    if (!cart) {
-      cart = new Cart({ consumer: req.user._id, items: [] });
-    }
+  if (!cart) cart = new Cart({ consumer: req.user._id, items: [] });
 
-    // Remove item logic
-    if (remove) {
-      cart.items = cart.items.filter(
-        (item) => item.productId.toString() !== productId
-      );
-      await cart.save();
-
-      return res.status(200).json({
-        message: "Item removed from cart",
-        cart,
-      });
-    }
-
-    // Fetch the product to validate its existence
-    const product = await Product.findById(productId);
-    if (!product) return res.status(404).json({ error: "Product not found" });
-
-    if (product.quantity < quantity) {
-      return res.status(400).json({ error: "Insufficient stock available" });
-    }
-
-    // Find product index in cart
-    const productIndex = cart.items.findIndex(
-      (item) => item.productId.toString() === productId
-    );
-
-    if (productIndex >= 0) {
-      // Update quantity directly based on the request
-      cart.items[productIndex].quantity = quantity;
-      cart.items[productIndex].price = price || cart.items[productIndex].price;
-    } else {
-      cart.items.push({ productId, quantity, price });
-    }
-
+  if (remove) {
+    cart.items = cart.items.filter(item => item.productId.toString() !== productId);
     await cart.save();
-
-    res.status(200).json({
-      message: "Cart updated successfully",
-      cart,
-    });
-  } catch (error) {
-    console.error("Server error:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    return res.status(200).json({ message: "Item removed from cart", cart });
   }
+
+  const product = await Product.findById(productId);
+  if (!product) return res.status(404).json({ error: "Product not found" });
+
+  if (product.quantity < quantity) return res.status(400).json({ error: "Insufficient stock available" });
+
+  const productIndex = cart.items.findIndex(item => item.productId.toString() === productId);
+
+  if (productIndex >= 0) {
+    await Cart.findOneAndUpdate(
+      { consumer: req.user._id, "items.productId": productId },
+      { $set: { "items.$.quantity": quantity, "items.$.price": price || cart.items[productIndex].price } }
+    );
+  } else {
+    cart.items.push({ productId, quantity, price });
+    await cart.save();
+  }
+
+  res.status(200).json({ message: "Cart updated successfully", cart });
 });
 
 
@@ -445,3 +423,11 @@ export const getDetailsAll = async (req, res) => {
 };
 
 
+export const deleteExpiredProducts = async (req, res) => {
+  try {
+    const result = await Product.deleteMany({ expiryDate: { $lt: new Date() } });
+    res.status(200).json({ message: `Deleted ${result.deletedCount} expired products.` });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting expired products.", error });
+  }
+};

@@ -24,11 +24,11 @@ const CartPage = () => {
       setLoading(true);
       const response = await axios.get("/api/user/customer/getcart");
       setCart({
-        items: response.data.items,
-        totalPrice: response.data.totalPrice,
+        items: response.data.items || [],
+        totalPrice: response.data.totalPrice || 0,
       });
     } catch (err) {
-      setError("Failed to harvest cart items. Retry soon.");
+      setError(err.response?.data?.error || "Failed to load cart items. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -41,9 +41,9 @@ const CartPage = () => {
         remove: true,
       });
       setCart(response.data.cart);
-      toast.success("Crop removed from basket");
+      toast.success("Item removed from cart");
     } catch (err) {
-      toast.error("Failed to remove crop from cart.");
+      toast.error(err.response?.data?.error || "Failed to remove item.");
     }
   };
 
@@ -52,28 +52,21 @@ const CartPage = () => {
       const response = await axios.post("/api/user/customer/clear");
       if (response.data.message) {
         setCart({ items: [], totalPrice: 0 });
-        toast.success("Farm basket cleared");
+        toast.success("Cart cleared");
       }
     } catch (err) {
-      toast.error("Failed to clear the harvest basket.");
+      toast.error(err.response?.data?.error || "Failed to clear cart.");
     }
   };
 
   const handlePlaceOrder = async () => {
-    const currentHour = new Date().getHours();
-
-    /*if (currentHour >= 22 || currentHour < 6) {
-      toast.error("Orders are not accepted after 10 PM. Please try again tomorrow.");
-      return;
-    }*/
-
     if (!location) {
-      toast.error("Specify your delivery location");
+      toast.error("Please enter a delivery location");
       return;
     }
 
     const computedTotalPrice = cart.items.reduce((acc, item) => {
-      return acc + (item?.price || 0) * (item?.quantity || 1);
+      return acc + ((item?.price || 0) * (item?.quantity || 1));
     }, 0);
 
     if (computedTotalPrice <= 0) {
@@ -89,12 +82,12 @@ const CartPage = () => {
       });
 
       if (response.data.message) {
-        toast.success("Harvest order placed successfully!");
+        toast.success("Order placed successfully!");
         setCart({ items: [], totalPrice: 0 });
+        navigate("/order");
       }
-      navigate("/order");
     } catch (err) {
-      toast.error(err.response?.data?.error || "Failed to place farm order");
+      toast.error(err.response?.data?.error || "Failed to place order");
     }
   };
 
@@ -105,7 +98,7 @@ const CartPage = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Tractor className="w-12 h-12 animate-bounce text-green-600" />
+        <Loader2 className="w-12 h-12 animate-spin text-green-600" />
       </div>
     );
   }
@@ -122,7 +115,7 @@ const CartPage = () => {
   return (
     <div className="container mx-auto px-4 py-6 max-w-4xl bg-green-50">
       <h1 className="text-3xl font-bold mb-6 text-green-800 flex items-center">
-        <ShoppingBasket className="mr-3" /> Farm Fresh Basket
+        <ShoppingBasket className="mr-3" /> Your Cart
       </h1>
 
       {cart.items.length > 0 ? (
@@ -137,20 +130,21 @@ const CartPage = () => {
                   {item?.productId?.image?.url && (
                     <img
                       src={item.productId.image.url}
-                      alt={item.productId.name}
+                      alt={item.productId.name || "Product"}
                       className="w-24 h-24 object-cover rounded-md border-2 border-green-200"
                     />
                   )}
                   <div>
                     <h2 className="text-xl font-semibold text-green-900">
-                      {item?.productId?.name || "Farm Produce"}
+                      {item?.productId?.name || "Unknown Product"}
                     </h2>
-                    <p className="text-green-700">Quantity: {item?.quantity}{item?.productId?.quantityUnit}</p>
+                    <p className="text-green-700">
+                      Quantity: {item?.quantity} {item?.productId?.quantityUnit || ""}
+                    </p>
                     {item?.productId?.discountOffer && (
                       <p className="text-green-600 text-sm">
                         <Carrot className="inline mr-1" />
-                        {item?.productId?.discountPercentage}% farm discount on {" "}
-                        {item?.productId?.minQuantityForDiscount}+ items
+                        {item?.productId?.discountPercentage}% discount on {item?.productId?.minQuantityForDiscount}+ items
                       </p>
                     )}
                   </div>
@@ -174,11 +168,11 @@ const CartPage = () => {
           <div className="mt-6 space-y-4">
             <div className="bg-green-100 p-4 rounded-md">
               <div className="flex justify-between mb-2">
-                <span>Farm Subtotal</span>
+                <span>Subtotal</span>
                 <span>
                   ₹
                   {cart.items.reduce(
-                    (total, item) => total + item.price * item.quantity,
+                    (total, item) => total + ((item?.price || 0) * (item?.quantity || 1)),
                     0
                   )}
                 </span>
@@ -198,7 +192,7 @@ const CartPage = () => {
                   onClick={handleClearCart}
                   className="flex-1 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors flex items-center justify-center"
                 >
-                  <Trash2 className="mr-2" /> Clear Basket
+                  <Trash2 className="mr-2" /> Clear Cart
                 </button>
                 <button
                   onClick={handlePlaceOrder}
@@ -214,11 +208,9 @@ const CartPage = () => {
         <div className="text-center py-12 bg-white rounded-lg shadow-md">
           <Tractor className="mx-auto w-24 h-24 text-green-600 mb-4" />
           <h2 className="text-xl font-semibold mb-2 text-green-900">
-            Your farm basket is empty
+            Your cart is empty
           </h2>
-          <p className="text-green-700">
-            Harvest some fresh produce to fill your basket
-          </p>
+          <p className="text-green-700">Add some items to proceed with your order</p>
         </div>
       )}
     </div>

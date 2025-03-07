@@ -18,8 +18,6 @@ export const addProduct = TryCatch(async (req, res) => {
     minlife,
     maxlife,
     quantityUnit,
-    
-    // Add new discount fields
     discountOffer,
     minQuantityForDiscount,
     discountPercentage
@@ -159,30 +157,28 @@ export const editProduct = TryCatch(async (req, res) => {
 
 export const getFarmerOrders = async (req, res) => {
   try {
-    const farmerId = req.user._id; // Assuming the farmer is authenticated
-
+    const farmerId = req.user._id; 
     if (!farmerId) {
       return res.status(400).json({ error: "Farmer not authenticated" });
     }
 
-    // Fetch orders containing products owned by the farmer
     const orders = await OrderDetails.find({
       "cartItems.productId": { $exists: true }
     })
       .populate({
         path: "cartItems.productId",
         select: "name price owner quantity",
-        match: { owner: farmerId }, // Filter products by the farmer's ownership
+        match: { owner: farmerId }, 
       }).populate({
         path: "userId",
-        select: "name", // Assuming "name" exists in the User schema
+        select: "name", 
       })
       .sort({ createdAt: -1 });
 
-    // Filter orders with products belonging to this farmer
+ 
     const farmerOrders = orders
       .map(order => {
-        // Filter only products owned by the farmer
+   
         const relevantCartItems = order.cartItems.filter(item => item.productId);
         
         return {

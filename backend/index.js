@@ -26,15 +26,12 @@ import userRoutes from './routes/userRoutes.js';
 import farmerRoutes from './routes/farmerRoutes.js'
 import customerRoutes from './routes/customerRoutes.js'
 import adminRoutes from './routes/adminRoutes.js'
-import deliveryRoutes from './routes/deliveryRoutes.js'
-import adminRoutes1 from './routes/adminRoutes1.js'
+
 
 app.use("/api/user",userRoutes);
 app.use("/api/user/farmer",farmerRoutes)
 app.use("/api/user/customer",customerRoutes)
 app.use("/api/admin", adminRoutes)
-app.use("/api/user/deliveries",deliveryRoutes)
-app.use("/api/new",adminRoutes1)
 
 
 
@@ -114,7 +111,16 @@ app.post('/api/predict-demand', validatePredictionInput, async (req, res) => {
 });
 
 
-
+app.post("/api/predict", async (req, res) => {
+  try {
+    const response = await axios.post("http://127.0.0.1:5001/predict", {
+      text: req.body.text,
+    });
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).json({ error: "Error communicating with Flask server" });
+  }
+});
 
 
 

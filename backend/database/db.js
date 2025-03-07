@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { defaultAdmin } from "../controllers/adminControllers.js";
 
 const connectDb=async()=>{
     try{
@@ -7,6 +8,7 @@ const connectDb=async()=>{
         });
 
         console.log("connected")
+        await defaultAdmin();
 
     }catch(error){
         console.log(error)

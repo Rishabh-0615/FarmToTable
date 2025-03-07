@@ -2,53 +2,32 @@ import mongoose from "mongoose";
 
 const schema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: true,
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    mobile: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    role: { 
+      type: String, 
+      enum: ['farmer', 'customer', 'delivery boy'], 
+      required: true 
     },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    mobile: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    password: {
-      type: String,
-      required: true,
-    },
-    role: {
-      type: String,
-      enum: ['farmer', 'customer', 'delivery boy'],
-      required: true,
-    },
-    location: { 
-      type: String,
-      default: "",
-    },
+    location: { type: String, default: "" },
     isVerifiedByAdmin: {
       type: Boolean,
-      default: false,
+      default:false,
       required: function() {
-        return this.role === 'farmer';
-         //isVerifiedByAdmin only for farmer
-      },
+        return this.role === 'farmer' || this.role === 'delivery boy';
+      }
     }
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 schema.pre('save', function(next) {
-  if (this.role !== 'farmer') {
-    this.isVerifiedByAdmin = undefined; // ensure isVerifiedByAdmin is not for others
+  if (this.role !== 'farmer' && this.role !== 'delivery boy') { 
+    this.isVerifiedByAdmin = undefined; 
   }
   next();
 });
-
 
 export const User = mongoose.model("User", schema);

@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-const ItemCardConsumer = ({ product, onRemove }) => {
+const ItemCardConsumer = ({ product }) => {
   const [quantity, setQuantity] = useState(1);
   const [price, setPrice] = useState(product.price);
-  const [daysElapsed, setDaysElapsed] = useState(0);
 
   const calculatePrice = useMemo(() => {
     if (product.discountOffer && quantity >= product.minQuantityForDiscount) {
@@ -14,31 +13,6 @@ const ItemCardConsumer = ({ product, onRemove }) => {
     }
     return product.price.toFixed(2);
   }, [product, quantity]);
-
-  useEffect(() => {
-    setPrice(parseFloat(calculatePrice));
-  }, [calculatePrice]);
-
-  useEffect(() => {
-    // Update days elapsed and set up shelf life prompt/removal
-    const createdAtDate = new Date(product.createdAt);
-    const currentDate = new Date();
-    const diffInDays = Math.floor(
-      (currentDate - createdAtDate) / (1000 * 60 * 60 * 24)
-    );
-    setDaysElapsed(diffInDays);
-
-    // Prompt at minlife
-    if (diffInDays === product.minlife) {
-      toast.warning(`${product.name} is reaching its shelf life.`);
-    }
-
-    // Remove item at maxlife
-    if (diffInDays >= product.maxlife) {
-      onRemove(product._id);
-      toast.error(`${product.name} has been removed as it exceeded its shelf life.`);
-    }
-  }, [product, onRemove]);
 
   const handleAddToCart = async () => {
     if (quantity > product.quantity) {
@@ -54,15 +28,11 @@ const ItemCardConsumer = ({ product, onRemove }) => {
       });
 
       if (response.status === 200) {
-        toast.success(
-          `Added ${quantity} ${product.name}(s) to cart at ₹${price} each`
-        );
+        toast.success(`Added ${quantity} ${product.name}(s) to cart at ₹${price} each`);
       }
     } catch (error) {
       console.error("Add to Cart Error:", error);
-      toast.error(
-        error.response?.data?.error || "Failed to add product to cart."
-      );
+      toast.error(error.response?.data?.error || "Failed to add product to cart.");
     }
   };
 
@@ -79,7 +49,7 @@ const ItemCardConsumer = ({ product, onRemove }) => {
           <div className="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
             {product.discountPercentage}% off on {product.minQuantityForDiscount}+ items
           </div>
-        ) }
+        )}
       </div>
 
       {/* Content Section */}
@@ -87,6 +57,7 @@ const ItemCardConsumer = ({ product, onRemove }) => {
         <div>
           <h2 className="text-xl font-semibold text-gray-800">{product.name}</h2>
           <p className="text-sm text-gray-600">{product.category}</p>
+          <p className="text-sm text-gray-700">{product.owner?.name || "No name"}</p>
         </div>
 
         <div className="flex items-baseline gap-2">
@@ -104,10 +75,6 @@ const ItemCardConsumer = ({ product, onRemove }) => {
           <div>
             <span className="text-gray-500">Available</span>
             <p className="font-medium text-gray-800">{product.quantity} {product.quantityUnit}</p>
-          </div>
-          <div>
-            <span className="text-gray-500">Shelf Life</span>
-            <p className="font-medium text-gray-800">{product.minlife || "Not specified"}-{product.maxlife || "Not specified"} days</p>
           </div>
         </div>
 

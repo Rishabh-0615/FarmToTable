@@ -17,7 +17,13 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED="0";
 
  
 export const registerWithOtp = TryCatch(async (req, res) => {
-    const { name, email, mobile, password, role } = req.body;
+    const { name, email, mobile, password, role,location } = req.body;
+    if(role==="delivery boy" && !location){
+        return res.status(400).json({
+            message:"Location is required for delivery boy",
+        })
+
+    }
   
     if (!name || !email || !password || !role || !mobile) {
       return res.status(400).json({
@@ -48,12 +54,14 @@ export const registerWithOtp = TryCatch(async (req, res) => {
 
   
     const otp = crypto.randomInt(100000, 999999);
+    console.log(otp);
     TEMP_USERS[email] = {
       name,
       password,
       mobile,
       role,
       otp,
+      location,
       expiresAt: Date.now() + 5 * 60 * 1000, 
     };
   
@@ -125,6 +133,7 @@ export const registerWithOtp = TryCatch(async (req, res) => {
        role: tempUser.role,
        email,
        password: hashPassword,
+       location: tempUser.location,
      });
  
      delete TEMP_USERS[email]; 
@@ -133,6 +142,12 @@ export const registerWithOtp = TryCatch(async (req, res) => {
       return res.status(201).json({
         user,
         message: "Farmer registered successfully. Admin approval required before login.",
+      });
+    }
+     if (user.role === "delivery boy") {
+      return res.status(201).json({
+        user,
+        message: "Delivery Boy registered successfully. Admin approval required before login.",
       });
     }
 
@@ -173,7 +188,10 @@ export const loginUser=TryCatch(async(req,res)=>{
             message:"Role Incorrect.",
         });
     }
-    if (user.role === "farmer" && !user.isVerifiedByAdmin) { //if user is farmer adn not verified
+    if (user.role === "farmer" && !user.isVerifiedByAdmin) {
+      return res.status(403).json({ message: "Account not verified by admin" });
+    }
+    if (user.role === "delivery boy" && !user.isVerifiedByAdmin) {
       return res.status(403).json({ message: "Account not verified by admin" });
     }
     generateToken(user,res);

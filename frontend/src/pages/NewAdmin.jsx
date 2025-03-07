@@ -1,207 +1,277 @@
-import React, { useState, useEffect } from 'react';
-import { Truck, MapPin, Package, User as UserIcon, Check, AlertCircle, X } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { LogOut, Truck, Package, Search, User, MapPin, RefreshCw, AlertCircle } from "lucide-react";
 
 const AdminDashboard = () => {
-  const [unassignedOrders, setUnassignedOrders] = useState([]);
-  const [availableDeliveryBoys, setAvailableDeliveryBoys] = useState([]);
+  const [city, setCity] = useState("");
+  const [orders, setOrders] = useState([]);
+  const [deliveryBoys, setDeliveryBoys] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [error, setError] = useState('');
+  const [selectedBoy, setSelectedBoy] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const headers = {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        'Content-Type': 'application/json'
-      };
-
-      const [ordersResponse, deliveryBoysResponse] = await Promise.all([
-        fetch('/api/new/unassigned-orders', { headers }),
-        fetch('/api/new/available-delivery-boys', { headers })
-      ]);
-
-      if (!ordersResponse.ok || !deliveryBoysResponse.ok) {
-        throw new Error('Failed to fetch data');
-      }
-
-      const [orders, deliveryBoys] = await Promise.all([
-        ordersResponse.json(),
-        deliveryBoysResponse.json()
-      ]);
-
-      setUnassignedOrders(Array.isArray(orders) ? orders : []);
-      setAvailableDeliveryBoys(Array.isArray(deliveryBoys) ? deliveryBoys : []);
-    } catch (err) {
-      setError('Failed to load dashboard data');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleAssignOrder = async (orderId, deliveryBoyId) => {
-    if (!orderId || !deliveryBoyId) {
-      setError('Invalid order or delivery boy selection');
+  // Fetch orders by city
+  const fetchOrders = async () => {
+    if (!city.trim()) {
+      setError("Please enter a city name");
       return;
     }
-
+    
     setLoading(true);
-    setError('');
+    setError(null);
+    
     try {
-      const response = await fetch('/api/new/assign-order', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          orderId,
-          deliveryBoyId
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to assign order');
+      const response = await axios.post("/api/admin/ordersByCity", { city });
+      setOrders(response.data.orders || []);
+      if (response.data.orders?.length === 0) {
+        setError(`No orders found for ${city}`);
       }
-
-      await fetchData();
-      setSelectedOrder(null);
-    } catch (err) {
-      setError(err.message || 'Failed to assign order');
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+      setError(error.response?.data?.message || "Failed to fetch orders");
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredDeliveryBoys = selectedOrder
-    ? availableDeliveryBoys.filter(boy => boy.location?.city?.toLowerCase() === selectedOrder.location?.city?.toLowerCase())
-    : [];
+  // Fetch delivery boys by city
+  const fetchDeliveryBoys = async () => {
+    if (!city.trim()) return;
+    
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await axios.post("/api/admin/boysByCity", { city });
+      setDeliveryBoys(response.data || []);
+      if (response.data.length === 0) {
+        setError(`No delivery personnel found in ${city}`);
+      }
+    } catch (error) {
+      console.error("Error fetching delivery boys:", error);
+      setError(error.response?.data?.message || "Failed to fetch delivery personnel");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  if (loading && !unassignedOrders.length) {
-    return (
-      <div className="p-4 flex items-center justify-center">
-        <div className="text-gray-600">Loading dashboard data...</div>
-      </div>
-    );
-  }
+  // Assign a delivery boy to an order
+  const assignDeliveryBoy = async () => {
+    if (!selectedOrder || !selectedBoy) {
+      setError("Please select both an order and delivery personnel");
+      return;
+    }
+    
+    setLoading(true);
+    setError(null);
+    
+    try {
+      await axios.put("/api/admin/assign-delivery", {
+        orderId: selectedOrder,
+        deliveryBoyId: selectedBoy,
+      });
+      fetchOrders(); // Refresh orders
+      setError(null);
+      alert("Delivery personnel assigned successfully");
+    } catch (error) {
+      console.error("Error assigning delivery boy:", error);
+      setError(error.response?.data?.message || "Failed to assign delivery personnel");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Logout admin
+  const logoutAdmin = async () => {
+    try {
+      await axios.post("/api/admin/logoutAdmin");
+      alert("Logged out successfully");
+      window.location.reload();
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
+
+  // Fetch data when city changes
+  useEffect(() => {
+    if (city.trim()) {
+      fetchOrders();
+      fetchDeliveryBoys();
+    }
+  }, [city]);
+
+  // Get status color
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "PENDING": return "text-yellow-500";
+      case "OUT_FOR_DELIVERY": return "text-blue-500";
+      case "DELIVERED": return "text-green-500";
+      default: return "text-gray-500";
+    }
+  };
 
   return (
-    <div className="p-4 space-y-4">
-      <h1 className="text-2xl font-bold flex items-center">
-        <Truck className="mr-2" /> Admin Dashboard
-      </h1>
+    <div className="p-6 max-w-6xl mx-auto bg-gray-50 min-h-screen">
+     
 
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded flex items-center">
-          <AlertCircle className="mr-2" size={20} />
-          {error}
-        </div>
-      )}
-
-      <div className="border rounded-lg p-4">
+      {/* City search section */}
+      <div className="bg-white p-4 rounded-lg shadow-md mb-6">
         <div className="flex items-center mb-4">
-          <Package className="mr-2" size={20} />
-          <h2 className="text-xl font-semibold">
-            Unassigned Orders ({unassignedOrders?.length || 0})
-          </h2>
+          <MapPin size={20} className="text-gray-500 mr-2" />
+          <h2 className="text-xl font-semibold">Location Filter</h2>
         </div>
-        <div className="overflow-x-auto">
-          {unassignedOrders?.length > 0 ? (
-            <table className="w-full">
-              <thead>
-                <tr className="border-b">
-                  <th className="py-2 text-left">Order ID</th>
-                  <th className="py-2 text-left">Location</th>
-                  <th className="py-2 text-left">City</th>
-                  <th className="py-2 text-left">Total Price</th>
-                  <th className="py-2 text-left">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {unassignedOrders.map(order => (
-                  <tr key={order._id} className="border-b">
-                    <td className="py-2">{order._id}</td>
-                    <td className="py-2">{order.location?.address}</td>
-                    <td className="py-2">{order.location?.city}</td>
-                    <td className="py-2">${order.totalPrice}</td>
-                    <td className="py-2">
-                      <button 
-                        onClick={() => setSelectedOrder(order)}
-                        className="bg-blue-500 text-white px-3 py-1 rounded"
-                      >
-                        <Truck className="mr-1" size={16} /> Assign
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <input
+              type="text"
+              className="border border-gray-300 p-2 pl-10 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter city name"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && fetchOrders()}
+            />
+            <Search size={18} className="absolute left-3 top-3 text-gray-400" />
+          </div>
+          <button 
+            onClick={() => {
+              fetchOrders();
+              fetchDeliveryBoys();
+            }}
+            disabled={loading || !city.trim()}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors disabled:bg-blue-300"
+          >
+            {loading ? <RefreshCw size={18} className="animate-spin" /> : <Search size={18} />}
+            Search
+          </button>
+        </div>
+
+        {error && (
+          <div className="mt-3 p-3 bg-red-50 text-red-700 rounded-lg flex items-center gap-2">
+            <AlertCircle size={18} />
+            {error}
+          </div>
+        )}
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Orders section */}
+        <div className="bg-white p-4 rounded-lg shadow-md">
+          <div className="flex items-center mb-4">
+            <Package size={20} className="text-gray-500 mr-2" />
+            <h2 className="text-xl font-semibold">Orders ({orders.length})</h2>
+          </div>
+          
+          {orders.length > 0 ? (
+            <div className="max-h-96 overflow-y-auto">
+              {orders.map((order) => (
+                <div 
+                  key={order._id} 
+                  onClick={() => setSelectedOrder(order._id)}
+                  className={`p-3 border border-gray-200 rounded-lg mb-2 cursor-pointer transition-colors ${
+                    selectedOrder === order._id ? 'bg-blue-50 border-blue-300' : 'hover:bg-gray-50'
+                  }`}
+                >
+                  <div className="flex justify-between items-center">
+                    <div className="font-medium truncate">{order.userId?.name || "Customer"}</div>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.deliveryStatus)}`}>
+                      {order.deliveryStatus || "PENDING"}
+                    </span>
+                  </div>
+                  <div className="text-sm text-gray-500 mt-1">Order ID: {order._id}</div>
+                  <div className="text-sm text-gray-500">
+                    Items: {order.cartItems?.length || 0} | 
+                    Total: ${order.cartItems?.reduce((sum, item) => sum + (item.productId?.price || 0) * item.quantity, 0).toFixed(2)}
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : (
-            <div className="text-center py-4 text-gray-500">
-              No unassigned orders available
+            <div className="text-center p-6 text-gray-500">
+              {city ? "No orders found for this city" : "Enter a city to view orders"}
+            </div>
+          )}
+        </div>
+
+        {/* Delivery Boys section */}
+        <div className="bg-white p-4 rounded-lg shadow-md">
+          <div className="flex items-center mb-4">
+            <Truck size={20} className="text-gray-500 mr-2" />
+            <h2 className="text-xl font-semibold">Delivery Personnel ({deliveryBoys.length})</h2>
+          </div>
+          
+          {deliveryBoys.length > 0 ? (
+            <div className="max-h-96 overflow-y-auto">
+              {deliveryBoys.map((boy) => (
+                <div 
+                  key={boy._id} 
+                  onClick={() => setSelectedBoy(boy._id)}
+                  className={`p-3 border border-gray-200 rounded-lg mb-2 cursor-pointer transition-colors ${
+                    selectedBoy === boy._id ? 'bg-green-50 border-green-300' : 'hover:bg-gray-50'
+                  }`}
+                >
+                  <div className="flex items-center">
+                    <User size={18} className="text-gray-400 mr-2" />
+                    <div>
+                      <div className="font-medium">{boy.name}</div>
+                      <div className="text-sm text-gray-500 flex items-center">
+                        <MapPin size={14} className="mr-1" />
+                        {boy.location}
+                      </div>
+                      {boy.phone && <div className="text-sm text-gray-500">{boy.phone}</div>}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center p-6 text-gray-500">
+              {city ? "No delivery personnel found for this city" : "Enter a city to view delivery personnel"}
             </div>
           )}
         </div>
       </div>
-
-      {selectedOrder && (
-        <div className="border rounded-lg p-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center">
-              <UserIcon className="mr-2" size={20} />
-              <h2 className="text-xl font-semibold">
-                Available Delivery Boys - {selectedOrder.location?.city}
-              </h2>
+      
+      {/* Assignment section */}
+      <div className="mt-6 bg-white p-4 rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold mb-4">Assign Delivery</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <h3 className="font-medium mb-2">Selected Order:</h3>
+            <div className="p-3 bg-gray-100 rounded-lg min-h-12">
+              {selectedOrder ? (
+                <div>
+                  {orders.find(o => o._id === selectedOrder)?.userId?.name || "Unknown Customer"} - 
+                  Order ID: {selectedOrder}
+                </div>
+              ) : (
+                <div className="text-gray-500">No order selected</div>
+              )}
             </div>
-            <button 
-              onClick={() => setSelectedOrder(null)}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              <X size={20} />
-            </button>
           </div>
-          {filteredDeliveryBoys.length === 0 ? (
-            <div className="text-center py-4 text-gray-500">
-              No delivery boys available in {selectedOrder.location?.city}
+          <div>
+            <h3 className="font-medium mb-2">Selected Delivery Personnel:</h3>
+            <div className="p-3 bg-gray-100 rounded-lg min-h-12">
+              {selectedBoy ? (
+                <div>
+                  {deliveryBoys.find(b => b._id === selectedBoy)?.name || "Unknown"} - 
+                  {deliveryBoys.find(b => b._id === selectedBoy)?.location}
+                </div>
+              ) : (
+                <div className="text-gray-500">No delivery personnel selected</div>
+              )}
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="py-2 text-left">Name</th>
-                    <th className="py-2 text-left">City</th>
-                    <th className="py-2 text-left">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredDeliveryBoys.map(boy => (
-                    <tr key={boy._id} className="border-b">
-                      <td className="py-2">{boy.name}</td>
-                      <td className="py-2">{boy.location?.city}</td>
-                      <td className="py-2">
-                        <button 
-                          onClick={() => handleAssignOrder(selectedOrder._id, boy._id)}
-                          className="bg-green-500 text-white px-3 py-1 rounded"
-                        >
-                          <Check className="mr-1" size={16} /> Assign Order
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          </div>
         </div>
-      )}
+        <button 
+          onClick={assignDeliveryBoy}
+          disabled={loading || !selectedBoy || !selectedOrder}
+          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg w-full flex items-center justify-center gap-2 transition-colors disabled:bg-green-300"
+        >
+          {loading ? <RefreshCw size={18} className="animate-spin" /> : <Truck size={18} />}
+          Assign Delivery Personnel
+        </button>
+      </div>
     </div>
   );
 };

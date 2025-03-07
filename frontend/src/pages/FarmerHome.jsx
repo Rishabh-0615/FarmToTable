@@ -7,6 +7,7 @@ import { ProductData } from '../context/FarmerContext';
 import { Loading } from '../components/Loading';
 import ItemCardHome from '../components/ItemCardHome';
 import myimg from "../assets/farm2.jpg";
+import { UserData } from '../context/UserContext';
 
 /*const HeroSection = () => (
   <div className="relative overflow-hidden mb-8 bg-gradient-to-b from-amber-50 to-amber-100">
@@ -30,6 +31,7 @@ import myimg from "../assets/farm2.jpg";
 */
 const FarmerHome = () => {
   const { fetchProducts, products, loading } = ProductData();
+  const {user} =UserData()
   console.log(products);
 
   useEffect(() => {
@@ -67,7 +69,7 @@ const FarmerHome = () => {
                     key={i}
                     className="flex justify-center"
                   >
-                    <ItemCardHome product={product} />
+                    <ItemCardHome product={product} currentUserId={user}/>
                   </div>
                 ))
               ) : (

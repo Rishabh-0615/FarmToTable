@@ -4,14 +4,14 @@ import { UserData } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
 
 const AdminLogin = () => {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { loginAdmin, btnLoading } = UserData();
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    loginAdmin(username, password, navigate);
+    loginAdmin(email, password, navigate);
   };
 
   return (
@@ -29,11 +29,11 @@ const AdminLogin = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-2 rounded-md border border-green-300 focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Username"
+              placeholder="email"
               required
             />
           </motion.div>
