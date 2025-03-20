@@ -259,17 +259,11 @@ import moment from 'moment';
 
 export const saveOrder = async (req, res) => {
   try {
-    // Time restriction: block orders after 10 PM
-    /*const currentHour = moment().hour();
-    if (currentHour >=22 || currentHour < 6) { // Block between 10 PM and 6 AM
-      return res.status(403).json({ error: 'Orders are not accepted after 10 PM. Please try again tomorrow.' });
-    }*/
-
     const { cartItems, totalPrice: subTotal, locationAddress } = req.body;
     const userId = req.user._id;
 
     if (!userId || !cartItems || !subTotal || !locationAddress) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      return res.status(400).json({ error: "Missing required fields" });
     }
 
     // Get the coordinates of the user's location using geocoding
@@ -285,7 +279,28 @@ export const saveOrder = async (req, res) => {
     // Update the total price by adding the delivery fee
     const updatedTotalPrice = subTotal + deliveryFee;
 
-    // Create a new order with the updated price and location
+    // **Reduce stock for each ordered product & remove if quantity reaches 0**
+    for (const item of cartItems) {
+      const product = await Product.findById(item.productId);
+
+      if (!product) {
+        return res.status(404).json({ error: `Product ${item.productId} not found` });
+      }
+
+      if (product.quantity < item.quantity) {
+        return res.status(400).json({ error: `Not enough stock for ${product.name}` });
+      }
+
+      product.quantity -= item.quantity; // Reduce stock
+
+      if (product.quantity === 0) {
+        await Product.findByIdAndDelete(item.productId); // Remove product from DB
+      } else {
+        await product.save(); // Update product stock
+      }
+    }
+
+    // **Create and save the order**
     const orderDetails = new OrderDetails({
       userId,
       cartItems,
@@ -294,15 +309,14 @@ export const saveOrder = async (req, res) => {
       totalPrice: updatedTotalPrice,
       location: {
         address: locationAddress,
-        coordinates: [longitude, latitude]
+        coordinates: [longitude, latitude],
       },
-      paymentStatus: 'PENDING'
+      paymentStatus: "PENDING",
     });
 
-    // Save the order in the database
     await orderDetails.save();
-    
-    // Clear the cart
+
+    // **Clear the cart after order is placed**
     await Cart.findOneAndUpdate(
       { consumer: userId },
       { items: [], totalPrice: 0 },
@@ -310,19 +324,21 @@ export const saveOrder = async (req, res) => {
     );
 
     return res.status(201).json({
-      message: 'Order saved successfully',
+      message: "Order saved successfully",
       order: orderDetails,
       deliveryFee,
       subTotal,
       updatedTotalPrice,
       distance: distanceData.distanceInKm,
-      duration: distanceData.duration
+      duration: distanceData.duration,
     });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: 'Failed to save order' });
+    console.error("Error in saveOrder:", error);
+    return res.status(500).json({ error: "Failed to save order" });
   }
 };
+
+
 
 
 export const getDetails = async (req, res) => {

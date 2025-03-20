@@ -7,8 +7,10 @@ import cookieParser from 'cookie-parser';
 import cloudinary from 'cloudinary';
 import axios from 'axios';
 import cors from 'cors';
+import Razorpay from 'razorpay';
 dotenv.config();
 const port=process.env.PORT || 5000;
+
 cloudinary.v2.config({
     cloud_name: process.env.Cloud_Name,
     api_key: process.env.Cloud_Api,
@@ -121,6 +123,77 @@ app.post("/api/predict", async (req, res) => {
     res.status(500).json({ error: "Error communicating with Flask server" });
   }
 });
+
+
+
+
+// Create Razorpay instance once, outside route handlers
+ // Make sure this is at the top of your file
+
+const razorpay = new Razorpay({
+  key_id: "rzp_test_5GCQM2qPC6xhmN",
+  key_secret: "T27TzLofObgZKJAP0Wt5mMGX"
+});
+
+// Order creation endpoint
+app.post('/orders', async(req, res) => {
+  console.log('Received order request:', req.body);
+  
+  // Validate request body
+  if (!req.body.amount) {
+    return res.status(400).json({ error: "Amount is required" });
+  }
+  
+  const options = {
+    amount: req.body.amount,
+    currency: req.body.currency || 'INR',
+    receipt: "receipt_" + Date.now(),
+    payment_capture: 1
+  };
+  
+  try {
+    console.log('Creating Razorpay order with options:', options);
+    const response = await razorpay.orders.create(options);
+    console.log('Razorpay order created:', response);
+    
+    res.json({
+      order_id: response.id,
+      currency: response.currency,
+      amount: response.amount
+    });
+  } catch (error) {
+    console.error('Razorpay order creation error:', error);
+    res.status(500).json({ error: error.message || "Internal server error" });
+  }
+});
+
+// Payment details endpoint
+app.get("/payment/:paymentId", async(req, res) => {
+  const {paymentId} = req.params;
+  
+  try {
+    console.log('Fetching payment details for:', paymentId);
+    const payment = await razorpay.payments.fetch(paymentId);
+    
+    if (!payment){
+      return res.status(404).json({ error: "Payment not found" });
+    }
+    
+    res.json({
+      status: payment.status,
+      method: payment.method,
+      amount: payment.amount,
+      currency: payment.currency
+    });
+  } catch(error) {
+    console.error('Payment fetch error:', error);
+    res.status(500).json({ error: error.message || "Failed to fetch payment details" });
+  }
+});
+
+
+
+
 
 
 

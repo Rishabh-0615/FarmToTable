@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import logo from '../assets/logo.png'
 import { 
   Package, 
   MapPin, 
@@ -40,13 +41,15 @@ const OrderDetails = () => {
   const [paymentMethod, setPaymentMethod] = useState(null);
   const [processingPayment, setProcessingPayment] = useState(false);
   const [paymentError, setPaymentError] = useState(null);
+  const [responseId, setResponseId] = useState("");
+  const [paymentDetails, setPaymentDetails] = useState(null);
 
   const fetchOrderDetails = async () => {
     try {
       setLoading(true);
       const response = await axios.get('/api/user/customer/order');
       setOrder(response.data.order);
-      console.log(response.data.order);
+      console.log('Order details:', response.data.order);
       setError(null);
     } catch (err) {
       console.error('Order fetch error:', err);
@@ -60,6 +63,140 @@ const OrderDetails = () => {
     fetchOrderDetails();
   }, []);
 
+  // Fetch payment details when responseId changes
+  useEffect(() => {
+    if (responseId) {
+      fetchPaymentDetails(responseId);
+    }
+  }, [responseId]);
+
+  const fetchPaymentDetails = async (paymentId) => {
+    try {
+      const response = await axios.get(`http://localhost:5000/payment/${paymentId}`);
+      console.log('Payment details:', response.data);
+      setPaymentDetails(response.data);
+      
+      // Update order payment status
+      if (response.data.status === 'captured' || response.data.status === 'authorized') {
+        await axios.patch(`/api/user/customer/payment/status/${order._id}`, {
+          paymentStatus: PaymentStatus.COMPLETED,
+          paymentMethod: 'razorpay',
+          paymentId: paymentId
+        });
+        console.log('Payment status',response.data.status)
+        
+        setShowPaymentModal(false);
+        setProcessingPayment(false);
+        await fetchOrderDetails();
+      }
+    } catch (err) {
+      console.error('Payment details fetch error:', err);
+      setPaymentError('Failed to verify payment. Please contact support.');
+    }
+  };
+
+  // Razorpay integration
+  const loadScript = (src) => {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = src;
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  const createRazorpayOrder = async (amount) => {
+    try {
+      console.log('Creating Razorpay order for amount:', amount);
+      
+      const data = JSON.stringify({
+        amount: Math.round(amount * 100), // Convert to paisa and ensure it's an integer
+        currency: "INR"
+      });
+      
+      const config = {
+        method: "post",
+        maxBodyLength: Infinity,
+        url: "http://localhost:5000/orders",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        data: data
+      };
+      
+      const response = await axios.request(config);
+      console.log('Razorpay order created:', response.data);
+      
+      // Map the response to match what your code expects
+      return {
+        id: response.data.order_id,
+        amount: response.data.amount,
+        currency: response.data.currency
+      };
+    } catch (err) {
+      console.error('Error creating Razorpay order:', err);
+      throw new Error('Failed to create order: ' + (err.response?.data?.error || err.message || 'Unknown error'));
+    }
+  };
+
+  const handleRazorpayScreen = async (amount) => {
+    const res = await loadScript("https://checkout.razorpay.com/v1/checkout.js");
+
+    if (!res) {
+      setPaymentError("Failed to load Razorpay. Please check your connection.");
+      setProcessingPayment(false);
+      return;
+    }
+
+    try {
+      // First create the order
+      const orderData = await createRazorpayOrder(order.totalPrice);
+      
+      const options = {
+        key: "rzp_test_5GCQM2qPC6xhmN", // Make sure this matches your key_id from backend
+        amount: orderData.amount,
+        currency: orderData.currency || 'INR',
+        order_id: orderData.id, // Use the order_id from response
+        name: "Farm To Table",
+        image: {logo},
+        handler: function (response) {
+          console.log('Razorpay payment successful:', response);
+          setResponseId(response.razorpay_payment_id);
+        },
+        prefill: {
+          name: order?.customer?.name || "",
+          email: order?.customer?.email || "",
+          contact: order?.customer?.phone || ""
+        },
+        theme: {
+          color: "#4CAF50"
+        },
+        modal: {
+          ondismiss: function() {
+            console.log('Razorpay modal dismissed');
+            setProcessingPayment(false);
+          }
+        }
+      };
+
+      console.log('Initializing Razorpay with options:', options);
+      const paymentObject = new window.Razorpay(options);
+      
+      paymentObject.on('payment.failed', function (response) {
+        console.error('Razorpay payment failed:', response.error);
+        setPaymentError(response.error.description);
+        setProcessingPayment(false);
+      });
+      
+      paymentObject.open();
+    } catch (err) {
+      console.error('Razorpay initialization error:', err);
+      setPaymentError('Failed to initialize payment: ' + (err.message || 'Unknown error'));
+      setProcessingPayment(false);
+    }
+  };
+
   const simulatePayment = async () => {
     if (!order || !paymentMethod) {
       setPaymentError('Please select a payment method');
@@ -70,6 +207,28 @@ const OrderDetails = () => {
       setProcessingPayment(true);
       setPaymentError(null);
       
+      // For Razorpay, we handle differently
+      if (paymentMethod === 'razorpay') {
+        try {
+          console.log('Starting Razorpay payment process');
+          
+          // Update order status to processing
+          await axios.patch(`/api/user/customer/payment/status/${order._id}`, {
+            paymentStatus: PaymentStatus.PROCESSING,
+            paymentMethod
+          });
+          
+          // Initialize Razorpay
+          await handleRazorpayScreen(order.totalPrice);
+        } catch (err) {
+          console.error('Razorpay payment error:', err);
+          setPaymentError('Failed to initialize Razorpay: ' + (err.message || 'Unknown error'));
+          setProcessingPayment(false);
+        }
+        return;
+      }
+      
+      // For other payment methods
       await axios.patch(`/api/user/customer/payment/status/${order._id}`, {
         paymentStatus: PaymentStatus.PROCESSING,
         paymentMethod
@@ -98,7 +257,9 @@ const OrderDetails = () => {
         'Payment processing failed. Please check your connection and try again.'
       );
     } finally {
-      setProcessingPayment(false);
+      if (paymentMethod !== 'razorpay') {
+        setProcessingPayment(false);
+      }
     }
   };
 
@@ -122,11 +283,15 @@ const OrderDetails = () => {
       }
     };
 
+    if (!order || !order.paymentStatus) {
+      return null;
+    }
+
     return (
       <span className={`flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-        statusConfig[order.paymentStatus].color
+        statusConfig[order.paymentStatus]?.color || 'bg-gray-100 text-gray-800'
       }`}>
-        {statusConfig[order.paymentStatus].icon}
+        {statusConfig[order.paymentStatus]?.icon || <Info className="w-4 h-4 mr-2" />}
         {order.paymentStatus}
       </span>
     );
@@ -156,11 +321,15 @@ const OrderDetails = () => {
       }
     };
 
+    if (!order || !order.deliveryStatus) {
+      return null;
+    }
+
     return (
       <span className={`flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-        statusConfig[order.deliveryStatus].color
+        statusConfig[order.deliveryStatus]?.color || 'bg-gray-100 text-gray-800'
       }`}>
-        {statusConfig[order.deliveryStatus].icon}
+        {statusConfig[order.deliveryStatus]?.icon || <Info className="w-4 h-4 mr-2" />}
         {order.deliveryStatus.replace('_', ' ')}
       </span>
     );
@@ -189,13 +358,13 @@ const OrderDetails = () => {
           <div className="bg-gray-50 rounded-lg p-4 mb-6">
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Amount to Pay</span>
-              <span className="text-xl font-bold">₹{order.totalPrice}</span>
+              <span className="text-xl font-bold">₹{order?.totalPrice || 0}</span>
             </div>
           </div>
 
           <div className="space-y-4 mb-6">
             <h3 className="font-medium">Select Payment Method</h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <button
                 onClick={() => setPaymentMethod('card')}
                 className={`p-4 rounded-lg border ${
@@ -222,6 +391,19 @@ const OrderDetails = () => {
                 }`} />
                 <div className="text-sm font-medium text-center">UPI</div>
               </button>
+              <button
+                onClick={() => setPaymentMethod('razorpay')}
+                className={`p-4 rounded-lg border ${
+                  paymentMethod === 'razorpay' 
+                    ? 'border-blue-500 bg-blue-50' 
+                    : 'border-gray-200 hover:border-blue-500'
+                }`}
+              >
+                <Wallet className={`w-6 h-6 mb-2 mx-auto ${
+                  paymentMethod === 'razorpay' ? 'text-blue-500' : 'text-gray-500'
+                }`} />
+                <div className="text-sm font-medium text-center">Razorpay</div>
+              </button>
             </div>
           </div>
 
@@ -229,6 +411,19 @@ const OrderDetails = () => {
             <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-lg flex items-center">
               <AlertCircle className="w-5 h-5 mr-2" />
               {paymentError}
+            </div>
+          )}
+
+          {responseId && (
+            <div className="mb-6 p-4 bg-green-50 text-green-700 rounded-lg">
+              <p className="font-medium">Payment ID: {responseId}</p>
+              {paymentDetails && (
+                <div className="mt-2 text-sm">
+                  <p>Amount: ₹{paymentDetails.amount / 100}</p>
+                  <p>Status: {paymentDetails.status}</p>
+                  <p>Method: {paymentDetails.method}</p>
+                </div>
+              )}
             </div>
           )}
 
@@ -290,6 +485,8 @@ const OrderDetails = () => {
   }
 
   const formatDate = (dateString) => {
+    if (!dateString) return '';
+    
     const options = { 
       year: 'numeric', 
       month: 'long', 
@@ -320,7 +517,7 @@ const OrderDetails = () => {
               <MapPin className="mr-2 text-red-500" /> 
               Delivery Location
             </h2>
-            <p>{order.location.address}</p>
+            <p>{order.location?.address || "Address not available"}</p>
           </div>
           <div>
             <h2 className="font-semibold flex items-center">
@@ -339,45 +536,49 @@ const OrderDetails = () => {
           <div className="space-y-2">
             <div className="flex justify-between">
               <span>Order Fee</span>
-              <span>₹{order.subTotal}</span>
+              <span>₹{order.subTotal || 0}</span>
             </div>
             <div className="flex justify-between">
               <span>Delivery Fee</span>
-              <span>₹{order.deliveryFee}</span>
+              <span>₹{order.deliveryFee || 0}</span>
             </div>
             <div className="flex justify-between font-bold border-t pt-2">
               <span>Total</span>
-              <span>₹{order.totalPrice}</span>
+              <span>₹{order.totalPrice || 0}</span>
             </div>
           </div>
         </div>
 
-        <div>
+         {/* <div>
           <h2 className="font-semibold mb-4">Order Items</h2>
-          {order.cartItems.map((item) => (
-            <div 
-              key={item.productId._id} 
-              className="flex items-center border-b py-3 last:border-b-0"
-            >
-              {item.productId.image?.url && (
-                <img 
-                  src={item.productId.image.url} 
-                  alt={item.productId.name}
-                  className="w-16 h-16 object-cover rounded-md mr-4"
-                />
-              )}
-              <div className="flex-grow">
-                <h3 className="font-medium">{item.productId.name}</h3>
-                <p className="text-gray-600">
-                  ₹{item.productId.price} × {item.quantity}
-                </p>
+          {order.cartItems && order.cartItems.length > 0 ? (
+            order.cartItems.map((item) => (
+              <div 
+                key={item.productId?._id || item._id || Math.random().toString()} 
+                className="flex items-center border-b py-3 last:border-b-0"
+              >
+                {item.productId?.image?.url && (
+                  <img 
+                    src={item.productId.image.url} 
+                    alt={item.productId.name}
+                    className="w-16 h-16 object-cover rounded-md mr-4"
+                  />
+                )}
+                <div className="flex-grow">
+                  <h3 className="font-medium">{item.productId?.name || "Product unavailable"}</h3>
+                  <p className="text-gray-600">
+                    ₹{item.productId?.price || 0} × {item.quantity || 0}
+                  </p>
+                </div>
+                <div className="font-semibold">
+                  ₹{(item.productId?.price || 0) * (item.quantity || 0)}
+                </div>
               </div>
-              <div className="font-semibold">
-                ₹{item.productId.price * item.quantity}
-              </div>
-            </div>
-          ))}
-        </div>
+            ))
+          ) : (
+            <p className="text-gray-500">No items found in this order</p>
+          )}
+        </div> */}
 
         {order.paymentStatus === PaymentStatus.PENDING && (
           <div className="mt-6">
