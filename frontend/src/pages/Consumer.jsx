@@ -244,7 +244,7 @@ const Consumer = () => {
         )}
       </div>
       <Footer />
-    </div>
+    </div>  
   );
 };
 

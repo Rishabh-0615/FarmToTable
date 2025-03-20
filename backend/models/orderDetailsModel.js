@@ -57,7 +57,7 @@ const schema = new mongoose.Schema({
   },
   paymentMethod: {
     type: String,
-    enum: ["card", "upi", null],
+    enum: ["card", "upi","razorpay", null],
     default: null,
   },
   paymentUpdatedAt: {

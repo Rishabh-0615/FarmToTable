@@ -4,9 +4,8 @@ import toast from "react-hot-toast";
 
 const ItemCardConsumer = ({ product }) => {
   const [quantity, setQuantity] = useState(1);
-  const [price, setPrice] = useState(product.price);
 
-  const calculatePrice = useMemo(() => {
+  const finalPrice = useMemo(() => {
     if (product.discountOffer && quantity >= product.minQuantityForDiscount) {
       const discountAmount = (product.price * product.discountPercentage) / 100;
       return (product.price - discountAmount).toFixed(2);
@@ -24,11 +23,11 @@ const ItemCardConsumer = ({ product }) => {
       const response = await axios.post("/api/user/customer/add", {
         productId: product._id,
         quantity,
-        price,
+        price: finalPrice, // Send the calculated price
       });
 
       if (response.status === 200) {
-        toast.success(`Added ${quantity} ${product.name}(s) to cart at ₹${price} each`);
+        toast.success(`Added ${quantity} ${product.name}(s) to cart at ₹${finalPrice} each`);
       }
     } catch (error) {
       console.error("Add to Cart Error:", error);
@@ -63,7 +62,7 @@ const ItemCardConsumer = ({ product }) => {
         <div className="flex items-baseline gap-2">
           {product.discountOffer && quantity >= product.minQuantityForDiscount ? (
             <>
-              <span className="text-2xl font-bold text-green-600">₹{calculatePrice}</span>
+              <span className="text-2xl font-bold text-green-600">₹{finalPrice}</span>
               <span className="text-lg text-red-500 line-through">₹{product.price}</span>
             </>
           ) : (
