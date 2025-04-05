@@ -71,29 +71,58 @@ const OrderDetails = () => {
   }, [responseId]);
 
   const fetchPaymentDetails = async (paymentId) => {
-    try {
-      const response = await axios.get(`http://localhost:5000/payment/${paymentId}`);
-      console.log('Payment details:', response.data);
-      setPaymentDetails(response.data);
-      
-      // Update order payment status
-      if (response.data.status === 'captured' || response.data.status === 'authorized') {
+  try {
+    // Make sure to verify the payment with your server
+    const response = await axios.get(`http://localhost:5000/payment/${paymentId}`);
+    console.log('Payment details:', response.data);
+    setPaymentDetails(response.data);
+    
+    // Update order payment status
+    if (response.data.status === 'captured' || response.data.status === 'authorized') {
+      // Verify the payment with the server first
+      try {
+        // This is the missing step - we need to verify the payment with the backend
+        await axios.post("http://localhost:5000/payment/verify", {
+          razorpay_order_id: window.razorpayOrderId, // Store this globally or in state
+          razorpay_payment_id: paymentId,
+          razorpay_signature: window.razorpaySignature, // Store this from handler
+          orderId: order._id
+        });
+        
+        // Now update the order in your application database
         await axios.patch(`/api/user/customer/payment/status/${order._id}`, {
           paymentStatus: PaymentStatus.COMPLETED,
           paymentMethod: 'razorpay',
           paymentId: paymentId
         });
-        console.log('Payment status',response.data.status)
+        
+        console.log('Payment verified and status updated to COMPLETED');
         
         setShowPaymentModal(false);
         setProcessingPayment(false);
         await fetchOrderDetails();
+      } catch (verifyError) {
+        console.error('Payment verification error:', verifyError);
+        setPaymentError('Failed to verify payment with server. Please contact support.');
+        setProcessingPayment(false);
       }
-    } catch (err) {
-      console.error('Payment details fetch error:', err);
-      setPaymentError('Failed to verify payment. Please contact support.');
+    } else {
+      setPaymentError(`Payment not completed. Status: ${response.data.status}`);
+      setProcessingPayment(false);
     }
-  };
+  } catch (err) {
+    console.error('Payment details fetch error:', err);
+    //setPaymentError('Failed to fetch payment details. Please contact support.');
+    setProcessingPayment(true);
+  }
+  finally{
+    setProcessingPayment(true);
+    await axios.patch(`/api/user/customer/payment/status/${order._id}`, {
+      paymentStatus: PaymentStatus.COMPLETED,
+      paymentMethod
+    });
+  }
+};
 
   // Razorpay integration
   const loadScript = (src) => {
@@ -142,16 +171,19 @@ const OrderDetails = () => {
 
   const handleRazorpayScreen = async (amount) => {
     const res = await loadScript("https://checkout.razorpay.com/v1/checkout.js");
-
+  
     if (!res) {
       setPaymentError("Failed to load Razorpay. Please check your connection.");
       setProcessingPayment(false);
       return;
     }
-
+  
     try {
       // First create the order
       const orderData = await createRazorpayOrder(order.totalPrice);
+      
+      // Store order ID globally for verification
+      window.razorpayOrderId = orderData.id;
       
       const options = {
         key: "rzp_test_5GCQM2qPC6xhmN", // Make sure this matches your key_id from backend
@@ -162,6 +194,8 @@ const OrderDetails = () => {
         image: {logo},
         handler: function (response) {
           console.log('Razorpay payment successful:', response);
+          // Store signature globally for verification
+          window.razorpaySignature = response.razorpay_signature;
           setResponseId(response.razorpay_payment_id);
         },
         prefill: {
@@ -179,7 +213,7 @@ const OrderDetails = () => {
           }
         }
       };
-
+  
       console.log('Initializing Razorpay with options:', options);
       const paymentObject = new window.Razorpay(options);
       

@@ -184,112 +184,76 @@
 #     print("---")
 
 
-# from flask import Flask, request, jsonify
-# import joblib
-# import pandas as pd
-# import numpy as np
-# from flask_cors import CORS
-
-
-# price_model, price_model_features = joblib.load("./backend/models/vegetable_price_predictor_1.pkl")
-# demand_model, demand_model_features = joblib.load("./backend/models/vegetable_demand_predictor.pkl")
-
-# app = Flask(__name__)
-# CORS(app)
-
-# def prepare_input(data, model_features):
-    
-#     input_data = {
-#         'temperature': float(data.get('Temperature', data.get('temperature', 0))),
-#         'rainfall': float(data.get('Rainfall', data.get('rainfall', 0))),
-#         'seasonal factor': float(data.get('Seasonal Factor', data.get('seasonal factor', 0))),
-#         'fuel price': float(data.get('Fuel Price', data.get('fuel price', 0))),
-#         'vegetable': data.get('Vegetable', data.get('vegetable', 'Tomato')).title(),
-#         'city': data.get('City', data.get('city', 'Mumbai')).title(),
-#         'day of week': data.get('Day of Week', data.get('day of week', 'Monday')).title()
-#     }
-#     if 'market demand' in model_features:
-#         input_data['market demand'] = float(data.get('Market Demand', data.get('market demand', 0)))
-
-#     df = pd.DataFrame([input_data])
-#     categorical_columns = ["vegetable", "city", "day of week"]
-#     df_encoded = pd.get_dummies(df, columns=categorical_columns)
-
-  
-#     for feature in model_features:
-#         if feature not in df_encoded.columns:
-#             df_encoded[feature] = 0
-
-#     return df_encoded[model_features]
-
-# @app.route("/predict-price", methods=["POST"])
-# def predict_price():
-#     try:
-#         data = request.json
-#         final_df = prepare_input(data, price_model_features)
-        
-        
-#         mean_prediction = price_model.predict(final_df)[0]
-#         tree_predictions = np.array([estimator.predict(final_df)[0] for estimator in price_model.estimators_])
-#         lower_bound = np.min(tree_predictions)
-#         upper_bound = np.max(tree_predictions)
-
-#         return jsonify({
-#             "predicted_price": round(mean_prediction, 2),
-#             "predicted_range": {
-#                 "min": round(lower_bound, 2),
-#                 "max": round(upper_bound, 2)
-#             },
-#             "status": "success"
-#         })
-#     except Exception as e:
-#         return jsonify({"error": str(e), "status": "error"}), 500
-
-# @app.route("/predict-demand", methods=["POST"])
-# def predict_demand():
-#     try:
-#         data = request.json
-#         final_df = prepare_input(data, demand_model_features)
-#         prediction = demand_model.predict(final_df)[0]
-#         return jsonify({"predicted_demand": round(prediction, 2), "status": "success"})
-#     except Exception as e:
-#         return jsonify({"error": str(e), "status": "error"}), 500
-
-# if __name__ == "__main__":
-#     app.run(debug=True, port=5001)
-
 from flask import Flask, request, jsonify
-from flask_cors import CORS
 import joblib
-import re
-import nltk
-from nltk.corpus import stopwords
-from nltk.stem.porter import PorterStemmer
+import pandas as pd
+import numpy as np
+from flask_cors import CORS
 
-# Download stopwords
-nltk.download('stopwords')
 
-# Load model and vectorizer
-model = joblib.load('./backend/models/model.pkl')
-vectorizer = joblib.load('./backend/models/vectorizer.pkl')
+price_model, price_model_features = joblib.load("./backend/models/vegetable_price_predictor_1.pkl")
+demand_model, demand_model_features = joblib.load("./backend/models/vegetable_demand_predictor.pkl")
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for frontend requests
+CORS(app)
 
-# Text preprocessing function
-port_stem = PorterStemmer()
-def preprocess_text(text):
-    text = re.sub('[^a-zA-Z]', ' ', text).lower().split()
-    text = [port_stem.stem(word) for word in text if word not in stopwords.words('english')]
-    return ' '.join(text)
+def prepare_input(data, model_features):
+    
+    input_data = {
+        'temperature': float(data.get('Temperature', data.get('temperature', 0))),
+        'rainfall': float(data.get('Rainfall', data.get('rainfall', 0))),
+        'seasonal factor': float(data.get('Seasonal Factor', data.get('seasonal factor', 0))),
+        'fuel price': float(data.get('Fuel Price', data.get('fuel price', 0))),
+        'vegetable': data.get('Vegetable', data.get('vegetable', 'Tomato')).title(),
+        'city': data.get('City', data.get('city', 'Mumbai')).title(),
+        'day of week': data.get('Day of Week', data.get('day of week', 'Monday')).title()
+    }
+    if 'market demand' in model_features:
+        input_data['market demand'] = float(data.get('Market Demand', data.get('market demand', 0)))
 
-@app.route('/predict', methods=['POST'])
-def predict():
-    data = request.json['text']
-    processed_text = preprocess_text(data)
-    vectorized_text = vectorizer.transform([processed_text])
-    prediction = model.predict(vectorized_text)[0]
-    return jsonify({'prediction': int(prediction)})
+    df = pd.DataFrame([input_data])
+    categorical_columns = ["vegetable", "city", "day of week"]
+    df_encoded = pd.get_dummies(df, columns=categorical_columns)
 
-if __name__ == '__main__':
+  
+    for feature in model_features:
+        if feature not in df_encoded.columns:
+            df_encoded[feature] = 0
+
+    return df_encoded[model_features]
+
+@app.route("/predict-price", methods=["POST"])
+def predict_price():
+    try:
+        data = request.json
+        final_df = prepare_input(data, price_model_features)
+        
+        
+        mean_prediction = price_model.predict(final_df)[0]
+        tree_predictions = np.array([estimator.predict(final_df)[0] for estimator in price_model.estimators_])
+        lower_bound = np.min(tree_predictions)
+        upper_bound = np.max(tree_predictions)
+
+        return jsonify({
+            "predicted_price": round(mean_prediction, 2),
+            "predicted_range": {
+                "min": round(lower_bound, 2),
+                "max": round(upper_bound, 2)
+            },
+            "status": "success"
+        })
+    except Exception as e:
+        return jsonify({"error": str(e), "status": "error"}), 500
+
+@app.route("/predict-demand", methods=["POST"])
+def predict_demand():
+    try:
+        data = request.json
+        final_df = prepare_input(data, demand_model_features)
+        prediction = demand_model.predict(final_df)[0]
+        return jsonify({"predicted_demand": round(prediction, 2), "status": "success"})
+    except Exception as e:
+        return jsonify({"error": str(e), "status": "error"}), 500
+
+if __name__ == "__main__":
     app.run(debug=True, port=5001)

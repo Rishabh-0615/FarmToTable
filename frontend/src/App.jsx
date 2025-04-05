@@ -42,12 +42,12 @@ import ConsumerLearnMore from "./pages/ConsumerLearn";
 import PredictPrice from "./pages/model1";
 import VegetablePricePredictor from "./pages/model1";
 import VegetableDemandPredictor from "./pages/Model2";
-import PredictionMenu from "./pages/Predict";
 import Admin from "./pages/Admin";
 import AdminNavbarNew from "./pages/AdminNavbarNew";
 import LandingPage from "./pages/try";
 import ThreeDLandingPage from "./pages/try";
 import Predict from "./pages/Predict";
+import PredictionMenu from "./pages/PredictionMenu";
 
 const App = () => {
   const { user, loading, isAuth,isAuthAdmin } = UserData();
@@ -178,7 +178,7 @@ const AppWithLocation = ({ user, isAuth ,isAuthAdmin}) => {
         <Route path="/newdelivery" element={<DeliveryBoyDashboard />} />
         <Route path="/model1" element={<VegetablePricePredictor/>} />
         <Route path="/model2" element={<VegetableDemandPredictor/>} />
-        <Route path="/predict" element={<Predict/>} />
+        <Route path="/predict" element={<PredictionMenu/>} />
         <Route path="/try" element={<ThreeDLandingPage/>} />
         
 
